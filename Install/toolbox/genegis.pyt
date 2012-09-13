@@ -304,6 +304,7 @@ class classifiedimport(object):
         self.label = u'CSV Classified Import'
         self.description = u'This tool allows the user to covert an input file (formated with the SRGD.csv specifications) to a feature class within a file geodatabse.'
         self.canRunInBackground = False
+
     def getParameterInfo(self):
         # SRGD_Input_File
         input_csv = arcpy.Parameter()
@@ -405,9 +406,8 @@ class classifiedimport(object):
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
 
-        #f = open('test.log', 'w')
-        #f.write(parameters[0].valueAsText + "\n")
-      
+        # perform some dynamic list filtering, in the case that we have a 
+        # CSV input selected.
         cols = {'input_csv': 0,
                 'sr': 1,
                 'gdb_loc': 2,
@@ -443,50 +443,6 @@ class classifiedimport(object):
                     parameters[update_label], 
                     unused_values)
 
-        """
-        # set up location
-        id_cols = parameters[5].value
-        if id_cols is not None:
-            loc_values = []
-            id_values = id_cols.exportToString().split(";")
-
-            for param in unused_values:
-                if param not in id_values:
-                    loc_values.append(param)
-               
-            unused_values = loc_values
-            parameters[6].filter.list = loc_values
-
-        # genetic data
-        # ValueTable object; http://help.arcgis.com/en/arcgisdesktop/10.0/help/000v/000v000000q1000000.htm
-        location_cols = parameters[6].value
-        # as we select the first set of columns, filter later dependent lists.
-        if location_cols is not None:
-            gen_values = []
-            #f.write("value list object: `" + location_cols.exportToString() + "`\n")
-            loc_values = location_cols.exportToString().split(";")
-            #f.write("value list: " + str(loc_values) + "\n")
-            for param in unused_values:
-                if param not in loc_values:
-                    gen_values.append(param)
-                #else:
-                #    unused_values.remove(param)
-            unused_values = gen_values
-            parameters[7].filter.list = gen_values
-            #f.write("param 7 list: " + str(parameters[6].filter.list) + "\n")
-
-        # other columns
-        genetic_cols = parameters[7].value
-        if genetic_cols is not None:
-            other_values = []
-            gen_values = genetic_cols.exportToString().split(";")
-
-            for param in unused_values:
-                if param not in gen_values:
-                    other_values.append(param)
-            unused_values = other_values
-            parameters[8].filter.list = other_values
-        """
         if validator:
              return validator(parameters).updateParameters()
 
