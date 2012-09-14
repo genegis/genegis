@@ -3,28 +3,25 @@ import pythonaddins
 
 def _currentLayer():
     layer = None
-    """
-    # get the current map document instance
-    mxd = arcpy.mapping.MapDocument('current')
-    # select our first layer
-    layers = arcpy.mapping.ListLayers(mxd, "*")
-    """
     layer = pythonaddins.GetSelectedTOCLayerOrDataFrame()
     if layer is None:
-        msg = "No point layer selected! please add a point layer."
-        title = "No available layer"
+        msg = "No layer selected! Please select a point layer from the table of contents."
+        title = "No selected layer"
         pythonaddins.MessageBox(msg, title)
-    # FIXME: check that it contains points (that's all we know how to work 
-    # with for the time-being.)
+    else:
+        desc = arcpy.Describe(layer)
+        geom_type = desc.shapeType
+        if geom_type not in ["Point", "MultiPoint"]:
+            msg = "Selected layer doesn't contain points."
+            title = "No points in layer"
+            pythonaddins.MessageBox(msg, title)
+            layer = None
 
     # FIXME: do something more sophisticated to select the correct layer.
     # something like this should work, provided we know the name of the 
-    # input layer.
-    """
-    for lyr in arcpy.mapping.ListLayers(mxd, "", df):
-        if lyr.name == "Tim":
-            # Do some stuff.
-    """
+    # input layer. We may want to add a combobox for selecting/importing 
+    # the layer.
+
     return layer
 
 class ButtonClass5(object):
@@ -89,7 +86,7 @@ class ToolClass2(object):
             individuals = [row[0] for row in cur]
             unique_individuals = set(individuals)
             msg = "Samples: {0}, Unique Individuals: {1}".format(len(individuals), len(unique_individuals))
-            title = "whales, ohh yeah!"
+            title = "Samples found in selection"
             pythonaddins.MessageBox(msg, title)
         else:
             print "Couldn't find an individual ID field!"
