@@ -5,7 +5,7 @@
   <AddInID>{80845348-ba29-47c5-af34-e224df7c633b}</AddInID>
   <Description>geographic context for genetic data</Description>
   <Version>0.1</Version>
-  <Image>Images/splash-movement-cropped.png</Image>
+  <Image>Images\splash-movement-cropped.png</Image>
   <Author>geneGIS team</Author>
   <Company>OSU, Esri</Company>
   <Date>09/08/2012</Date>
@@ -45,8 +45,8 @@
         <Tool
           caption="Summarize Encounters"
           category="geneGIS"
-          class="ToolClass2"
-          id="genegis_addin.tool"
+          class="SummarizeEncounters"
+          id="genegis_summarize.tool"
           image="Images/genegis_area_limited_icon.png"
           message=""
           tip="Statistics on a single selection of encounters."
@@ -59,8 +59,8 @@
         <Tool
           caption="Compare Encounters"
           category="geneGIS"
-          class="ToolClass4"
-          id="genegis_addin.tool_1"
+          class="CompareEncounters"
+          id="genegis_compare.tool"
           image="Images/genegis_area_limited_inverted_icon.png"
           message=""
           tip="Compare between two sets of encounters.">
@@ -76,8 +76,8 @@
           id="genegis_addin.toolpalette"
           isMenuStyle="false">
           <Items>
-            <Tool refID="genegis_addin.tool" />
-            <Tool refID="genegis_addin.tool_1" />
+            <Tool refID="genegis_summarize.tool" />
+            <Tool refID="genegis_compare.tool" />
           </Items>
         </ToolPalette>
       </Commands>

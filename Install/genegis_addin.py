@@ -40,8 +40,8 @@ class ButtonClass6(object):
     def onClick(self):
         pass
 
-class ToolClass2(object):
-    """Implementation for genegis_addin.tool (Tool)"""
+class SummarizeEncounters(object):
+    """Implementation for genegis_summarize.tool (Tool)"""
 
     def __init__(self):
         self.enabled = True
@@ -100,8 +100,8 @@ class ToolClass2(object):
         # just a string representation of the feature name
         return output_feature
 
-class ToolClass4(object):
-    """Implementation for genegis_addin.tool_1 (Tool)"""
+class CompareEncounters(object):
+    """Implementation for genegis_compare.tool (Tool)"""
     def __init__(self):
         self.enabled = True
         self.shape = "NONE" # Can set to "Line", "Circle" or "Rectangle" for interactive shape drawing and to activate the onLine/Polygon/Circle event sinks.
