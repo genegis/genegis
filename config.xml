@@ -17,34 +17,64 @@
 <AddIn language="PYTHON" library="genegis_addin.py" namespace="genegis_addin">
   <ArcMap>
 
-      <Commands>
-        <Button caption="Import" category="geneGIS"
-        class="ButtonClass5" id="genegis_addin.button" image=""
-        message="" tip="">
+    <Commands>
+        <!-- Data manipulation -->
+        <Button
+          caption="Import"
+          category="geneGIS"
+          class="ButtonClass5"
+          id="genegis_addin.button"
+          image=""
+          message=""
+          tip="">
           <Help heading="" />
         </Button>
 
-	<Button caption="Button" category="geneGIS"
-        class="ButtonClass6" id="genegis_addin.button_1" image=""
-        message="" tip="">
+        <Button
+          caption="Button"
+          category="geneGIS"
+          class="ButtonClass6"
+          id="genegis_addin.button_1"
+          image=""
+          message=""
+          tip="">
           <Help heading="" />
         </Button>
 
-	<Tool caption="Summarize Encounters" category="geneGIS"
-        class="ToolClass2" id="genegis_addin.tool" image="Images/genegis_area_limited_icon.png"
-        message="" tip="Statistics on a single selection of encounters." showCaption="true">
-          <Help heading="" />
+        <!-- Summarization tools -->
+        <Tool
+          caption="Summarize Encounters"
+          category="geneGIS"
+          class="ToolClass2"
+          id="genegis_addin.tool"
+          image="Images/genegis_area_limited_icon.png"
+          message=""
+          tip="Statistics on a single selection of encounters."
+          showCaption="true">
+          <Help
+            heading="Summarize Encounters"
+            >Statistics on a single selection of encounters.</Help>
         </Tool>
 
-	<Tool caption="Compare Encounters" category="geneGIS"
-        class="ToolClass4" id="genegis_addin.tool_1" image="Images/genegis_area_limited_inverted_icon.png"
-        message="" tip="Compare between two sets of encounters.">
-          <Help heading="" />
+        <Tool
+          caption="Compare Encounters"
+          category="geneGIS"
+          class="ToolClass4"
+          id="genegis_addin.tool_1"
+          image="Images/genegis_area_limited_inverted_icon.png"
+          message=""
+          tip="Compare between two sets of encounters.">
+          <Help
+            heading="Compare encounter groups"
+            >Compare between two sets of encounters.</Help>
         </Tool>
 
-	<ToolPalette canTearOff="false" category="geneGIS"
-        columns="2" id="genegis_addin.toolpalette"
-        isMenuStyle="false">
+        <ToolPalette
+          canTearOff="false"
+          category="geneGIS"
+          columns="2"
+          id="genegis_addin.toolpalette"
+          isMenuStyle="false">
           <Items>
             <Tool refID="genegis_addin.tool" />
             <Tool refID="genegis_addin.tool_1" />
@@ -54,42 +84,58 @@
 
       <Extensions></Extensions>
 
+      <!-- the primary toolbar which everything is nested within -->
       <Toolbars>
-        <Toolbar caption="geneGIS" category="geneGIS"
-        id="genegis_addin.toolbar" showInitially="true">
+        <Toolbar
+          caption="geneGIS"
+          category="geneGIS"
+          id="genegis_addin.toolbar"
+          showInitially="true">
           <Items>
             <Menu refID="genegis_addin.menu" />
             <Menu refID="genegis_encounters.menu" />
-	    <ToolPalette refID="genegis_addin.toolpalette" />
+            <ToolPalette refID="genegis_addin.toolpalette" />
           </Items>
         </Toolbar>
       </Toolbars>
 
       <Menus>
-        <Menu caption="Export" category="geneGIS"
-          id="genegis_addin.menu_export" isRootMenu="false"
-          isShortcutMenu="false" separator="false">
+        <Menu
+          caption="Export"
+          category="geneGIS"
+          id="genegis_addin.menu_export"
+          isRootMenu="false"
+          isShortcutMenu="false"
+          separator="false">
           <Items>
             <Button refID="genegis_addin.button_1" />
           </Items>
         </Menu>
-        <Menu caption="Manage Data" category="geneGIS"
-          id="genegis_addin.menu" isRootMenu="false"
-          isShortcutMenu="false" separator="false">
+        <Menu
+          caption="Manage Data"
+          category="geneGIS"
+          id="genegis_addin.menu"
+          isRootMenu="false"
+          isShortcutMenu="false"
+          separator="false">
           <Items>
             <Button refID="genegis_addin.button" />
             <Menu refID="genegis_addin.menu_export" />
           </Items>
         </Menu>
-        <Menu caption="Select" category="geneGIS"
-          id="genegis_encounters.menu" isRootMenu="false"
-          isShortcutMenu="false" separator="false">
+        <Menu
+          caption="Select"
+          category="geneGIS"
+          id="genegis_encounters.menu"
+          isRootMenu="false"
+          isShortcutMenu="false"
+          separator="false">
           <Items>
             <Tool refID="genegis_addin.tool" />
             <Tool refID="genegis_addin.tool_1" />
           </Items>
         </Menu>
- 
+
        </Menus>
 
     </ArcMap>
