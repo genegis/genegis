@@ -455,11 +455,20 @@ class classifiedimport(object):
 
     def execute(self, parameters, messages):
         from scripts import ClassifiedImport
-        ClassifiedImport.main(
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters:  
 
-
+        ClassifiedImport.main(
+            input_csv=parameters[0],
+            sr=parameters[1],
+            output_loc=parameters[2],
+            output_gdb=parameters[3],
+            output_fc=parameters[4],
+            genetic=parameters[5],
+            identification=parameters[6],
+            location=parameters[7],
+            other=parameters[8])
+ 
 class ExportGenAlex2(object):
     """C:\data\arcgis\toolboxes\geneGIS_29July2012\geneGIS_29July2012.tbx\ExportGenAlex2"""
     class ToolValidator:
