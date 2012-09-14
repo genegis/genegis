@@ -13,7 +13,7 @@ def looks_like_a_backup(filename):
     return bool(BACKUP_FILE_PATTERN.match(filename))
 
 zip_file = zipfile.ZipFile(out_zip_name, 'w')
-for filename in ('config.xml', 'README.txt', 'makeaddin.py'):
+for filename in ('config.xml', 'README.md', 'makeaddin.py'):
     zip_file.write(os.path.join(current_path, filename), filename)
 dirs_to_add = ['Images', 'Install']
 for directory in dirs_to_add:
