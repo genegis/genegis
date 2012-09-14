@@ -323,20 +323,20 @@ class classifiedimport(object):
         sr.datatype = u'Spatial Reference'
 
         # File_Geodatabase_Location
-        gdb_loc= arcpy.Parameter()
-        gdb_loc.name = u'File_Geodatabase_Location'
-        gdb_loc.displayName = u'File Geodatabase Location'
-        gdb_loc.parameterType = 'Required'
-        gdb_loc.direction = 'Input'
-        gdb_loc.datatype = u'Folder'
+        output_loc= arcpy.Parameter()
+        output_loc.name = u'File_Geodatabase_Location'
+        output_loc.displayName = u'File Geodatabase Location'
+        output_loc.parameterType = 'Required'
+        output_loc.direction = 'Input'
+        output_loc.datatype = u'Folder'
 
         # File_Geodatabase_Name
-        gdb_label = arcpy.Parameter()
-        gdb_label.name = u'File_Geodatabase_Name'
-        gdb_label.displayName = u'File Geodatabase Name'
-        gdb_label.parameterType = 'Required'
-        gdb_label.direction = 'Input'
-        gdb_label.datatype = u'String'
+        output_gdb= arcpy.Parameter()
+        output_gdb.name = u'File_Geodatabase_Name'
+        output_gdb.displayName = u'File Geodatabase Name'
+        output_gdb.parameterType = 'Required'
+        output_gdb.direction = 'Input'
+        output_gdb.datatype = u'String'
 
         # Output_Feature_Class
         output_fc= arcpy.Parameter()
@@ -382,7 +382,7 @@ class classifiedimport(object):
         other.multiValue = True
         other.filter.list = ['other A', 'other B']
 
-        return [input_csv, sr, gdb_loc, gdb_label, output_fc, genetics, identification, loc, other]
+        return [input_csv, sr, output_loc, output_gdb, output_fc, genetics, identification, loc, other]
 
     def isLicensed(self):
         return True
@@ -409,8 +409,8 @@ class classifiedimport(object):
         # CSV input selected.
         cols = {'input_csv': 0,
                 'sr': 1,
-                'gdb_loc': 2,
-                'gdb_label': 3,
+                'output_loc': 2,
+                'output_gdb': 3,
                 'output_fc': 4,
                 'Genetic': 5,
                 'Identification': 6,
@@ -454,83 +454,11 @@ class classifiedimport(object):
              return validator(parameters).updateMessages()
 
     def execute(self, parameters, messages):
+        from scripts import ClassifiedImport
+        ClassifiedImport.main(
+        # if the script is running within ArcGIS as a tool, get the following
+        # user defined parameters:  
 
-        try: 
-            # The input file in the SRDG.csv file format
-            Parameter1 = parameters[0].valueAsText
-                    
-            # A temporary XY Layer needed to create the feature class. 
-            # NOTE: This file is deleted automatically when the script finishes
-            Parameter2 = "TempXYLayer"                   
-                    
-            # The spatial reference for the data (i.e. GCS_WGS84)
-            # XXX? how to get this quicker? CAN WE USE THE AUTOFEATURE FOR THIS?
-            Parameter3 = parameters[1].valueAsText   
-                  
-            # The location of the File Geodatabase that will be created
-            Parameter4 = parameters[2].valueAsText     
-                    
-            # The name of the File Geodatabase
-            Parameter5 = parameters[3].valueAsText  
-            
-            # The name of the Output Feature Class that will be created
-            Parameter6 = parameters[4].valueAsText     
-                    
-           
-        except:
-            print ("Error setting tool parameters")
-            print arcpy.GetMessages()
-                    
-        print "Parameters successfully defined"
-                
-            
-        try:
-            # XXX: SELECT COLUMNS VS hardcoded? perhaps just handle case better.
-            
-            # Process: Make XY Event Layer.  This layer is temporary and will be deleted upon script completion.
-            # SYNTAX: arcpy.MakeXYEventLayer_management(table, in_x_field, in_y_field, out_layer, {spatial_reference}, {in_z_field})
-            arcpy.MakeXYEventLayer_management(Parameter1, "Longitude", "Latitude", Parameter2, Parameter3, "")
-            
-        except:
-            print ("Error making XY Event Layer")
-            print arcpy.GetMessages()
-                        
-        print ("XY event layer successfully created")
-            
-            
-        try:
-            # Process: Create File GDB
-            # SYNTAX: CreateFileGDB_management (out_folder_path, out_name, {out_version})
-            arcpy.CreateFileGDB_management(Parameter4, Parameter5, "CURRENT")
-            
-        except:
-            print ("Error creating File GDB")
-            print arcpy.GetMessages()    
-                
-        print "File GDB successfully created"
-            
-        try:
-            # XXX: this just copies everything, need more validation.
-            # XXX: haplotypes? Alphanumeric code A1 A2 A+
-            # PROBABLY DUMP THIS, use our OWN importer... so 
-            # Deal with Date and times! problematic still.
-            # CAN WE interface with MGET here?
-            
-            # 'Blanks in the haplotypes? code them this way.'
-            # LOTS of conversion software already exists
-            # CAN WE READ IN A STANDARD FORMAT?
-            
-            # Process: Copy Features
-            # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
-            arcpy.CopyFeatures_management(Parameter2, Parameter4 + '\\' + Parameter5 + '.gdb\\' + Parameter6, "", "0", "0", "0")
-            
-        except:
-            print ("Error copying features to a feature class")
-            print arcpy.GetMessages() 
-                
-        print "Feature Class successfully created"
-            
-        print "Step 1 is done!"
 
 class ExportGenAlex2(object):
     """C:\data\arcgis\toolboxes\geneGIS_29July2012\geneGIS_29July2012.tbx\ExportGenAlex2"""
