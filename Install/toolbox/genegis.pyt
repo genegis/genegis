@@ -377,7 +377,7 @@ class classifiedimport(object):
         other = arcpy.Parameter()
         other.name = u'Other_Columns'
         other.displayName = u'Other Columns'
-        other.parameterType = 'Required'
+        other.parameterType = 'Optional'
         other.direction = 'Input'
         other.multiValue = True
         other.filter.list = ['other A', 'other B']
@@ -388,12 +388,11 @@ class classifiedimport(object):
         return True
 
     def updateDynamicFilters(self, filter_param, update_param, unused_values):
-        result = None
+        result = []
         # ValueTable object; 
         # http://help.arcgis.com/en/arcgisdesktop/10.0/help/000v/000v000000q1000000.htm
         filter_val = filter_param.value
         if filter_val is not None:
-            result = []
             filter_values = filter_val.exportToString().split(";")
 
             for param in unused_values:
@@ -431,7 +430,7 @@ class classifiedimport(object):
             # pull off the first line of the CSV
             header = input_csv.next()
             unused_values = header
-
+            
             # try modifying our first attribute columns list
             parameters[cols['Genetic']].filter.list = unused_values
 
@@ -439,7 +438,10 @@ class classifiedimport(object):
         for i, label in enumerate(dynamic_cols[1:]):
             update_label = cols[label]
             filter_label= cols[dynamic_cols[i]]
-            self.updateDynamicFilters(parameters[filter_label], 
+            #f.write("Running with: {0} {1} {2}\n\n".format(update_label,
+            #    filter_label, ",".join(unused_values)))
+            unused_values = self.updateDynamicFilters(
+                    parameters[filter_label], 
                     parameters[update_label], 
                     unused_values)
 
