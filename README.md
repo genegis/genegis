@@ -15,5 +15,3 @@ manipulation:
 
 export:
  - export to GenAlEx
-
-Tomas test edit
