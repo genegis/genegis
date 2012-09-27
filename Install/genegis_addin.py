@@ -1,10 +1,17 @@
 import arcpy
+import arcpy.mapping
 import pythonaddins
 
 def _currentLayer():
     layer = None
     layer = pythonaddins.GetSelectedTOCLayerOrDataFrame()
     if layer is None:
+        """
+        # inspect the layer list, find the first point layer
+        mxd = mapping.MapDocument("CURRENT")
+        layers = arcpy.mapping.ListLayers(mxd)
+        """ 
+
         msg = "No layer selected! Please select a point layer from the table of contents."
         title = "No selected layer"
         pythonaddins.MessageBox(msg, title)
@@ -41,7 +48,7 @@ class ButtonClass6(object):
         pass
 
 class SummarizeEncounters(object):
-    """Implementation for genegis_summarize.tool (Tool)"""
+    """Implementation for genegis_summarize.tool (Tool)."""
 
     def __init__(self):
         self.enabled = True
@@ -130,4 +137,23 @@ class CompareEncounters(object):
     def onLine(self, line_geometry):
         pass
     def onRectangle(self, rectangle_geometry):
+        pass
+
+class LayerCombo(object):
+    """Implementation for genegis_layer_combo.combobox (Combobox)"""
+    def __init__(self):
+        self.items = ["default", "alternate"]
+        self.editable = True
+        self.enabled = True
+        self.dropdownWidth = "WWWWWWW"
+        self.width = "WWWWWWW"
+    def onSelChange(self, selection):
+        pass
+    def onEditChange(self, text):
+        pass
+    def onFocus(self, focused):
+        pass
+    def onEnter(self):
+        pass
+    def refresh(self):
         pass

@@ -80,6 +80,21 @@
             <Tool refID="genegis_compare.tool" />
           </Items>
         </ToolPalette>
+
+        <ComboBox 
+          caption="Layer:"
+          category="geneGIS"
+          class="LayerCombo"
+          id="genegis_layer_combo.combobox"
+          itemSizeString="WWWWW"
+          message="select a layer for analysis"
+          rows="2"
+          sizeString="WWWWW"
+          tip="choose the layer to use for analysis steps.">
+          <Help
+            heading="Select Layer"
+            >Choose the layer to use for analysis.</Help>
+        </ComboBox>
       </Commands>
 
       <Extensions></Extensions>
@@ -93,10 +108,11 @@
           showInitially="true">
           <Items>
             <Menu refID="genegis_addin.menu" />
+            <ComboBox refID="genegis_layer_combo.combobox" />
             <Menu refID="genegis_encounters.menu" />
-	    <ToolPalette refID="genegis_addin.toolpalette" />
+            <ToolPalette refID="genegis_addin.toolpalette" />
             <!-- borrow a tool from the standard set to deselect features -->
-	    <Button refID="esriArcMapUI.ClearSelectionCommand" />
+            <Button refID="esriArcMapUI.ClearSelectionCommand" />
           </Items>
         </Toolbar>
       </Toolbars>
