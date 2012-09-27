@@ -94,7 +94,9 @@
           <Items>
             <Menu refID="genegis_addin.menu" />
             <Menu refID="genegis_encounters.menu" />
-            <ToolPalette refID="genegis_addin.toolpalette" />
+	    <ToolPalette refID="genegis_addin.toolpalette" />
+            <!-- borrow a tool from the standard set to deselect features -->
+	    <Button refID="esriArcMapUI.ClearSelectionCommand" />
           </Items>
         </Toolbar>
       </Toolbars>
