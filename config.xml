@@ -82,7 +82,7 @@
         </ToolPalette>
 
         <ComboBox 
-          caption="Layer:"
+          caption="Pts:"
           category="geneGIS"
           class="LayerCombo"
           id="genegis_layer_combo.combobox"
