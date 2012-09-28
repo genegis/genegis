@@ -114,7 +114,10 @@ class SummarizeEncounters(object):
         output_feature = 'in_memory/primary_selection_points'
         if arcpy.Exists(output_feature):
             arcpy.Delete_management(output_feature)
+
+        arcpy.env.addOutputsToMap = False
         arcpy.CopyFeatures_management(selection_results.getOutput(0), output_feature)
+        arcpy.env.addOutputsToMap = True
 
         # FIXME: this is currently hard-coded, needs to reflect the 'ID' 
         # column chosen during the import process.
