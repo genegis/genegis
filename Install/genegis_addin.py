@@ -154,14 +154,17 @@ class CompareEncounters(object):
 class LayerCombo(object):
     """Implementation for genegis_layer_combo.combobox (Combobox)"""
     def __init__(self):
-        self.items = ["default", "alternate"]
+        self.layers = []
+        self.items = ['genetic_points']
         self.editable = True
         self.enabled = True
         self.dropdownWidth = "WWWWWWW"
         self.width = "WWWWWWW"
+
     def onSelChange(self, selection):
-        pass
-    def onEditChange(self, text):
+        global __selected_layer
+        if selection:
+            print "got a selection: %s; %s" % (type(selection), selection)
         pass
     def onFocus(self, focused):
         # update the layer list _only_ on focus events, preventing this from
