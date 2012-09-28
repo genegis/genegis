@@ -31,13 +31,16 @@ class ButtonClass6(object):
 class SummarizeEncounters(object):
     """Implementation for genegis_summarize.tool (Tool)."""
 
-    def __init__(self):
+    def __init__(self, multiple_selections=False):
         self.enabled = True
         # XXX: If needed, this tool could be swapped to a combobox class, then 
         # the 'shape' and 'cursor' can be set based on the selection type.
         self.shape = "RECTANGLE"
         self.cursor = 3 # the 'crosshair'
         self._extent = None
+        # multiple selections controls whether this tool does its reporting,
+        # or just passes on its results silently.
+        self.multiple_selections = multiple_selections
 
     def onCircle(self, circle_geometry):
         pass
