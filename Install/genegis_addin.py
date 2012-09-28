@@ -1,17 +1,10 @@
 import arcpy
-import arcpy.mapping
 import pythonaddins
 
 def _currentLayer():
     layer = None
     layer = pythonaddins.GetSelectedTOCLayerOrDataFrame()
     if layer is None:
-        """
-        # inspect the layer list, find the first point layer
-        mxd = mapping.MapDocument("CURRENT")
-        layers = arcpy.mapping.ListLayers(mxd)
-        """ 
-
         msg = "No layer selected! Please select a point layer from the table of contents."
         title = "No selected layer"
         pythonaddins.MessageBox(msg, title)
