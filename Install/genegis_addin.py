@@ -25,6 +25,21 @@ def _selectedLayer():
             layer = None
     return layer
 
+def _currentLayers():
+    # find layers in current map document
+    layers = []
+    # inspect the layer list, find the first point layer
+    mxd = arcpy.mapping.MapDocument("current")
+    raw_layers = arcpy.mapping.ListLayers(mxd)
+    print "_currentLayers: got %i layers" % len(raw_layers)
+    if raw_layers is not None:
+        for layer in raw_layers:
+           # FIXME: check performance on this. if expensive, do something cheaper
+            desc = arcpy.Describe(layer)
+            if desc.shapeType in _allowedDataTypes():
+                layers.append(layer)
+    return layers
+
 def _allowedDataTypes():
     return ["Point", "MultiPoint"]
 
@@ -149,7 +164,14 @@ class LayerCombo(object):
     def onEditChange(self, text):
         pass
     def onFocus(self, focused):
-        pass
+        # update the layer list _only_ on focus events, preventing this from
+        # being triggered on the addin startup.
+        if focused:
+            self.layers = _currentLayers()
+            if len(self.layers) > 0:
+                self.items = [l.name for l in self.layers]
+            else:
+                print "no layers."
     def onEnter(self):
         pass
     def refresh(self):
