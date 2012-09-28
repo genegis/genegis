@@ -185,6 +185,9 @@ class LayerCombo(object):
         if selection:
             print "got a selection: %s; %s" % (type(selection), selection)
             config.selected_layer = _getLayerByName(selection)
+            # FIXME: check how much memory the object will soak up 
+            # prior to loading
+            config.selected_object = None
             print config.selected_layer
         pass
     def onFocus(self, focused):
