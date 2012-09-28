@@ -10,53 +10,7 @@ sys.path.insert(0, addin_path)
 
 # import local settings
 import config
-
-def _selectedLayer():
-    # return the selected layer object, check that it's just points
-    layer = None
-    if config.selected_layer:
-        # our preference is to always use the selected_layer object, which is
-        # populated by our combination box.
-        layer = config.selected_layer
-    else:
-        # if no layer is set, default to the current layer in the TOC
-        layer = pythonaddins.GetSelectedTOCLayerOrDataFrame()
-
-    if layer is None:
-        msg = "No layer selected! Please select a point layer from the table of contents."
-        title = "No selected layer"
-        pythonaddins.MessageBox(msg, title)
-    else:
-        desc = arcpy.Describe(layer)
-        geom_type = desc.shapeType
-        if geom_type not in config.allowed_types:
-            msg = "Selected layer doesn't contain points."
-            title = "No points in layer"
-            pythonaddins.MessageBox(msg, title)
-            layer = None
-    return layer
-
-def _currentLayers():
-    # find layers in current map document
-    layers = []
-    # inspect the layer list, find the first point layer
-    mxd = arcpy.mapping.MapDocument("current")
-    raw_layers = arcpy.mapping.ListLayers(mxd)
-    print "_currentLayers: got %i layers" % len(raw_layers)
-    if raw_layers is not None:
-        for layer in raw_layers:
-           # FIXME: check performance on this. if expensive, do something cheaper
-            desc = arcpy.Describe(layer)
-            if desc.shapeType in config.allowed_types:
-                layers.append(layer)
-    return layers
-
-def _getLayerByName(name):
-    named_layer = None
-    for layer in _currentLayers():
-        if layer.name == name:
-            named_layer = layer
-    return named_layer 
+import utils
 
 class ButtonClass5(object):
     """Implementation for genegis_addin.button (Button)"""
@@ -91,7 +45,7 @@ class SummarizeEncounters(object, multiple_selections=False):
     def onRectangle(self, rectangle_geometry):
         extent = rectangle_geometry
         # the current _selected_ layer in ArcMap
-        layer = _selectedLayer()
+        layer = utils.selectedLayer()
         if layer is None:
             return None
 
@@ -158,7 +112,7 @@ class LayerCombo(object):
     def onSelChange(self, selection):
         if selection:
             print "got a selection: %s; %s" % (type(selection), selection)
-            config.selected_layer = _getLayerByName(selection)
+            config.selected_layer = utils.getLayerByName(selection)
             # FIXME: check how much memory the object will soak up 
             # prior to loading
             config.selected_object = None
@@ -168,7 +122,7 @@ class LayerCombo(object):
         # update the layer list _only_ on focus events, preventing this from
         # being triggered on the addin startup.
         if focused:
-            self.layers = _currentLayers()
+            self.layers = utils.currentLayers()
             if len(self.layers) > 0:
                 self.items = [l.name for l in self.layers]
             else:
