@@ -1,16 +1,26 @@
+import os
+import sys
+
 import arcpy
 import pythonaddins
 
-# FIXME: uses a global for sharing the selected layer
-__selected_layer = None
+# enable local imports
+addin_path = os.path.dirname(__file__)
+sys.path.insert(0, addin_path)
+
+# import local settings
+import config
 
 def _selectedLayer():
     # return the selected layer object, check that it's just points
     layer = None
-    if __selected_layer:
-        layer = __selected_layer
+    # either grab our shared selected layer, or grab the current layer
+    # from the TOC.
+    if config.selected_layer:
+        layer = config.selected_layer
     else:
         layer = pythonaddins.GetSelectedTOCLayerOrDataFrame()
+
     if layer is None:
         msg = "No layer selected! Please select a point layer from the table of contents."
         title = "No selected layer"

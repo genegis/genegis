@@ -1,0 +1,2 @@
+
+selected_layer = None
