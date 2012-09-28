@@ -116,6 +116,8 @@ class SummarizeEncounters(object):
             arcpy.Delete_management(output_feature)
         arcpy.CopyFeatures_management(selection_results.getOutput(0), output_feature)
 
+        # FIXME: this is currently hard-coded, needs to reflect the 'ID' 
+        # column chosen during the import process.
         id_field = "Individual_ID"
         fields = [f.name for f in arcpy.ListFields(output_feature)]
         if id_field in fields:
