@@ -50,6 +50,13 @@ def _currentLayers():
                 layers.append(layer)
     return layers
 
+def _getLayerByName(name):
+    named_layer = None
+    for layer in _currentLayers():
+        if layer.name == name:
+            named_layer = layer
+    return named_layer 
+
 def _allowedDataTypes():
     return ["Point", "MultiPoint"]
 
@@ -172,9 +179,10 @@ class LayerCombo(object):
         self.width = "WWWWWWW"
 
     def onSelChange(self, selection):
-        global __selected_layer
         if selection:
             print "got a selection: %s; %s" % (type(selection), selection)
+            config.selected_layer = _getLayerByName(selection)
+            print config.selected_layer
         pass
     def onFocus(self, focused):
         # update the layer list _only_ on focus events, preventing this from
