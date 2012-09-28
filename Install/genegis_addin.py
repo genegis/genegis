@@ -66,19 +66,54 @@ class SummarizeEncounters(object):
         interest, and shoot back out some summary statistics based on those observations.
         """
 
-        # just a string representation of the feature name
-        return output_feature
+        results = {'indiv_stats': indiv_stats, 'output_feature': output_feature}
+       
+        # push results to a shared variable
+        config.primary_results = results
+        return results
 
 class CompareEncounters(object):
     """Implementation for genegis_compare.tool (Tool)"""
-    def __init__(self):
+    def __init__(self, display=True):
         self.enabled = True
         self.shape = "Rectangle"
         self.cursor = 3 # the 'crosshair'
         self._extent = None
+        self.display = display
 
     def onRectangle(self, rectangle_geometry):
-        pass
+        polygon_extent = utils.extentPolygon(rectangle_geometry)
+        layer = utils.selectedLayer()
+        if layer is None:
+            return None
+
+        output_feature = 'in_memory/compare_selection_points'
+        utils.intersectFeatures(layer.name, polygon_extent, output_feature)
+
+        res2 = utils.selectIndividuals(output_feature, False)
+
+        # now, get the results from the summarize encounters tool
+        # XXX: ss = SummarizeEncounters()
+        # XXX: ss.onRectangle() # doesn't work; won't get the geom
+         
+        if self.display:
+            if config.primary_results is not None:
+                res = config.primary_results['indiv_stats']
+
+                common_indiv = res['unique'].intersection(res2['unique']) 
+                # compare the two sets of results
+                msg = ("First Set:  {0} samples, "
+                       "{1} unique individuals\n"
+                       "Second Set: {2} samples, "
+                       "{3} unique individuals\n\n"
+                       "Common to both: {4}".format(
+                           len(res['indiv']), len(res['unique']),
+                           len(res2['indiv']), len(res2['unique']),
+                           len(common_indiv)))
+                title = "Comparison Results" 
+                pythonaddins.MessageBox(msg, title)
+            else:
+                pythonaddins.Messagebox("please select first set", "selection missing")
 
 class LayerCombo(object):
     """Implementation for genegis_layer_combo.combobox (Combobox)"""

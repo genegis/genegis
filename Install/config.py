@@ -15,3 +15,5 @@ id_field = "Individual_ID"
 # is selected from the combobox.
 srid = 4326
 sr = arcpy.SpatialReference(srid)
+
+primary_results = None
