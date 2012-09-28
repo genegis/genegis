@@ -29,7 +29,7 @@ def _selectedLayer():
     else:
         desc = arcpy.Describe(layer)
         geom_type = desc.shapeType
-        if geom_type not in _allowedDataTypes():
+        if geom_type not in config.allowed_types:
             msg = "Selected layer doesn't contain points."
             title = "No points in layer"
             pythonaddins.MessageBox(msg, title)
@@ -47,7 +47,7 @@ def _currentLayers():
         for layer in raw_layers:
            # FIXME: check performance on this. if expensive, do something cheaper
             desc = arcpy.Describe(layer)
-            if desc.shapeType in _allowedDataTypes():
+            if desc.shapeType in config.allowed_types:
                 layers.append(layer)
     return layers
 
@@ -57,9 +57,6 @@ def _getLayerByName(name):
         if layer.name == name:
             named_layer = layer
     return named_layer 
-
-def _allowedDataTypes():
-    return ["Point", "MultiPoint"]
 
 class ButtonClass5(object):
     """Implementation for genegis_addin.button (Button)"""
