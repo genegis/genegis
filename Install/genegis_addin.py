@@ -1,9 +1,16 @@
 import arcpy
 import pythonaddins
 
-def _currentLayer():
+# FIXME: uses a global for sharing the selected layer
+__selected_layer = None
+
+def _selectedLayer():
+    # return the selected layer object, check that it's just points
     layer = None
-    layer = pythonaddins.GetSelectedTOCLayerOrDataFrame()
+    if __selected_layer:
+        layer = __selected_layer
+    else:
+        layer = pythonaddins.GetSelectedTOCLayerOrDataFrame()
     if layer is None:
         msg = "No layer selected! Please select a point layer from the table of contents."
         title = "No selected layer"
@@ -16,12 +23,6 @@ def _currentLayer():
             title = "No points in layer"
             pythonaddins.MessageBox(msg, title)
             layer = None
-
-    # FIXME: do something more sophisticated to select the correct layer.
-    # something like this should work, provided we know the name of the 
-    # input layer. We may want to add a combobox for selecting/importing 
-    # the layer.
-
     return layer
 
 class ButtonClass5(object):
@@ -57,7 +58,7 @@ class SummarizeEncounters(object):
     def onRectangle(self, rectangle_geometry):
         extent = rectangle_geometry
         # the current _selected_ layer in ArcMap
-        layer = _currentLayer()
+        layer = _selectedLayer()
         if layer is None:
             return None
 
