@@ -18,12 +18,15 @@ def _selectedLayer():
     else:
         desc = arcpy.Describe(layer)
         geom_type = desc.shapeType
-        if geom_type not in ["Point", "MultiPoint"]:
+        if geom_type not in _allowedDataTypes():
             msg = "Selected layer doesn't contain points."
             title = "No points in layer"
             pythonaddins.MessageBox(msg, title)
             layer = None
     return layer
+
+def _allowedDataTypes():
+    return ["Point", "MultiPoint"]
 
 class ButtonClass5(object):
     """Implementation for genegis_addin.button (Button)"""
