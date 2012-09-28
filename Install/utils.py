@@ -34,6 +34,8 @@ def selectedLayer():
             title = "No points in layer"
             pythonaddins.MessageBox(msg, title)
             layer = None
+        # set our default SRID based on the input data layer
+        config.sr = desc.spatialReference
     return layer
 
 def currentLayers():

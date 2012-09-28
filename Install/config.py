@@ -1,3 +1,5 @@
+import arcpy
+
 selected_layer = None
 selected_object = None
 
@@ -9,5 +11,7 @@ allowed_types = ["Point", "MultiPoint"]
 #   column chosen during the import process.
 id_field = "Individual_ID"
 
-# default spatialReference id (WGS 84).
+# default spatialReference id (WGS 84), updated when a layer
+# is selected from the combobox.
 srid = 4326
+sr = arcpy.SpatialReference(srid)
