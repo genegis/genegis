@@ -115,6 +115,7 @@ class SummarizeEncounters(object):
         if arcpy.Exists(output_feature):
             arcpy.Delete_management(output_feature)
 
+        # FIXME: expose the TOC on / off to the user
         arcpy.env.addOutputsToMap = False
         arcpy.CopyFeatures_management(selection_results.getOutput(0), output_feature)
         arcpy.env.addOutputsToMap = True
