@@ -14,11 +14,12 @@ import config
 def _selectedLayer():
     # return the selected layer object, check that it's just points
     layer = None
-    # either grab our shared selected layer, or grab the current layer
-    # from the TOC.
     if config.selected_layer:
+        # our preference is to always use the selected_layer object, which is
+        # populated by our combination box.
         layer = config.selected_layer
     else:
+        # if no layer is set, default to the current layer in the TOC
         layer = pythonaddins.GetSelectedTOCLayerOrDataFrame()
 
     if layer is None:
