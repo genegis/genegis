@@ -28,7 +28,7 @@ class ButtonClass6(object):
     def onClick(self):
         pass
 
-class SummarizeEncounters(object, multiple_selections=False):
+class SummarizeEncounters(object):
     """Implementation for genegis_summarize.tool (Tool)."""
 
     def __init__(self):
@@ -49,7 +49,7 @@ class SummarizeEncounters(object, multiple_selections=False):
         if layer is None:
             return None
 
-       # extract the coordinates from our extent object
+        # extract the coordinates from our extent object
         coords = [[extent.XMin,extent.YMin],[extent.XMax,extent.YMin], \
                 [extent.XMax,extent.YMax],[extent.XMin,extent.YMax]]
 
@@ -95,7 +95,10 @@ class CompareEncounters(object):
     """Implementation for genegis_compare.tool (Tool)"""
     def __init__(self):
         self.enabled = True
-        self.shape = "NONE" # Can set to "Line", "Circle" or "Rectangle" for interactive shape drawing and to activate the onLine/Polygon/Circle event sinks.
+        self.shape = "Rectangle"
+        self.cursor = 3 # the 'crosshair'
+        self._extent = None
+
     def onRectangle(self, rectangle_geometry):
         pass
 
