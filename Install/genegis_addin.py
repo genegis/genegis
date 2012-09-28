@@ -101,12 +101,10 @@ class LayerCombo(object):
 
     def onSelChange(self, selection):
         if selection:
-            print "got a selection: %s; %s" % (type(selection), selection)
             config.selected_layer = utils.getLayerByName(selection)
             # FIXME: check how much memory the object will soak up 
             # prior to loading
             config.selected_object = None
-            print config.selected_layer
         pass
     def onFocus(self, focused):
         # update the layer list _only_ on focus events, preventing this from
@@ -115,8 +113,6 @@ class LayerCombo(object):
             self.layers = utils.currentLayers()
             if len(self.layers) > 0:
                 self.items = [l.name for l in self.layers]
-            else:
-                print "no layers."
     def onEnter(self):
         pass
     def refresh(self):
