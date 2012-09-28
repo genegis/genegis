@@ -88,7 +88,7 @@ def selectIndividuals(output_feature, display=False):
         cur = arcpy.da.SearchCursor(output_feature, (config.id_field))
         individuals = [row[0] for row in cur]
         unique_individuals = set(individuals)
-        res = {'individuals' : individuals, 'unique_individuals' : unique_individuals}
+        res = {'indiv' : individuals, 'unique' : unique_individuals}
         if display == True:
             msg = "Samples: {0}, Unique Individuals: {1}".format(
                     len(individuals), len(unique_individuals))
@@ -98,3 +98,21 @@ def selectIndividuals(output_feature, display=False):
         print "Couldn't find an individual ID field!"
 
     return res
+
+def intersectFeatures(input_feature, intersect_feature, output_feature):
+    # perform an intersection. Can take an optional 'add to selection' vs. 'new selection'
+    selection_results = arcpy.SelectLayerByLocation_management(
+            input_feature, "INTERSECT", intersect_feature)
+
+    # overwrite outputs
+    if arcpy.Exists(output_feature):
+        arcpy.Delete_management(output_feature)
+
+    # FIXME: expose the TOC on / off to the user
+    add_output = arcpy.env.addOutputsToMap
+    arcpy.env.addOutputsToMap = False
+    # copy features to our output feature
+    arcpy.CopyFeatures_management(selection_results.getOutput(0), output_feature)
+    arcpy.env.addOutputsToMap = add_output
+
+    return output_feature

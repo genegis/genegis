@@ -53,21 +53,12 @@ class SummarizeEncounters(object):
         if layer is None:
             return None
 
-        # perform an intersection. Can take an optional 'add to selection' vs. 'new selection'
-        selection_results = arcpy.SelectLayerByLocation_management(
-                layer.name, "INTERSECT", polygon_extent)
-
         # store the results in memory, no need to bring spindles into this
         output_feature = 'in_memory/primary_selection_points'
-        if arcpy.Exists(output_feature):
-            arcpy.Delete_management(output_feature)
+        utils.intersectFeatures(layer.name, polygon_extent, output_feature)
 
-        # FIXME: expose the TOC on / off to the user
-        arcpy.env.addOutputsToMap = False
-        arcpy.CopyFeatures_management(selection_results.getOutput(0), output_feature)
-        arcpy.env.addOutputsToMap = True
-        
-        utils.selectIndividuals(output_feature, self.display)
+        # get the stats for our inviduals
+        indiv_stats = utils.selectIndividuals(output_feature, self.display)
 
         """
         so we'd probably want to identify the specific columns of interest (haplotypes?),
