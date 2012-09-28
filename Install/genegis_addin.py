@@ -77,7 +77,7 @@ class ButtonClass6(object):
     def onClick(self):
         pass
 
-class SummarizeEncounters(object):
+class SummarizeEncounters(object, multiple_selections=False):
     """Implementation for genegis_summarize.tool (Tool)."""
 
     def __init__(self):
@@ -120,12 +120,9 @@ class SummarizeEncounters(object):
         arcpy.CopyFeatures_management(selection_results.getOutput(0), output_feature)
         arcpy.env.addOutputsToMap = True
 
-        # FIXME: this is currently hard-coded, needs to reflect the 'ID' 
-        # column chosen during the import process.
-        id_field = "Individual_ID"
         fields = [f.name for f in arcpy.ListFields(output_feature)]
-        if id_field in fields:
-            cur = arcpy.da.SearchCursor(output_feature, (id_field))
+        if config.id_field in fields:
+            cur = arcpy.da.SearchCursor(output_feature, (config.id_field))
             individuals = [row[0] for row in cur]
             unique_individuals = set(individuals)
             msg = "Samples: {0}, Unique Individuals: {1}".format(len(individuals), len(unique_individuals))
@@ -167,10 +164,6 @@ class CompareEncounters(object):
     def onKeyUp(self, keycode, shift):
         pass
     def deactivate(self):
-        pass
-    def onCircle(self, circle_geometry):
-        pass
-    def onLine(self, line_geometry):
         pass
     def onRectangle(self, rectangle_geometry):
         pass
