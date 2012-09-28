@@ -47,12 +47,11 @@ class SummarizeEncounters(object):
 
     def onRectangle(self, rectangle_geometry):
         extent = rectangle_geometry
+        polygon_extent = utils.extentPolygon(extent)
         # the current _selected_ layer in ArcMap
         layer = utils.selectedLayer()
         if layer is None:
             return None
-
-        polygon_extent = utils.extentPolygon(extent, layer)
 
         # perform an intersection. Can take an optional 'add to selection' vs. 'new selection'
         selection_results = arcpy.SelectLayerByLocation_management(
@@ -67,18 +66,9 @@ class SummarizeEncounters(object):
         arcpy.env.addOutputsToMap = False
         arcpy.CopyFeatures_management(selection_results.getOutput(0), output_feature)
         arcpy.env.addOutputsToMap = True
+        
+        utils.selectIndividuals(output_feature, self.display)
 
-        fields = [f.name for f in arcpy.ListFields(output_feature)]
-        if config.id_field in fields:
-            cur = arcpy.da.SearchCursor(output_feature, (config.id_field))
-            individuals = [row[0] for row in cur]
-            unique_individuals = set(individuals)
-            msg = "Samples: {0}, Unique Individuals: {1}".format(len(individuals), len(unique_individuals))
-            title = "Samples found in selection"
-            pythonaddins.MessageBox(msg, title)
-        else:
-            print "Couldn't find an individual ID field!"
- 
         """
         so we'd probably want to identify the specific columns of interest (haplotypes?),
         perhaps using a drop-down menu, and then use the select tool to generate our areas of

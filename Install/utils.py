@@ -59,7 +59,7 @@ def getLayerByName(name):
             named_layer = layer
     return named_layer 
 
-def extentPolygon(extent, source_layer):
+def extentPolygon(extent, source_layer=None):
     polygon_extent = None
 
     if extent:
@@ -68,8 +68,8 @@ def extentPolygon(extent, source_layer):
             desc = arcpy.Describe(source_layer)
             sr = desc.spatialReference
         else:
-            # use default SRID
-            sr = arcpy.SpatialReference(config.srid)
+            # use default spatial reference
+            sr = config.sr
 
         # extract the coordinates from our extent object
         coords = [[extent.XMin,extent.YMin],[extent.XMax,extent.YMin], \
@@ -80,3 +80,21 @@ def extentPolygon(extent, source_layer):
             [arcpy.Point(x,y) for x,y in coords]), sr)
 
     return polygon_extent
+
+def selectIndividuals(output_feature, display=False):
+    res = {}
+    fields = [f.name for f in arcpy.ListFields(output_feature)]
+    if config.id_field in fields:
+        cur = arcpy.da.SearchCursor(output_feature, (config.id_field))
+        individuals = [row[0] for row in cur]
+        unique_individuals = set(individuals)
+        res = {'individuals' : individuals, 'unique_individuals' : unique_individuals}
+        if display == True:
+            msg = "Samples: {0}, Unique Individuals: {1}".format(
+                    len(individuals), len(unique_individuals))
+            title = "Samples found in selection"
+            pythonaddins.MessageBox(msg, title)
+    else:
+        print "Couldn't find an individual ID field!"
+
+    return res
