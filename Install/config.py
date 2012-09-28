@@ -8,3 +8,6 @@ allowed_types = ["Point", "MultiPoint"]
 #   FIXME: this is currently hard-coded, needs to reflect the 'ID' 
 #   column chosen during the import process.
 id_field = "Individual_ID"
+
+# default spatialReference id (WGS 84).
+srid = 4326

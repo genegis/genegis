@@ -56,3 +56,25 @@ def getLayerByName(name):
         if layer.name == name:
             named_layer = layer
     return named_layer 
+
+def extentPolygon(extent, source_layer):
+    polygon_extent = None
+
+    if extent:
+        if source_layer:
+            # extract the spatial reference from the source layer
+            desc = arcpy.Describe(source_layer)
+            sr = desc.spatialReference
+        else:
+            # use default SRID
+            sr = arcpy.SpatialReference(config.srid)
+
+        # extract the coordinates from our extent object
+        coords = [[extent.XMin,extent.YMin],[extent.XMax,extent.YMin], \
+                    [extent.XMax,extent.YMax],[extent.XMin,extent.YMax]]
+
+        # convert it to a polygon, we need this to compute the intersection
+        polygon_extent = arcpy.Polygon(arcpy.Array(
+            [arcpy.Point(x,y) for x,y in coords]), sr)
+
+    return polygon_extent

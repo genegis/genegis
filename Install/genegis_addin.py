@@ -52,13 +52,7 @@ class SummarizeEncounters(object):
         if layer is None:
             return None
 
-        # extract the coordinates from our extent object
-        coords = [[extent.XMin,extent.YMin],[extent.XMax,extent.YMin], \
-                [extent.XMax,extent.YMax],[extent.XMin,extent.YMax]]
-
-        # convert it to a polygon, we need this to compute the intersection
-        polygon_extent = arcpy.Polygon(arcpy.Array(
-            [arcpy.Point(x,y) for x,y in coords]), arcpy.SpatialReference(4326))
+        polygon_extent = utils.extentPolygon(extent, layer)
 
         # perform an intersection. Can take an optional 'add to selection' vs. 'new selection'
         selection_results = arcpy.SelectLayerByLocation_management(
