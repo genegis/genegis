@@ -7,6 +7,7 @@ selected_object = None
 allowed_types = ["Point", "MultiPoint"]
 allowed_formats = ['FeatureClass', 'FeatureDataset']
 
+all_layers = None
 
 # id field, records are unique on this identifier.
 #   FIXME: this is currently hard-coded, needs to reflect the 'ID' 
