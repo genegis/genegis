@@ -22,14 +22,16 @@ def selectedLayer():
         # if no layer is set, default to the current layer in the TOC
         layer = pythonaddins.GetSelectedTOCLayerOrDataFrame()
 
-    if layer is None:
+    #try:
+    desc = arcpy.Describe(layer)
+    #except:
+    #    pass
+    if layer is None or desc.datasetType not in config.allowed_formats:
         msg = "No layer selected! Please select a point layer from the table of contents."
         title = "No selected layer"
         pythonaddins.MessageBox(msg, title)
     else:
-        desc = arcpy.Describe(layer)
-        geom_type = desc.shapeType
-        if geom_type not in config.allowed_types:
+        if desc.shapeType not in config.allowed_types:
             msg = "Selected layer doesn't contain points."
             title = "No points in layer"
             pythonaddins.MessageBox(msg, title)
@@ -43,13 +45,21 @@ def currentLayers():
     layers = []
     # inspect the layer list, find the first point layer
     mxd = arcpy.mapping.MapDocument("current")
-    raw_layers = arcpy.mapping.ListLayers(mxd)
-    if raw_layers is not None:
-        for layer in raw_layers:
-           # FIXME: check performance on this. if expensive, do something cheaper
-            desc = arcpy.Describe(layer)
-            if desc.shapeType in config.allowed_types:
-                layers.append(layer)
+    # get a list of all layers, store it
+    config.all_layers = arcpy.mapping.ListLayers(mxd)
+
+    # iterate over our layers, find those which are candidates for analysis
+    if config.all_layers is not None:
+        for layer in config.all_layers
+            try:
+                # FIXME: check performance on this. if expensive, do something cheaper
+                desc = arcpy.Describe(layer)
+                if desc.datasetType in config.allowed_formats and \
+                    desc.shapeType in config.allowed_types:
+                    layers.append(layer)
+            except:
+                # silently skip layers which don't support describe (e.g. AGOL).
+                continue
     return layers
 
 def getLayerByName(name):

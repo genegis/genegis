@@ -5,6 +5,8 @@ selected_object = None
 
 # these are the data types we can query.
 allowed_types = ["Point", "MultiPoint"]
+allowed_formats = ['FeatureClass', 'FeatureDataset']
+
 
 # id field, records are unique on this identifier.
 #   FIXME: this is currently hard-coded, needs to reflect the 'ID' 
