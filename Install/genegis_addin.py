@@ -12,16 +12,28 @@ sys.path.insert(0, addin_path)
 import config
 import utils
 
-class ButtonClass5(object):
-    """Implementation for genegis_addin.button (Button)"""
+
+#
+# data management
+#
+class ImportData(object):
+    """Implementation for genegis_import.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        utils.toolDialog(genegis_toolbox, "classifiedimport")
+
+class ExportGenAlexCodominant(object):
+    """Implementation for genegis_export_genalex_codominant.button (Button)"""
     def __init__(self):
         self.enabled = True
         self.checked = False
     def onClick(self):
         pass
 
-class ButtonClass6(object):
-    """Implementation for genegis_addin.button_1 (Button)"""
+class ExportGenAlexHaploid(object):
+    """Implementation for genegis_export_genalex_haploid.button (Button)"""
     def __init__(self):
         self.enabled = True
         self.checked = False
