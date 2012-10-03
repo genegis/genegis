@@ -7,6 +7,15 @@ import sys
 
 import arcpy
 
+# enable local imports; allow importing both this directory and one above
+local_path = os.path.dirname(__file__)
+for path in [local_path, os.path.join(local_path, '..')]:
+    full_path = os.path.abspath(path)
+    sys.path.insert(0, os.path.abspath(path)
+
+import utils
+import config
+
 # You can ignore/delete this code; these are basic utility functions to
 # streamline porting
 
