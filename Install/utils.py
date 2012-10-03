@@ -144,7 +144,7 @@ def intersectFeatures(input_feature, intersect_feature, output_feature):
 
     # FIXME: expose the TOC on / off to the user
     add_output = arcpy.env.addOutputsToMap
-    arcpy.env.addOutputsToMap = False
+    arcpy.env.addOutputsToMap = True
     # copy features to our output feature
     arcpy.CopyFeatures_management(selection_results.getOutput(0), output_feature)
     arcpy.env.addOutputsToMap = add_output
