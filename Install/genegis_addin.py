@@ -5,13 +5,16 @@ import arcpy
 import pythonaddins
 
 # enable local imports
-addin_path = os.path.dirname(__file__)
-sys.path.insert(0, addin_path)
+local_path = os.path.dirname(__file__)
+sys.path.insert(0, local_path)
 
 # import local settings
 import config
 import utils
 
+# get the paths for our toolboxes
+imported_toolbox = os.path.join(local_path, "toolbox", "imported.tbx")
+genegis_toolbox = os.path.join(local_path, "toolbox", "genegis.pyt")
 
 #
 # data management
@@ -40,6 +43,20 @@ class ExportGenAlexHaploid(object):
     def onClick(self):
         pass
 
+#
+# summarization tools
+#
+
+class ExtractValuesToPoints(object):
+    """Implementation for genegis_extract_values_to_points.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        # XXX: replace with our pyt version
+        utils.toolDialog(imported_toolbox, "Sample")
+
+
 class SummarizeEncounters(object):
     """Implementation for genegis_summarize.tool (Tool)."""
 
@@ -53,9 +70,6 @@ class SummarizeEncounters(object):
         # display controls whether this tool does its reporting,
         # or just passes on its results silently.
         self.display = display
-
-    def onCircle(self, circle_geometry):
-        pass
 
     def onRectangle(self, rectangle_geometry):
         extent = rectangle_geometry
