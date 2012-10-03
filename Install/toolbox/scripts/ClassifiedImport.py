@@ -26,115 +26,90 @@
 # ---------------------------------------------------------------------------
 
 import arcpy
-    
+import os
+import sys
+import binascii
+import collections
+
 def main(input_csv=None, sr=None, output_loc=None,
-    output_gdb=None, output_fc=None, genetics=None,
-    identification=None, loc=None, other=None,
+    output_gdb=None, output_fc=None, genetic=None,
+    identification=None, location=None, other=None,
     mode='toolbox'):
 
-try: 
+    # A temporary XY Layer needed to create the feature class. 
+    # NOTE: This file is deleted when the script finishes
+    temporary_layer = binascii.b2a_hex(os.urandom(15))
+
+    try:
+        # Process: Make XY Event Layer.  This layer is temporary and will be deleted upon script completion.
+        # SYNTAX: arcpy.MakeXYEventLayer_management(table, in_x_field, in_y_field, out_layer, {spatial_reference}, {in_z_field})
+        arcpy.MakeXYEventLayer_management(input_csv, "Longitude", "Latitude", temporary_layer, sr, "")
+    except:
+        print "Error making XY Event Layer"
+        print arcpy.GetMessages()
+                
+    print "XY event layer successfully created"
     
-# if the script is running within ArcGIS as a tool, get the following user defined parameters:  
-        
-        # The input file in the SRDG.csv file format
-        Parameter1 = parameters[0].valueAsText
-        
-        # A temporary XY Layer needed to create the feature class. 
-        # NOTE: This file is deleted automatically when the script finishes
-        Parameter2 = "TempXYLayer"                   
-        
-        # The spatial reference for the data (i.e. GCS_WGS84)
-        Parameter3 = parameters[1].valueAsText   
-      
-        # The location of the File Geodatabase that will be created
-        Parameter4 = parameters[2].valueAsText     
-        
-        # The name of the File Geodatabase
-        Parameter5 = parameters[3].valueAsText  
-     
-        # The name of the Output Feature Class that will be created
-        Parameter6 = parameters[4].valueAsText     
-        
-except:
-    print ("Error setting tool parameters")
-    print arcpy.GetMessages()
-        
-print "Parameters successfully defined"
-    
-try:
-    # Process: Make XY Event Layer.  This layer is temporary and will be deleted upon script completion.
-    # SYNTAX: arcpy.MakeXYEventLayer_management(table, in_x_field, in_y_field, out_layer, {spatial_reference}, {in_z_field})
-    arcpy.MakeXYEventLayer_management(Parameter1, "Longitude", "Latitude", Parameter2, Parameter3, "")
+    gdb_path = os.path.join(output_loc, output_gdb + '.gdb')
 
-except:
-    print ("Error making XY Event Layer")
-    print arcpy.GetMessages()
-            
-print ("XY event layer successfully created")
+    try:
+        # only try to create this GDB if it doesn't already exist.
+        if not os.path.exists(gdb_path):
+            # Process: Create File GDB
+            # SYNTAX: CreateFileGDB_management (out_folder_path, out_name, {out_version})
+            arcpy.CreateFileGDB_management(output_loc, output_gdb, "CURRENT")
+    except:
+        print "Error creating File GDB"
+        print arcpy.GetMessages()
+        
+    print "File GDB successfully created"
 
+    try:
+        fc_path = os.path.abspath(os.path.join(gdb_path, output_fc))
+        # for this step, overwrite any existing results
+        arcpy.env.overwriteOutput = True
 
-try:
-    
-    # Process: Create File GDB
-    # SYNTAX: CreateFileGDB_management (out_folder_path, out_name, {out_version})
-    arcpy.CreateFileGDB_management(Parameter4, Parameter5, "CURRENT")
+        # Process: Copy Features
+        # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
+        arcpy.CopyFeatures_management(temporary_layer, fc_path, "", "0", "0", "0")
+    except:
+        print "Error copying features to a feature class"
+        print arcpy.GetMessages() 
+   
+    try:
+        arcpy.Delete_management(temporary_layer)
+    except:
+        print "Unable to delete temporary layer"
 
-except:
-    print ("Error creating File GDB")
-    print arcpy.GetMessages()    
-    
-print "File GDB successfully created"
-
-try:
-    # Process: Copy Features
-    # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
-    arcpy.CopyFeatures_management(Parameter2, Parameter4 + '\\' + Parameter5 + '.gdb\\' + Parameter6, "", "0", "0", "0")
-
-except:
-    print ("Error copying features to a feature class")
-    print arcpy.GetMessages() 
-    
-print "Feature Class successfully created"
-print "Step 1 is done!"
+    print "Feature Class successfully created"
+    print "Step 1 is done!"
 
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':
 
     # Dori's defaults when no configuration is provided
-    defaults = {
-      'input_csv':
-        "C:\\geneGIS\\WorkingFolder\\SRGD_Photo_GeneSPLASH_CentAM_CA_OR_Feb12_v3.csv",
-      'sr':
-      "GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',
-       SPHEROID['WGS_1984',6378137.0,298.257223563]],
-       PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]];-400
-      -400 1000000000;-100000 10000;-100000
-      10000;8.98315284119521E-09;0.001;0.001;IsHighPrecision",
-      'output_loc': "C:\\geneGIS\\WorkingFolder",
-      'output_gdb': "PG_SPLASH_Subset2" 
-      'output_fc': "TestFC"
-    }
+    defaults_tuple = (
+        ('input_csv',
+        "C:\\geneGIS\\WorkingFolder\\SRGD_Photo_GeneSPLASH_CentAM_CA_OR_Feb12_v3.csv"),
+        ('sr', "GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',"
+            "SPHEROID['WGS_1984',6378137.0,298.257223563]],"
+            "PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]];-400"
+            "-400 1000000000;-100000 10000;-100000 "
+            "10000;8.98315284119521E-09;0.001;0.001;IsHighPrecision"),
+        ('output_loc', "C:\\geneGIS\\WorkingFolder"),
+        ('output_gdb', "PG_SPLASH_Subset2"),
+        ('output_fc', "TestFC"),
+        ('genetic', None),
+        ('identification', None),
+        ('location', None),
+        ('other', None),
+    )
 
-    inputs = ['input_csv', 'sr', 'output_loc', 'output_gdb',
-    'output_fc', 'genetics', 'identification', 'loc', 'other']
+    defaults = collections.OrderedDict(defaults_tuple)
     args = len(sys.argv) - 1
-    # set any missing parameters with the default values from above
-    for i, in_arg in enumerate(inputs):
+    for i, key in enumerate(defaults.keys()):
         idx = i + 1
-        # if we can't find the argument in question, set from our defaults
-        if args < idx and idx <= 5:
-            sys.argv[idx] = defaults[in_arg]
-        # these dynamic attribute lists are for toolbox specific use.
-        if idx >= 6:
-            sys.argv[idx] = None
-    
-    main(input_csv=sys.argv[1],
-        sr=sys.argv[2],
-        output_loc=sys.argv[3],
-        output_gdb=sys.argv[4],
-        output_fc=sys.argv[5],
-        genetics=sys.argv[6],
-        identification=sys.argv[7],
-        loc=sys.argv[8],
-        other=sys.arvg[9],
-        mode='script')
+        if idx <= args:
+            defaults[key] = sys.argv[idx]    
+
+    main(*defaults.values(), mode='script')
