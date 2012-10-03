@@ -240,15 +240,16 @@ class classifiedimport(object):
         # user defined parameters:  
 
         ClassifiedImport.main(
-            input_csv=parameters[0],
-            sr=parameters[1],
-            output_loc=parameters[2],
-            output_gdb=parameters[3],
-            output_fc=parameters[4],
-            genetic=parameters[5],
-            identification=parameters[6],
-            location=parameters[7],
-            other=parameters[8])
+            input_csv=parameters[0].valueAsText(),
+            sr=parameters[1].valueAsText(),
+            output_loc=parameters[2].valueAsText(),
+
+            output_gdb=parameters[3].valueAsText(),
+            output_fc=parameters[4].valueAsText(),
+            genetic=parameters[5].valueAsText(),
+            identification=parameters[6].valueAsText(),
+            location=parameters[7].valueAsText(),
+            other=parameters[8].valueAsText())
         
 class extractRasterByPoints(object):
     class ToolValidator:
