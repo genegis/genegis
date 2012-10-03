@@ -292,6 +292,7 @@ class extractRasterByPoints(object):
         input_raster.datatype = u'Raster Dataset'
         input_raster.multiValue = False
         """
+        # FIXME: re-enable multiple input rasters
         input_raster.multiValue = True
         if config.all_layers is not None:
             filter_list = []
