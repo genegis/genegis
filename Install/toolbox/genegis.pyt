@@ -11,7 +11,7 @@ import arcpy
 local_path = os.path.dirname(__file__)
 for path in [local_path, os.path.join(local_path, '..')]:
     full_path = os.path.abspath(path)
-    sys.path.insert(0, os.path.abspath(path)
+    sys.path.insert(0, os.path.abspath(path))
 
 import utils
 import config
