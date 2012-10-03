@@ -128,13 +128,13 @@ class classifiedimport(object):
         output_fc.datatype = u'String'
 
         # genetic columns
-        genetics = arcpy.Parameter()
-        genetics.name = u'Genetic_Columns'
-        genetics.displayName = u'Genetic Columns'
-        genetics.parameterType = 'Required'
-        genetics.direction = 'Input'
-        genetics.multiValue = True
-        genetics.filter.list = ['locus1_A1', 'locus1_A2']
+        genetic = arcpy.Parameter()
+        genetic.name = u'Genetic_Columns'
+        genetic.displayName = u'Genetic Columns'
+        genetic.parameterType = 'Required'
+        genetic.direction = 'Input'
+        genetic.multiValue = True
+        genetic.filter.list = ['locus1_A1', 'locus1_A2']
 
         # identification columns
         identification = arcpy.Parameter()
@@ -163,7 +163,7 @@ class classifiedimport(object):
         other.multiValue = True
         other.filter.list = ['other A', 'other B']
 
-        return [input_csv, sr, output_loc, output_gdb, output_fc, genetics, identification, loc, other]
+        return [input_csv, sr, output_loc, output_gdb, output_fc, genetic, identification, loc, other]
 
     def isLicensed(self):
         return True
