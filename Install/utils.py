@@ -11,6 +11,21 @@ sys.path.insert(0, local_path)
 # import local settings
 import config
 
+def toolDialog(toolbox, tool):
+    """Error-handling wrapper around pythonaddins.GPToolDialog."""
+    result = None
+    try:
+        result = pythonaddins.GPToolDialog(toolbox, tool)
+        # FIXME: this is a hack to prevent:
+        # TypeError: GPToolDialog() takes at most 1 argument (2 given)
+        print '', 
+    except TypeError:
+        print "recieved TypeError when trying to run GPToolDialog(" + \
+            "{toolbox}, {tool}))".format(toolbox=toolbox, tool=tool)
+    # don't return anything. this prevents:
+    #   TypeError: GPToolDialog() takes at most 1 argument (2 given)
+    return result
+
 def selectedLayer():
     # return the selected layer object, check that it's just points
     layer = None
