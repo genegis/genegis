@@ -31,6 +31,12 @@ import sys
 import binascii
 import collections
 
+DEFAULT_SR = ("GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',"
+            "SPHEROID['WGS_1984',6378137.0,298.257223563]],"
+            "PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]];-400"
+            "-400 1000000000;-100000 10000;-100000 "
+            "10000;8.98315284119521E-09;0.001;0.001;IsHighPrecision")
+
 def main(input_csv=None, sr=None, output_loc=None,
     output_gdb=None, output_fc=None, genetic=None,
     identification=None, location=None, other=None,
@@ -39,6 +45,10 @@ def main(input_csv=None, sr=None, output_loc=None,
     # A temporary XY Layer needed to create the feature class. 
     # NOTE: This file is deleted when the script finishes
     temporary_layer = binascii.b2a_hex(os.urandom(15))
+
+    # check if we received a value spatial reference -- if not, use WGS 1984.
+    if sr == None or sr == '':
+        sr = DEFAULT_SR
 
     try:
         # Process: Make XY Event Layer.  This layer is temporary and will be deleted upon script completion.
@@ -91,11 +101,7 @@ if __name__=='__main__':
     defaults_tuple = (
         ('input_csv',
         "C:\\geneGIS\\WorkingFolder\\SRGD_Photo_GeneSPLASH_CentAM_CA_OR_Feb12_v3.csv"),
-        ('sr', "GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',"
-            "SPHEROID['WGS_1984',6378137.0,298.257223563]],"
-            "PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]];-400"
-            "-400 1000000000;-100000 10000;-100000 "
-            "10000;8.98315284119521E-09;0.001;0.001;IsHighPrecision"),
+        ('sr', DEFAULT_SR),
         ('output_loc', "C:\\geneGIS\\WorkingFolder"),
         ('output_gdb', "PG_SPLASH_Subset2"),
         ('output_fc', "TestFC"),
@@ -110,6 +116,6 @@ if __name__=='__main__':
     for i, key in enumerate(defaults.keys()):
         idx = i + 1
         if idx <= args:
-            defaults[key] = sys.argv[idx]    
+            defaults[key] = sys.argv[idx]
 
     main(*defaults.values(), mode='script')
