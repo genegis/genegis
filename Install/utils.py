@@ -91,10 +91,15 @@ def extentPolygon(extent, source_layer=None):
         if source_layer:
             # extract the spatial reference from the source layer
             desc = arcpy.Describe(source_layer)
-            sr = desc.spatialReference
+            input_sr = desc.spatialReference
         else:
             # use default spatial reference
-            sr = config.sr
+            input_sr = config.sr
+        # get the CURRENT data frame's spatial reference, this will be what's 
+        # used for the coorinates returned from onRectangle:
+        mxd = arcpy.mapping.MapDocument("current")
+        # get a list of all layers, store it
+        df_sr = mxd.activeDataFrame.spatialReference
 
         # extract the coordinates from our extent object
         coords = [[extent.XMin,extent.YMin],[extent.XMax,extent.YMin], \
@@ -102,7 +107,11 @@ def extentPolygon(extent, source_layer=None):
 
         # convert it to a polygon, we need this to compute the intersection
         polygon_extent = arcpy.Polygon(arcpy.Array(
-            [arcpy.Point(x,y) for x,y in coords]), sr)
+            [arcpy.Point(x,y) for x,y in coords]), df_sr)
+
+        if df_sr.exportToString() != input_sr.exportToString():
+            # project this polygon BACK to the dataset projection
+            polygon_extent = polygon_extent.projectAs(input_sr)
 
     return polygon_extent
 
