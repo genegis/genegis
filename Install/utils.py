@@ -5,8 +5,8 @@ import arcpy
 import pythonaddins
 
 # enable local imports
-addin_path = os.path.dirname(__file__)
-sys.path.insert(0, addin_path)
+local_path = os.path.dirname(__file__)
+sys.path.insert(0, local_path)
 
 # import local settings
 import config
