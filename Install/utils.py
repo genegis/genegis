@@ -65,7 +65,7 @@ def currentLayers():
 
     # iterate over our layers, find those which are candidates for analysis
     if config.all_layers is not None:
-        for layer in config.all_layers
+        for layer in config.all_layers:
             try:
                 # FIXME: check performance on this. if expensive, do something cheaper
                 desc = arcpy.Describe(layer)
