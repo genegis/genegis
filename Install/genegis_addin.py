@@ -53,9 +53,7 @@ class ExtractValuesToPoints(object):
         self.enabled = True
         self.checked = False
     def onClick(self):
-        # XXX: replace with our pyt version
-        utils.toolDialog(imported_toolbox, "Sample")
-
+        utils.toolDialog(genegis_toolbox, 'extractRasterByPoints')
 
 class SummarizeEncounters(object):
     """Implementation for genegis_summarize.tool (Tool)."""

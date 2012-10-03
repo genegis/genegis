@@ -290,19 +290,21 @@ class extractRasterByPoints(object):
         input_raster.parameterType = 'Required'
         input_raster.direction = 'Input'
         input_raster.datatype = u'Raster Dataset'
+        input_raster.multiValue = False
+        """
         input_raster.multiValue = True
         if config.all_layers is not None:
             filter_list = []
             for layer in config.all_layers:
                 try:
                     desc = arcpy.Describe(layer)
-                    if desc.datasetType == 'RasterDataset'
+                    if desc.datasetType == 'RasterDataset':
                         filter_list.append(layer)
                 except:
                     # silently skip layers which don't support describe (e.g. AGOL).
                     continue
                 input_raster.filter.list = filter_list
-
+        """
         # Output_Feature_Table
         output_ft= arcpy.Parameter()
         output_ft.name = u'Output_Feature_Table'
@@ -329,11 +331,13 @@ class extractRasterByPoints(object):
 
     def execute(self, parameters, messages):
         messages.addMessage("got selected layer: %s" % config.selected_layer)
-        input_rasters = parameters[0]
+        input_raster = parameters[0].valueAsText
         selected_layer = config.selected_layer
         output_table = parameters[1].valueAsText
-        messages.addMessage("executing Sample on %i rasters..." % len(input_rasters))
-        arcpy.sa.Sample(input_rasters, selected_layer, output_table, "NEAREST")
+        messages.addMessage("executing Sample on %i rasters..." % 1)
+        messages.addMessage("using preselected point layer, '%s'" % selected_layer)
+        arcpy.CheckOutExtension("Spatial")
+        arcpy.sa.Sample([input_raster], selected_layer.dataSource, output_table, "NEAREST")
 
 class ExportGenAlex2(object):
     """C:\data\arcgis\toolboxes\geneGIS_29July2012\geneGIS_29July2012.tbx\ExportGenAlex2"""
