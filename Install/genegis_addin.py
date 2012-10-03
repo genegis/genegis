@@ -70,8 +70,7 @@ class SummarizeEncounters(object):
         self.display = display
 
     def onRectangle(self, rectangle_geometry):
-        extent = rectangle_geometry
-        polygon_extent = utils.extentPolygon(extent)
+        polygon_extent = utils.extentPolygon(rectangle_geometry)
         # the current _selected_ layer in ArcMap
         layer = utils.selectedLayer()
         if layer is None:
@@ -83,7 +82,6 @@ class SummarizeEncounters(object):
 
         # get the stats for our inviduals
         indiv_stats = utils.selectIndividuals(output_feature, self.display)
-
         """
         so we'd probably want to identify the specific columns of interest (haplotypes?),
         perhaps using a drop-down menu, and then use the select tool to generate our areas of
