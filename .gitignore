@@ -36,3 +36,6 @@ nosetests.xml
 
 # vim
 *.swp
+
+# ESRI Python addins
+*.esriaddin
