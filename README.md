@@ -12,6 +12,8 @@ import:
 
 manipulation:
  - select and filter data based on spatial and attribute queries
+ - extract raster values at encounter locations
 
 export:
  - export to GenAlEx
+ - export to Genepop
