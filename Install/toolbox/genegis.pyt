@@ -7,6 +7,15 @@ import sys
 
 import arcpy
 
+# enable local imports; allow importing both this directory and one above
+local_path = os.path.dirname(__file__)
+for path in [local_path, os.path.join(local_path, '..')]:
+    full_path = os.path.abspath(path)
+    sys.path.insert(0, os.path.abspath(path))
+
+import utils
+import config
+
 # You can ignore/delete this code; these are basic utility functions to
 # streamline porting
 
@@ -41,7 +50,7 @@ class Toolbox(object):
     def __init__(self):
         self.label = u'geneGIS_29July2012'
         self.alias = ''
-        self.tools = [ExportGenAlex2, ExportGenAlex3, SelectDataByAttributes, classifiedimport]
+        self.tools = [ExportGenAlex2, ExportGenAlex3, SelectDataByAttributes, classifiedimport, extractRasterByPoints]
 
 # Tool implementation code
 class classifiedimport(object):
@@ -119,13 +128,13 @@ class classifiedimport(object):
         output_fc.datatype = u'String'
 
         # genetic columns
-        genetics = arcpy.Parameter()
-        genetics.name = u'Genetic_Columns'
-        genetics.displayName = u'Genetic Columns'
-        genetics.parameterType = 'Required'
-        genetics.direction = 'Input'
-        genetics.multiValue = True
-        genetics.filter.list = ['locus1_A1', 'locus1_A2']
+        genetic = arcpy.Parameter()
+        genetic.name = u'Genetic_Columns'
+        genetic.displayName = u'Genetic Columns'
+        genetic.parameterType = 'Required'
+        genetic.direction = 'Input'
+        genetic.multiValue = True
+        genetic.filter.list = ['locus1_A1', 'locus1_A2']
 
         # identification columns
         identification = arcpy.Parameter()
@@ -154,7 +163,7 @@ class classifiedimport(object):
         other.multiValue = True
         other.filter.list = ['other A', 'other B']
 
-        return [input_csv, sr, output_loc, output_gdb, output_fc, genetics, identification, loc, other]
+        return [input_csv, sr, output_loc, output_gdb, output_fc, genetic, identification, loc, other]
 
     def isLicensed(self):
         return True
@@ -231,16 +240,106 @@ class classifiedimport(object):
         # user defined parameters:  
 
         ClassifiedImport.main(
-            input_csv=parameters[0],
-            sr=parameters[1],
-            output_loc=parameters[2],
-            output_gdb=parameters[3],
-            output_fc=parameters[4],
-            genetic=parameters[5],
-            identification=parameters[6],
-            location=parameters[7],
-            other=parameters[8])
- 
+            input_csv=parameters[0].valueAsText,
+            sr=parameters[1].valueAsText,
+            output_loc=parameters[2].valueAsText,
+            output_gdb=parameters[3].valueAsText,
+            output_fc=parameters[4].valueAsText,
+            genetic=parameters[5].valueAsText,
+            identification=parameters[6].valueAsText,
+            location=parameters[7].valueAsText,
+            other=parameters[8].valueAsText)
+        
+class extractRasterByPoints(object):
+    class ToolValidator:
+      """Class for validating a tool's parameter values and controlling
+      the behavior of the tool's dialog."""
+    
+      def __init__(self, parameters):
+        """Setup arcpy and the list of tool parameters."""
+        import arcpy
+        self.params = parameters
+    
+      def initializeParameters(self):
+        """Refine the properties of a tool's parameters.  This method is
+        called when the tool is opened."""
+        return
+    
+      def updateParameters(self):
+        """Modify the values and properties of parameters before internal
+        validation is performed.  This method is called whenever a parmater
+        has been changed."""
+        return
+    
+      def updateMessages(self):
+        """Modify the messages created by internal validation for each tool
+        parameter.  This method is called after internal validation."""
+        return
+    
+    def __init__(self):
+        self.label = u'Extract Raster Values'
+        self.description = u'This tool allows extraction of one or more rasters at our sample locations.'
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+        # Raster Input
+        # FIXME: only handles one raster currently
+        input_raster = arcpy.Parameter()
+        input_raster.name = u'Input_Raster'
+        input_raster.displayName = u'Input Raster'
+        input_raster.parameterType = 'Required'
+        input_raster.direction = 'Input'
+        input_raster.datatype = u'Raster Dataset'
+        input_raster.multiValue = False
+        """
+        # FIXME: re-enable multiple input rasters; issue #2
+        input_raster.multiValue = True
+        if config.all_layers is not None:
+            filter_list = []
+            for layer in config.all_layers:
+                try:
+                    desc = arcpy.Describe(layer)
+                    if desc.datasetType == 'RasterDataset':
+                        filter_list.append(layer)
+                except:
+                    # silently skip layers which don't support describe (e.g. AGOL).
+                    continue
+                input_raster.filter.list = filter_list
+        """
+        # Output_Feature_Table
+        output_ft= arcpy.Parameter()
+        output_ft.name = u'Output_Feature_Table'
+        output_ft.displayName = u'Output Feature Table'
+        output_ft.parameterType = 'Required'
+        output_ft.direction = 'Output'
+        output_ft.datatype = u'Table'
+
+        return [input_raster, output_ft]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+        messages.addMessage("got selected layer: %s" % config.selected_layer)
+        input_raster = parameters[0].valueAsText
+        selected_layer = config.selected_layer
+        output_table = parameters[1].valueAsText
+        messages.addMessage("executing Sample on %i rasters..." % 1)
+        messages.addMessage("using preselected point layer, '%s'" % selected_layer)
+        arcpy.CheckOutExtension("Spatial")
+        arcpy.sa.Sample([input_raster], selected_layer.dataSource, output_table, "NEAREST")
+
 class ExportGenAlex2(object):
     """C:\data\arcgis\toolboxes\geneGIS_29July2012\geneGIS_29July2012.tbx\ExportGenAlex2"""
     class ToolValidator:

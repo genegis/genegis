@@ -22,8 +22,19 @@
         <Button
           caption="Import"
           category="geneGIS"
-          class="ButtonClass5"
-          id="genegis_addin.button"
+          class="ImportData"
+          id="genegis_import.button"
+          image=""
+          message="Import data from a SRGD formatted CSV file."
+          tip="">
+          <Help heading="" />
+      </Button>
+
+        <Button
+          caption="Export GenAlex Codominant"
+          category="geneGIS"
+          class="ExportGenAlexCodominant"
+          id="genegis_export_genalex_codominant.button"
           image=""
           message=""
           tip="">
@@ -31,10 +42,10 @@
         </Button>
 
         <Button
-          caption="Button"
+          caption="Export GenAlex Haploid"
           category="geneGIS"
-          class="ButtonClass6"
-          id="genegis_addin.button_1"
+          class="ExportGenAlexHaploid"
+          id="genegis_export_genalex_haploid.button"
           image=""
           message=""
           tip="">
@@ -42,6 +53,18 @@
         </Button>
 
         <!-- Summarization tools -->
+        <Button
+          caption="Extract Raster Values"
+          category="geneGIS"
+          class="ExtractValuesToPoints"
+          id="genegis_extract_values_to_points.button"
+          image="Images/genegis_extract_raster_values.png"
+          message=""
+          tip="">
+          <Help heading="" />
+        </Button>
+
+
         <Tool
           caption="Summarize Encounters"
           category="geneGIS"
@@ -80,6 +103,21 @@
             <Tool refID="genegis_compare.tool" />
           </Items>
         </ToolPalette>
+
+        <ComboBox 
+          caption="Layer:"
+          category="geneGIS"
+          class="LayerCombo"
+          id="genegis_layer_combo.combobox"
+          itemSizeString="WWWWW"
+          message="select a layer for analysis"
+          rows="2"
+          sizeString="WWWWW"
+          tip="Choose the layer to use for analysis.">
+          <Help
+            heading="Select Layer"
+            >Choose the layer to use for analysis.</Help>
+        </ComboBox>
       </Commands>
 
       <Extensions></Extensions>
@@ -93,8 +131,14 @@
           showInitially="true">
           <Items>
             <Menu refID="genegis_addin.menu" />
+            <ComboBox refID="genegis_layer_combo.combobox" />
+            <!-- disable
             <Menu refID="genegis_encounters.menu" />
+            -->
             <ToolPalette refID="genegis_addin.toolpalette" />
+            <!-- borrow a tool from the standard set to deselect features -->
+            <Button refID="genegis_extract_values_to_points.button" />
+            <Button refID="esriArcMapUI.ClearSelectionCommand" />
           </Items>
         </Toolbar>
       </Toolbars>
@@ -108,7 +152,8 @@
           isShortcutMenu="false"
           separator="false">
           <Items>
-            <Button refID="genegis_addin.button_1" />
+            <Button refID="genegis_export_genalex_codominant.button" />
+            <Button refID="genegis_export_genalex_haploid.button" />
           </Items>
         </Menu>
         <Menu
@@ -119,10 +164,11 @@
           isShortcutMenu="false"
           separator="false">
           <Items>
-            <Button refID="genegis_addin.button" />
+            <Button refID="genegis_import.button" />
             <Menu refID="genegis_addin.menu_export" />
           </Items>
         </Menu>
+        <!-- disable this additional menu for the time-being.
         <Menu
           caption="Select"
           category="geneGIS"
@@ -135,7 +181,7 @@
             <Tool refID="genegis_addin.tool_1" />
           </Items>
         </Menu>
-
+        -->
        </Menus>
 
     </ArcMap>
