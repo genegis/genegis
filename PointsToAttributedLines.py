@@ -10,8 +10,9 @@
 # Description: This script takes a set of points from a single individual and creates a polyline with attributes 
 #              from the source points as well as distance in Km, elapsed time in hours, and speed in Km/hr
 #               
-# Required Inputs: A point Feature Class created by selecting one IndividualID from Encounter
+# Required Inputs: A point Feature Class containing one IndividualID, exported from Encounter
 #                  A destination Feature Class
+#                  A personal gdb with Encounter and an empty f_Track to use as the template
 #
 # Script Outputs: A polyline Feature Class
 #              
@@ -23,6 +24,8 @@ import types
 
 def convertPoints():
   arcpy.env.overwriteOutput = True
+  #
+  
   #inPts       = arcpy.GetParameterAsText(0)
   inPts       = "C:\\Documents and Settings\\tomas.follett\\My Documents\\ArcGIS\\Default.gdb\\Encounters420027"
   #outFeatures = arcpy.GetParameterAsText(1)
@@ -33,9 +36,7 @@ def calcSpeed(segment, fromTime, currTime):
   try:
     distance = segment.getLength("GEODESIC")/1000.0
     delta = currTime - fromTime
-    daysHrs = delta.days*60.0
-    secsHrs = delta.seconds/3600.0
-    elapsed = daysHrs+secsHrs
+    elapsed = (delta.days*60.0)+(delta.seconds/3600.0)
     speed = distance/elapsed
   except Exception as err:
     arcpy.AddError(err[0])
@@ -44,58 +45,66 @@ def calcSpeed(segment, fromTime, currTime):
     return [distance, elapsed, speed]
 
 def pointsToAttribLines(inPts, outFeatures):
-  #if arcpy.Exists(outFeatures):
-    #arcpy.Delete_management(outFeatures)
   spatialRef = inPts
   try:
     ## Assign empty values to cursor and row objects
     insCur, sRow = None, None
+    
     ## Create the output feature class
-    outPath, outFC = os.path.split(outFeatures) # Separate the path from the name
+    outPath, outFC = os.path.split(outFeatures)
     template = outPath+"\\f_Track"
     arcpy.CreateFeatureclass_management(outPath, outFC, "POLYLINE", template, "SAME_AS_TEMPLATE", "DISABLED", inPts) 
+    
     ## Open an insert cursor for the new feature class
     insertFields = ["SHAPE@", "FeatureID", "FeatureCode", "StartDate", "EndDate",
                     "FromLocation", "ToLocation", "IndividualID", "Distance", "Elapsed", "Speed", "CruiseID"]
     insCur = arcpy.da.InsertCursor(outFeatures, insertFields)
+    
     ## Create an empty array to hold the geometry
     array = arcpy.Array()
-    # Fix this syntax to include in search cursor
-    #orderClause = [None, 'ORDER_BY "TimeValue"']
-    ##Set up SearchCursor for input points                  
+
+    ## Set up SearchCursor for input points       
+    orderClause = [None, 'ORDER_BY "TimeValue"']
     with arcpy.da.SearchCursor(inPts, ["SHAPE@XY", "FeatureID", "TimeValue", "FromLocation", 
-                                       "IndividualID", "CruiseID"], "",None , False) as searchCur:
+                                       "IndividualID", "CruiseID"], None, spatialRef , False, sql_clause = orderClause) as searchCur:
+      ## Count the rows to use as a FeatureID
       rowID = -1
       for sRow in searchCur:
         if rowID == -1: 
+          ## 1st row
           rowID = 0
-          #1st point geometry
+          ## store point geometry
           x, y = sRow[0]
           currPoint = arcpy.Point(x, y) 
           array.add(currPoint)
-          #1st field values
+          ## store field values
           currFeat = sRow[1] #FeatureID
           currTime = sRow[2] #TimeValue
-          currLoc = sRow[3] #FromLocation
-          currInd = sRow[4] #IndividualID
-          currCru = sRow[5] #CruiseID
+          currLoc = sRow[3]  #FromLocation
+          currInd = sRow[4]  #IndividualID
+          currCru = sRow[5]  #CruiseID
         if rowID >0:
+          ## each subsequent row
           x, y = sRow[0]
           currPoint = arcpy.Point(x, y)
           array.add(currPoint)
+          ## construct a path from the two points in the array
           segment = arcpy.Polyline(array, spatialRef, False, True)
+          ## store previous and new field values 
           fromFeat = currFeat
           currFeat = sRow[1]
           fromTime = currTime
           currTime = sRow[2]
           fromLoc = currLoc
           currLoc = sRow[3]
+          ## use the two point featureID's as the FeatureCode 
           featCode = str(fromFeat) + ", " + str(currFeat)
+          ## calculate values in correct units
           distance, elapsed, speed = calcSpeed(segment, fromTime, currTime)
           insCur.insertRow([segment, rowID, featCode, fromTime, currTime, fromLoc, currLoc, currInd, distance, elapsed, speed, currCru])        
-          array.remove(0) #Start point
+          ## drop the 1st point
+          array.remove(0) 
         rowID +=1
-        #Next row
   
   except Exception as err:
     arcpy.AddError(err[0])
@@ -103,7 +112,6 @@ def pointsToAttribLines(inPts, outFeatures):
   finally:
     if insCur: del insCur
     if sRow: del sRow
-    #if array: del array
 
 try:
   ## Update the spatial index(es)
