@@ -21,6 +21,8 @@
 import arcpy
 import os
 import types
+import sys
+import traceback
 
 def convertPoints():
   arcpy.env.overwriteOutput = True
@@ -105,10 +107,15 @@ def pointsToAttribLines(inPts, outFeatures):
           ## drop the 1st point
           array.remove(0) 
         rowID +=1
-  
   except Exception as err:
-    arcpy.AddError(err[0])
-  
+    tb = sys.exc_info()[2]
+    tbinfo = traceback.format_tb(tb)[0]
+    print tbinfo
+    print "exception occured"
+    arcpy.AddError(err)
+    arcpy_messages = arcpy.GetMessages()
+    arcpy.AddError(arcpy_messages)
+ 
   finally:
     if insCur: del insCur
     if sRow: del sRow
