@@ -83,7 +83,7 @@ class classifiedimport(object):
     
     def __init__(self):
         self.label = u'CSV Classified Import'
-        self.description = u'This tool allows the user to covert an input file (formated with the SRGD.csv specifications) to a feature class within a file geodatabse.'
+        self.description = u'This tool allows the user to covert an input file (formated with the SRGD.csv specifications) to a feature class within a file geodatabase.'
         self.canRunInBackground = False
 
     def getParameterInfo(self):
