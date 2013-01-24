@@ -25,19 +25,19 @@ import sys
 import traceback
 
 def convertPoints():
-    #inPts       = "C:\\Documents and Settings\\tomas.follett\\My Documents\\ArcGIS\\Default.gdb\\Encounters420027"
-    #outFeatures = "C:\\Documents and Settings\\tomas.follett\\My Documents\\ArcGIS\\Default.gdb\\Lines420027"
-
     inPts       = arcpy.GetParameterAsText(0)
-    outFeatures = arcpy.GetParameterAsText(1)    
-
+    outFeatures = arcpy.GetParameterAsText(1)
     pointsToAttribLines(inPts, outFeatures)
 
 def calcSpeed(segment, fromTime, currTime):
     try:
-        distance = segment.getLength("GEODESIC")/1000.0    # convert to Km
-        delta = currTime - fromTime                        # TimeDelta obj returns (days, seconds)
-        elapsed = (delta.days*60.0)+(delta.seconds/3600.0) # convert days and seconds components into hours
+		# convert meters to kilometers
+        distance = segment.getLength("GEODESIC")/1000.0    
+		# subtraction returns a TimeDelta object in format of (days, seconds)
+        delta = currTime - fromTime                        
+        # convert TimeDelta values into hours and add together (force decimal)
+		elapsed = (delta.days*60.0)+(delta.seconds/3600.0)
+		# derive speed
         speed = distance/elapsed
     except Exception as err:
         arcpy.AddError(err[0])
