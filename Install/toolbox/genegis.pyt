@@ -16,36 +16,6 @@ for path in [local_path, os.path.join(local_path, '..')]:
 import utils
 import config
 
-# You can ignore/delete this code; these are basic utility functions to
-# streamline porting
-
-@contextlib.contextmanager
-def script_run_as(filename, args=None):
-    oldpath = sys.path[:]
-    oldargv = sys.argv[:]
-    newdir = os.path.dirname(filename)
-    sys.path = oldpath + [newdir]
-    sys.argv = [filename] + [arg.valueAsText for arg in (args or [])]
-    oldcwd = os.getcwdu()
-    os.chdir(newdir)
-
-    try:
-        # Actually run
-        yield filename
-    finally:
-        # Restore old settings
-        sys.path = oldpath
-        sys.argv = oldargv
-        os.chdir(oldcwd)
-
-def set_parameter_as_text(params, index, val):
-    if (hasattr(params[index].value, 'value')):
-        params[index].value.value = val
-    else:
-        params[index].value = val
-
-# Export of toolbox C:\data\arcgis\toolboxes\geneGIS_29July2012\geneGIS_29July2012.tbx
-
 class Toolbox(object):
     def __init__(self):
         self.label = u'geneGIS_29July2012'
