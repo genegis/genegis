@@ -16,8 +16,4 @@ manipulation:
 
 export:
  - export to GenAlEx
-<<<<<<< HEAD
-
-=======
  - export to Genepop
->>>>>>> bf4e2b7012be19b101206fb7c47ca68deb192eea
