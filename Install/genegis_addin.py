@@ -27,13 +27,13 @@ class ImportData(object):
     def onClick(self):
         utils.toolDialog(genegis_toolbox, "classifiedimport")
 
-class ExportGenAlexCodominant(object):
+class ExportGenAlEx(object):
     """Implementation for genegis_export_genalex_codominant.button (Button)"""
     def __init__(self):
         self.enabled = True
         self.checked = False
     def onClick(self):
-        pass
+        utils.toolDialog(genegis_toolbox, "ExportGenAlEx")
 
 class ExportGenAlexHaploid(object):
     """Implementation for genegis_export_genalex_haploid.button (Button)"""
