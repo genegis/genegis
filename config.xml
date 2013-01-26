@@ -41,17 +41,6 @@
           <Help heading="" />
         </Button>
 
-        <Button
-          caption="Export GenAlex Haploid"
-          category="geneGIS"
-          class="ExportGenAlexHaploid"
-          id="genegis_export_genalex_haploid.button"
-          image=""
-          message=""
-          tip="">
-          <Help heading="" />
-        </Button>
-
         <!-- Summarization tools -->
         <Button
           caption="Extract Raster Values"
@@ -153,7 +142,6 @@
           separator="false">
           <Items>
             <Button refID="genegis_export_genalex.button" />
-            <Button refID="genegis_export_genalex_haploid.button" />
           </Items>
         </Menu>
         <Menu
