@@ -20,7 +20,7 @@ class Toolbox(object):
     def __init__(self):
         self.label = u'geneGIS_29July2012'
         self.alias = ''
-        self.tools = [ExportGenAlex2, ExportGenAlex3, SelectDataByAttributes, classifiedimport, extractRasterByPoints]
+        self.tools = [ExportGenAlEx, SelectDataByAttributes, classifiedimport, extractRasterByPoints]
 
 # Tool implementation code
 class classifiedimport(object):
@@ -310,8 +310,7 @@ class extractRasterByPoints(object):
         arcpy.CheckOutExtension("Spatial")
         arcpy.sa.Sample([input_raster], selected_layer.dataSource, output_table, "NEAREST")
 
-class ExportGenAlex2(object):
-    """C:\data\arcgis\toolboxes\geneGIS_29July2012\geneGIS_29July2012.tbx\ExportGenAlex2"""
+class ExportGenAlEx(object):
     class ToolValidator:
       """Class for validating a tool's parameter values and controlling
       the behavior of the tool's dialog."""
@@ -343,36 +342,37 @@ class ExportGenAlex2(object):
         self.canRunInBackground = False
     def getParameterInfo(self):
         # Input_Feature_Class
-        param_1 = arcpy.Parameter()
-        param_1.name = u'Input_Feature_Class'
-        param_1.displayName = u'Input Feature Class'
-        param_1.parameterType = 'Required'
-        param_1.direction = 'Input'
-        param_1.datatype = u'Feature Layer'
+        input_features = arcpy.Parameter()
+        input_features.name = u'Input_Feature_Class'
+        input_features.displayName = u'Input Feature Class'
+        input_features.parameterType = 'Required'
+        input_features.direction = 'Input'
+        input_features.datatype = u'Feature Layer'
 
         # Where_Clause
-        param_2 = arcpy.Parameter()
-        param_2.name = u'Where_Clause'
-        param_2.displayName = u'Where Clause'
-        param_2.parameterType = 'Optional'
-        param_2.direction = 'Input'
-        param_2.datatype = u'SQL Expression'
+        where_clause = arcpy.Parameter()
+        where_clause.name = u'Where_Clause'
+        where_clause.displayName = u'Where Clause'
+        where_clause.parameterType = 'Optional'
+        where_clause.direction = 'Input'
+        where_clause.datatype = u'SQL Expression'
 
         # Attribute_Field__to_order_by_population_
-        param_3 = arcpy.Parameter()
-        param_3.name = u'Attribute_Field__to_order_by_population_'
-        param_3.displayName = u'Attribute Field (to order by population)'
-        param_3.parameterType = 'Optional'
-        param_3.direction = 'Input'
-        param_3.datatype = u'Field'
+        order_by = arcpy.Parameter()
+        order_by.name = u'Attribute_Field_to_order_by_population_'
+        order_by.displayName = u'Attribute Field (to order by population)'
+        order_by.parameterType = 'Optional'
+        order_by.direction = 'Input'
+        order_by.datatype = u'Field'
 
+        """
         # Output_File_Location
-        param_4 = arcpy.Parameter()
-        param_4.name = u'Output_File_Location'
-        param_4.displayName = u'Output File Location'
-        param_4.parameterType = 'Required'
-        param_4.direction = 'Input'
-        param_4.datatype = u'Folder'
+        output_location = arcpy.Parameter()
+        output_location.name = u'Output_File_Location'
+        output_location.displayName = u'Output File Location'
+        output_location.parameterType = 'Required'
+        output_location.direction = 'Input'
+        output_location.datatype = u'Folder'
 
         # Output_File_Name
         param_5 = arcpy.Parameter()
@@ -613,32 +613,28 @@ class ExportGenAlex3(object):
         param_3.datatype = u'Field'
 
         # Output_File_Location
-        param_4 = arcpy.Parameter()
-        param_4.name = u'Output_File_Location'
-        param_4.displayName = u'Output File Location'
-        param_4.parameterType = 'Required'
-        param_4.direction = 'Input'
-        param_4.datatype = u'Folder'
+        output_name = arcpy.Parameter()
+        output_name.name = u'Output_File'
+        output_name.displayName = u'Output File'
+        output_name.parameterType = 'Required'
+        output_name.direction = 'Output'
+        output_name.datatype = u'File'
 
-        # Output_File_Name
-        param_5 = arcpy.Parameter()
-        param_5.name = u'Output_File_Name'
-        param_5.displayName = u'Output File Name'
-        param_5.parameterType = 'Required'
-        param_5.direction = 'Input'
-        param_5.datatype = u'String'
+        return [input_features, where_clause, order_by, output_name]
 
-        return [param_1, param_2, param_3, param_4, param_5]
     def isLicensed(self):
         return True
+
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
         if validator:
              return validator(parameters).updateParameters()
+
     def updateMessages(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
         if validator:
              return validator(parameters).updateMessages()
+
     def execute(self, parameters, messages):
         with script_run_as(u'C:\\data\\arcgis\\toolboxes\\geneGIS_29July2012\\Scripts\\ExportToGenAlEx_HaploidData.py'):
             # ------------------------------------------------------------------------------------------------------
