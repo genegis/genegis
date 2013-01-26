@@ -31,12 +31,12 @@
       </Button>
 
         <Button
-          caption="Export GenAlex Codominant"
+          caption="Export to GenAlEx"
           category="geneGIS"
-          class="ExportGenAlexCodominant"
-          id="genegis_export_genalex_codominant.button"
+          class="ExportGenAlEx"
+          id="genegis_export_genalex.button"
           image=""
-          message=""
+          message="Export data to GenAlEx. Can convert the entire dataset, or a comparison of populations based on a selection."
           tip="">
           <Help heading="" />
         </Button>
@@ -152,7 +152,7 @@
           isShortcutMenu="false"
           separator="false">
           <Items>
-            <Button refID="genegis_export_genalex_codominant.button" />
+            <Button refID="genegis_export_genalex.button" />
             <Button refID="genegis_export_genalex_haploid.button" />
           </Items>
         </Menu>
