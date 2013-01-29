@@ -44,3 +44,19 @@ def msg(output_msg, mtype='message', exception=None):
         elif mtype == 'warning':
             arcpy.AddWarning(output_msg)
 
+def file_type(filename):
+    """ Map of 'known' extensions to filetypes."""
+    expected_type = None
+    known_types = {
+        '.csv' : 'Text',
+        '.txt' : 'Text',
+        '.xls' : 'Excel',
+        '.xlsx': 'Excel',
+    }
+    ext = os.path.splitext(filename)[1].lower()
+    if known_types.has_key(ext):
+        expected_type = known_types[ext]
+    else:
+        raise UnknownType
+    return expected_type 
+
