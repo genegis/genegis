@@ -34,10 +34,10 @@ import binascii
 import utils
 import config
 
-def main(input_csv=None, sr=None, output_loc=None,
+def main(input_table=None, sr=None, output_loc=None,
     output_gdb=None, output_fc=None, genetic=None,
     identification=None, location=None, other=None,
-    mode='toolbox'):
+    mode=config.mode):
 
     # A temporary XY Layer needed to create the feature class. 
     # NOTE: This file is deleted when the script finishes
