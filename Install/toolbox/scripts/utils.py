@@ -26,7 +26,7 @@ def msg(output_msg, mtype='message', exception=None):
         if config.mode == 'script':
             if exception:
                 # print the raw exception
-            print exception
+                print exception
             # Arcpy and Python stuff, hopefully also helpful
             err_msg = "ArcPy Error: {msg_text}\nPython Error: ${tbinfo}".format(
                 msg_text=arcpy_messages, tbinfo=tbinfo)
