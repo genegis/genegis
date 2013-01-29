@@ -103,7 +103,7 @@ class ClassifiedImport(object):
         genetic.parameterType = 'Required'
         genetic.direction = 'Input'
         genetic.multiValue = True
-        genetic.filter.list = ['locus1_A1', 'locus1_A2']
+        genetic.filter.list = ['Sex', 'L_locus1', 'L_locus2']
 
         # identification columns
         identification = arcpy.Parameter()
@@ -112,7 +112,7 @@ class ClassifiedImport(object):
         identification.parameterType = 'Required'
         identification.direction = 'Input'
         identification.multiValue = True
-        identification.filter.list = ['Individual ID', 'Other ID']
+        identification.filter.list = ['Sample_ID', 'Individual_ID']
 
         # location columns
         loc = arcpy.Parameter()
@@ -121,16 +121,16 @@ class ClassifiedImport(object):
         loc.parameterType = 'Required'
         loc.direction = 'Input'
         loc.multiValue = True
-        loc.filter.list = ['latitude', 'longitude']
+        loc.filter.list = ['Latitude', 'Longitude']
 
-       # other columns
+        # other columns
         other = arcpy.Parameter()
         other.name = u'Other_Columns'
         other.displayName = u'Other Columns'
         other.parameterType = 'Optional'
         other.direction = 'Input'
         other.multiValue = True
-        other.filter.list = ['other A', 'other B']
+        other.filter.list = ['Region', 'Date_Time']
 
         return [input_csv, sr, output_loc, output_gdb, output_fc, genetic, identification, loc, other]
 
