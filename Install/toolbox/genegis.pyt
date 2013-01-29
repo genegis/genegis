@@ -23,8 +23,7 @@ class Toolbox(object):
         self.tools = [ExportGenAlEx, SelectDataByAttributes, classifiedimport, extractRasterByPoints]
 
 # Tool implementation code
-class classifiedimport(object):
-    """C:\data\arcgis\toolboxes\geneGIS_29July2012\geneGIS_29July2012.tbx\csvtofeatureclass"""
+class ClassifiedImport(object):
     class ToolValidator:
       """Class for validating a tool's parameter values and controlling
       the behavior of the tool's dialog."""
@@ -418,7 +417,6 @@ class ExportGenAlEx(object):
             
 
 class SelectDataByAttributes(object):
-    """C:\data\arcgis\toolboxes\geneGIS_29July2012\geneGIS_29July2012.tbx\SelectDataByAttributes"""
     class ToolValidator:
       """Class for validating a tool's parameter values and controlling
       the behavior of the tool's dialog."""
@@ -804,4 +802,3 @@ class SelectDataByAttributes(object):
             OutputFile.write("Log File: " + Parameter11+ "\\" + Parameter10 + ".txt")
             
             print ("Done!")
-            
