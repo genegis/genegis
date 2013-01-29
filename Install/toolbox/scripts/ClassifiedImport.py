@@ -39,25 +39,14 @@ def main(input_table=None, sr=None, output_loc=None,
     identification=None, location=None, other=None,
     mode=config.mode):
 
-    # A temporary XY Layer needed to create the feature class. 
-    # NOTE: This file is deleted when the script finishes
-    temporary_layer = binascii.b2a_hex(os.urandom(15))
+    # First, create a geodatabase for all our future results.
+    # TODO: can we generate this from a single value?
+    gdb_path = os.path.abspath(os.path.join(output_loc, output_gdb + '.gdb'))
 
-    # check if we received a value spatial reference -- if not, use WGS 1984.
-    if sr == None or sr == '':
-        sr = DEFAULT_SR
-
-    try:
-        # Process: Make XY Event Layer.  This layer is temporary and will be deleted upon script completion.
-        # SYNTAX: arcpy.MakeXYEventLayer_management(table, in_x_field, in_y_field, out_layer, {spatial_reference}, {in_z_field})
-        arcpy.MakeXYEventLayer_management(input_csv, "Longitude", "Latitude", temporary_layer, sr, "")
-    except:
-        print "Error making XY Event Layer"
-        print arcpy.GetMessages()
-                
-    print "XY event layer successfully created"
-    
-    gdb_path = os.path.join(output_loc, output_gdb + '.gdb')
+    # check if we received a value spatial reference -- if not, use WGS84.
+    if sr in ('', None):
+        # default spatial reference can be redefined.
+        sr = config.DEFAULT_SR
 
     try:
         # only try to create this GDB if it doesn't already exist.
@@ -65,38 +54,114 @@ def main(input_table=None, sr=None, output_loc=None,
             # Process: Create File GDB
             # SYNTAX: CreateFileGDB_management (out_folder_path, out_name, {out_version})
             arcpy.CreateFileGDB_management(output_loc, output_gdb, "CURRENT")
-    except:
-        print "Error creating File GDB"
-        print arcpy.GetMessages()
+    except Exception as e:
+        utils.msg("Error creating File GDB", mtype='error', exception=e)
         
-    print "File GDB successfully created"
+    utils.msg("File GDB successfully created")
 
+    # TODO: WE NEED TO DO A FULL CLASSIFICATION OF THE INPUT AND MANUALLY BUILD UP THE LAYER...
+    # We'll have two columns per locus, need to import correctly
+
+    # Start things off by importing the table directly. We still need to edit the header
+    # because of ArcGIS' restrictions on table names.
+
+    # do we have a text-based file?
+    file_type = utils.file_type(input_table)
+    if file_type == 'Text':
+        # Generate a temporary copy of the input CSV which corrects it for 
+        # ArcGIS, stripping invalid column label characters.
+        data_table = validate_table(input_table)
+    else:
+        data_table = input_table 
+    # OPTIONS:
+    # arcpy.CopyRows_management("my_table.csv", "c:\\my.gdb\my_table")
+    # COPY ROWS will add an Object ID field; table to table WILL NOT.
+    # arcpy.TableToTable_conversion (in_rows, out_path, out_name, {where_clause}, {field_mapping}, ...)
+   
+    # TODO: use field mapping to handle the date-time field?
+    # write out our table to the newly created GDB.
     try:
-        fc_path = os.path.abspath(os.path.join(gdb_path, output_fc))
+        arcpy.env.overwriteOutput = config.overwrite
+        
+        # generate table name based on input name
+        (label, ext) = os.path.basename(input_table)
+       
+        # write out our filtered table to ArcGIS
+        arcpy.TableToTable_conversion(data_table, gdb_path, label)
+
+    except Exception as e:
+        utils.msg("Error converting table %s to GDB" % input_table, mtype='error', exception=e)
+
+    # Convert the table to a temporary spatial feature
+    try:
+
+        input_csv = os.path.join([gdb_path, label)]
+
+        # A temporary XY Layer needed to create the feature class. 
+        # NOTE: This table is deleted when the script finishes
+        temporary_layer = os.path.join([input_csv, '_xy_temp'])
+
+        # 'location', ArcGIS passes semicolon separated values
+        (x, y) = location.split(";")
+
+        # Process: Make XY Event Layer.  This layer is temporary and will be 
+        # deleted upon script completion.
+        # SYNTAX: arcpy.MakeXYEventLayer_management(table, in_x_field, 
+        #           in_y_field, out_layer, {spatial_reference}, {in_z_field})
+        arcpy.MakeXYEventLayer_management(input_csv, x, y, temporary_layer, sr)
+    except Exception as e:
+        utils.msg("Error making XY Event Layer", mtype='error', exception=e)
+    
+    utils.msg("XY event layer successfully created: \n %s" % temporary_layer)
+  
+    # Copy our features to a permanent layer
+    try:
+        fc_path = os.path.join(gdb_path, output_fc)
         # for this step, overwrite any existing results
-        arcpy.env.overwriteOutput = True
+        arcpy.env.overwriteOutput = config.overwrite
 
         # Process: Copy Features
         # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
         arcpy.CopyFeatures_management(temporary_layer, fc_path, "", "0", "0", "0")
-    except:
-        print "Error copying features to a feature class"
-        print arcpy.GetMessages() 
+    except Exception as e:
+        utils.msg("Error copying features to a feature class", mtype='error', exception=e)
    
     try:
         arcpy.Delete_management(temporary_layer)
-    except:
-        print "Unable to delete temporary layer"
+    except Exception as e:
+        utils.msg("Unable to delete temporary layer", mtype='error', exception=e)
 
-    print "Feature Class successfully created"
-    print "Step 1 is done!"
+   
+    # finally, convert the imported feature into a new geometry
+    try:
+        fc_path = os.path.abspath(os.path.join(gdb_path, output_fc))
+        # for this step, overwrite any existing results
+        arcpy.env.overwriteOutput = config.overwrite
+
+        # Process: Copy Features
+        # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
+        arcpy.CopyFeatures_management(temporary_layer, fc_path, "", "0", "0", "0")
+    except Exception as e:
+        utils.msg("Error copying features to a feature class", mtype='error', exception=e)
+   
+    try:
+        arcpy.Delete_management(temporary_layer)
+    except Exception as e:
+        utils.msg("Unable to delete temporary layer", mtype='error', exception=e)
+
+    utils.msg("Feature Class successfully created, your SRGD file has been imported!")
+
+
+
+    utils.msg("Feature Class successfully created, your SRGD file has been imported!")
 
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':
 
-    # Dori's defaults when no configuration is provided
+    # Defaults when no configuration is provided
+    # TODO: change these to be test-based.
     defaults_tuple = (
-        ('input_csv',
+        ('input_table',
         "C:\\geneGIS\\WorkingFolder\\SRGD_Photo_GeneSPLASH_CentAM_CA_OR_Feb12_v3.csv"),
         ('sr', DEFAULT_SR),
         ('output_loc', "C:\\geneGIS\\WorkingFolder"),
