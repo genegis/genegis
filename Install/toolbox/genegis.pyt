@@ -18,9 +18,9 @@ import config
 
 class Toolbox(object):
     def __init__(self):
-        self.label = u'geneGIS_29July2012'
+        self.label = u'geneGIS_Jan_2013'
         self.alias = ''
-        self.tools = [ExportGenAlEx, SelectDataByAttributes, classifiedimport, extractRasterByPoints]
+        self.tools = [ExportGenAlEx, SelectDataByAttributes, ClassifiedImport, extractRasterByPoints]
 
 # Tool implementation code
 class ClassifiedImport(object):

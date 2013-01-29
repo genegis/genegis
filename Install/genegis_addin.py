@@ -25,7 +25,7 @@ class ImportData(object):
         self.enabled = True
         self.checked = False
     def onClick(self):
-        utils.toolDialog(genegis_toolbox, "classifiedimport")
+        utils.toolDialog(genegis_toolbox, "ClassifiedImport")
 
 class ExportGenAlEx(object):
     """Implementation for genegis_export_genalex_codominant.button (Button)"""
