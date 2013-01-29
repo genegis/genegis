@@ -6,7 +6,7 @@ import re
 import os
 import binascii
 
-def parameters_from_args(defaults_tuple=None, sys_args):
+def parameters_from_args(defaults_tuple=None, sys_args=None):
     """Provided a set of tuples for default values, return a list of mapped
        variables."""
     defaults = collections.OrderedDict(defaults_tuple)
