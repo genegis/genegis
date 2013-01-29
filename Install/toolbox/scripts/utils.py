@@ -60,3 +60,72 @@ def file_type(filename):
         raise UnknownType
     return expected_type 
 
+def parse_table(input_file):
+    """ Parse a text table (usually CSV) determine its type,
+        and validate."""
+    # TODO: handle UTF-8 encodings robustly
+    header = None
+    data = None
+    with open(input_file, 'rb') as input_table: 
+        # sample the first 4k of the file
+        sample = input_table.read(4096)
+        sniffer = csv.Sniffer()
+    
+        if not sniffer.has_header(sample):
+            # require the input to have a valid header
+            raise MissingCSVHeader
+        else:
+            dialect = sniffer.sniff(sample)
+            # reset reading
+            input_table.seek(0)
+        
+            table = csv.reader(input_table, dialect)
+            # pull off the first line of the CSV
+            header = table.next()
+            data = []
+            for row in table:
+                data.append(row)
+    return (header, data, dialect)
+
+# TODO: ADD TEST CASES FOR:
+#  - quoted strings inside CSV fields
+#  - our various validations in validate_column_label.
+
+def validate_table(input_file):
+    (header, data, dialect) = parse_table(input_file)
+    # XXX: handle TWO COLUMNS with the same name? Does ArcGIS do this automatically?
+    header = [validate_column_label(column) for column in header]
+    
+    # set up output file name 
+    temp_dir = os.path.dirname(input_file)
+    temp_name = binascii.b2a_hex(os.urandom(15))
+    temp_csv = os.path.join(temp_dir, temp_name)
+    with open(temp_csv, 'wb') as output_file:
+        writer = csv.writer(output_file, dialect=dialect)
+        writer.writerow(header)
+        for row in data:
+            writer.writerow(row)
+    return temp_csv
+
+def validate_column_label(column):
+    """
+    Modify the column labels to reflect ArcGIS restrictions:
+     - no spaces, replaced here with underscores.
+     - no special characters: `~@#$%^&*()-+=|\,<>?/{}.!’[]:;
+     - Field names need to start with a letter
+     - 64 character field names
+     - can't use reserved words [http://support.microsoft.com/kb/286335]
+
+    More at: http://blogs.esri.com/esri/arcgis/2010/08/10/working-with-microsoft-excel-in-arcgis-desktop/
+    """
+    INVALID_CHARS = '`~@#$%^&*()-+=|\,<>?/{}.!’[]:;'
+
+    column = column.replace(" ", "_")
+    for c in INVALID_CHARS: column = column.replace(c, '')
+    if not re.match('^[A-z]', column):
+        column = 'genegis_' + column
+    
+    if len(column) > 64:
+        column = column[:63]
+
+    return column
