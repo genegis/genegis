@@ -51,8 +51,8 @@ class ClassifiedImport(object):
         return
     
     def __init__(self):
-        self.label = u'CSV Classified Import'
-        self.description = u'This tool allows the user to covert an input file (formated with the SRGD.csv specifications) to a feature class within a file geodatabase.'
+        self.label = u'Import Data'
+        self.description = u'This tool allows the user to covert an input file (a text file or Excel spreadsheet formated with the SRGD specifications) to a feature class within a file geodatabase.'
         self.canRunInBackground = False
 
     def getParameterInfo(self):
@@ -170,6 +170,7 @@ class ClassifiedImport(object):
         dynamic_cols = ['Genetic', 'Identification', 'Location', 'Other']
         unused_values = []
 
+        # XXX: make this use the generalized utils code to do the checking.
         if parameters[cols['input_csv']] is not None:
             # FIXME: handle other file formats than just a CSV with 
             # commas (see fancy import addin)
@@ -180,6 +181,9 @@ class ClassifiedImport(object):
             # pull off the first line of the CSV
             header = input_csv.next()
             unused_values = header
+           
+            # assign 'known' values based on some inference
+            
             
             # try modifying our first attribute columns list
             parameters[cols['Genetic']].filter.list = unused_values
@@ -206,8 +210,8 @@ class ClassifiedImport(object):
     def execute(self, parameters, messages):
         from scripts import ClassifiedImport
         # if the script is running within ArcGIS as a tool, get the following
-        # user defined parameters:  
-
+        # user defined parameters
+        messages.addMessage("got location: `%s`" % parameters[7].valueAsText)
         ClassifiedImport.main(
             input_csv=parameters[0].valueAsText,
             sr=parameters[1].valueAsText,
