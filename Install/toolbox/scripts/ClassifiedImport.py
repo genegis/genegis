@@ -29,13 +29,10 @@ import arcpy
 import os
 import sys
 import binascii
-import collections
 
-DEFAULT_SR = ("GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',"
-            "SPHEROID['WGS_1984',6378137.0,298.257223563]],"
-            "PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]];-400"
-            "-400 1000000000;-100000 10000;-100000 "
-            "10000;8.98315284119521E-09;0.001;0.001;IsHighPrecision")
+# local imports
+import utils
+import config
 
 def main(input_csv=None, sr=None, output_loc=None,
     output_gdb=None, output_fc=None, genetic=None,
@@ -111,11 +108,5 @@ if __name__=='__main__':
         ('other', None),
     )
 
-    defaults = collections.OrderedDict(defaults_tuple)
-    args = len(sys.argv) - 1
-    for i, key in enumerate(defaults.keys()):
-        idx = i + 1
-        if idx <= args:
-            defaults[key] = sys.argv[idx]
-
+    defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(*defaults.values(), mode='script')
