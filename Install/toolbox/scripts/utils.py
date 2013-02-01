@@ -103,8 +103,13 @@ def validate_table(input_file):
     
     # set up output file name 
     temp_dir = os.path.dirname(input_file)
+    (label, ext) = os.path.splitext(os.path.basename(input_file))
+
+    # generate a random name, but include the original file suffix for Arc
     temp_name = binascii.b2a_hex(os.urandom(15))
-    temp_csv = os.path.join(temp_dir, temp_name)
+    tmp_fn = "".join([temp_name, ext])
+    temp_csv = os.path.join(temp_dir, tmp_fn)
+
     with open(temp_csv, 'wb') as output_file:
         writer = csv.writer(output_file, dialect=dialect)
         writer.writerow(header)
