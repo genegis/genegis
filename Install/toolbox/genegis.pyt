@@ -117,7 +117,7 @@ class ClassifiedImport(object):
         genetic.parameterType = 'Required'
         genetic.direction = 'Input'
         genetic.multiValue = True
-        genetic.filter.list = ['Sex', 'L_locus1', 'L_locus2']
+        genetic.filter.list = ['Sex', 'Haplotype', 'L_locus1', 'L_locus2']
 
         # identification columns
         identification = arcpy.Parameter()
@@ -225,9 +225,8 @@ class ClassifiedImport(object):
         from scripts import ClassifiedImport
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters
-        messages.addMessage("got location: `%s`" % parameters[7].valueAsText)
         ClassifiedImport.main(
-            input_csv=parameters[0].valueAsText,
+            input_table=parameters[0].valueAsText,
             sr=parameters[1].valueAsText,
             output_loc=parameters[2].valueAsText,
             output_gdb=parameters[3].valueAsText,
