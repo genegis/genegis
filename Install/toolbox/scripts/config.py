@@ -1,4 +1,5 @@
 import os
+import arcpy
 
 # current directory
 local_path = os.path.dirname(__file__)
