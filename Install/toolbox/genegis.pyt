@@ -183,6 +183,7 @@ class ClassifiedImport(object):
             group_expressions= [
                 ('Genetic', '^sex$'),
                 ('Genetic', '^haplotype$'),
+                ('Genetic', '^dlphap$'),
                 ('Genetic', '^l_'), 
                 ('Identification', '_id$'),
                 ('Location', '^x$'), 
