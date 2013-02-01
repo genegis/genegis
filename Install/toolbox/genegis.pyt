@@ -55,7 +55,20 @@ class ClassifiedImport(object):
         self.label = u'Import Data'
         self.description = u'This tool allows the user to covert an input file (a text file or Excel spreadsheet formated with the SRGD specifications) to a feature class within a file geodatabase.'
         self.canRunInBackground = False
-
+        # perform some dynamic list filtering, in the case that we have a 
+        # table input selected.
+        self.cols = {
+            'input_csv': 0,
+            'sr': 1,
+            'output_loc': 2,
+            'output_gdb': 3,
+            'output_fc': 4,
+            'Genetic': 5,
+            'Identification': 6,
+            'Location': 7,
+            'Other': 8
+        }
+ 
     def getParameterInfo(self):
         # SRGD_Input_File
         input_csv = arcpy.Parameter()
