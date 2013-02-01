@@ -14,6 +14,8 @@ for path in [local_path, os.path.join(local_path, '..')]:
 
 import utils
 import config
+# import utilities from our invidivual scripts as well.
+from scripts import utils
 
 class Toolbox(object):
     def __init__(self):
