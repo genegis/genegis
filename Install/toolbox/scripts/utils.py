@@ -117,6 +117,13 @@ def validate_table(input_file):
             writer.writerow(row)
     return temp_csv
 
+def validated_table_results(input_file):
+    validated_table = validate_table(input_file)
+    table_parts = parse_table(validated_table)
+    # delete the temporary table generated; only want the components in this case.
+    os.unlink(validated_table)
+    return table_parts
+
 def validate_column_label(column):
     """
     Modify the column labels to reflect ArcGIS restrictions:
