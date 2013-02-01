@@ -238,6 +238,27 @@ class ClassifiedImport(object):
 
     def updateMessages(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
+        in_table = parameters[self.cols['input_csv']]
+        if in_table is not None:
+            input_table_name = in_table.valueAsText
+            # read the original data
+            (orig_header, orig_data, orig_dialect) = utils.parse_table(input_table_name)
+            # read the validated header
+            (header, data, dialect) = utils.validated_table_results(input_table_name)
+
+            # check if we've modified the header. 
+            if orig_header != header:
+                modified_columns = []
+                # find which columns have been changed
+                for (i, column) in enumerate(header):
+                    orig_column = orig_header[i]
+                    if orig_column != column:
+                        modified_columns.append((orig_column, column))
+                modified_result = [" was modified to ".join(c) for c in modified_columns]
+                msg = "Headers were modified based on ArcGIS field name restrictions:\n" \
+                      + "\n".join(modified_result)
+                parameters[0].setWarningMessage(msg)
+ 
         if validator:
              return validator(parameters).updateMessages()
 
