@@ -169,50 +169,70 @@ class ClassifiedImport(object):
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
 
-        # perform some dynamic list filtering, in the case that we have a 
-        # CSV input selected.
-        cols = {'input_csv': 0,
-                'sr': 1,
-                'output_loc': 2,
-                'output_gdb': 3,
-                'output_fc': 4,
-                'Genetic': 5,
-                'Identification': 6,
-                'Location': 7,
-                'Other': 8
-        }
         dynamic_cols = ['Genetic', 'Identification', 'Location', 'Other']
         unused_values = []
 
-        # XXX: make this use the generalized utils code to do the checking.
-        if parameters[cols['input_csv']] is not None:
-            # FIXME: handle other file formats than just a CSV with 
-            # commas (see fancy import addin)
-
-            # read the CSV header
-            input_csv = csv.reader(open(parameters[cols['input_csv']].valueAsText, 'r'), delimiter=',')
-
-            # pull off the first line of the CSV
-            header = input_csv.next()
-            unused_values = header
+        if parameters[self.cols['input_csv']] is not None:
+            #f = open('genegis.log', 'w')
+            input_table_name = parameters[self.cols['input_csv']].valueAsText
+            # read the validated header
+            (header, data, dialect) = utils.validated_table_results(input_table_name)
+            # create a duplicate list; but a copy so we can modify the list as we go
+            unused_values = list(header)
+            # map search strings to variable groups 
+            group_expressions= [
+                ('Genetic', '^sex$'),
+                ('Genetic', '^haplotype$'),
+                ('Genetic', '^l_'), 
+                ('Identification', '_id$'),
+                ('Location', '^x$'), 
+                ('Location', '^y$'),
+                ('Location', 'longitude'),
+                ('Location', 'latitude')
+            ]
            
             # assign 'known' values based on some inference
+            #f.write("Initial header: %s\n" % header)
+             
+            # A little tricky: implement unique result lists for each of
+            # our group types.
+            results = dict(((group,[]) for group in dynamic_cols))
+            for (group, expr) in group_expressions:
+                #f.write("current list of unused values at expr %s [%s]: %s\n" % (expr, group, unused_values))
+                for value in header:
+                    if re.search(expr, value, re.IGNORECASE):
+                        #f.write("FOUND: %s in group %s\n" % (value, group))
+                        results[group].append(value)
+                        unused_values.remove(value)
+                    #else:
+                    #    f.write("NOT FOUND: %s in group %s\n" % (value, group))
+                # modify the resulting attribute column list
+                #f.write("Applying final filtered list of %s to group %s\n" % (results, group))
+            # any remaining attributes should be included under 'Other'
+            results['Other'] = unused_values
+
+            # update the lists provided to the user 
+            for (group, vals) in results.items():
+                parameters[self.cols[group]].filter.list = vals
+                parameters[self.cols[group]].value = vals
+            #f.write("Unused values remaining: %s\n" % unused_values) 
             
             
             # try modifying our first attribute columns list
             parameters[cols['Genetic']].filter.list = unused_values
 
         # select each set of columns and filter dependent lists
+        """
         for i, label in enumerate(dynamic_cols[1:]):
-            update_label = cols[label]
-            filter_label= cols[dynamic_cols[i]]
+            update_label = self.cols[label]
+            filter_label = self.cols[dynamic_cols[i]]
             #f.write("Running with: {0} {1} {2}\n\n".format(update_label,
             #    filter_label, ",".join(unused_values)))
             unused_values = self.updateDynamicFilters(
                     parameters[filter_label], 
                     parameters[update_label], 
                     unused_values)
-
+        """
         if validator:
              return validator(parameters).updateParameters()
 
