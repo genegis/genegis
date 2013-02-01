@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import contextlib
 import csv
 import os
 import sys
-
+import re
 import arcpy
 
 # enable local imports; allow importing both this directory and one above
