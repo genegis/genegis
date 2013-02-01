@@ -141,7 +141,9 @@ def validate_column_label(column):
     for c in INVALID_CHARS: column = column.replace(c, '')
     if not re.match('^[A-z]', column):
         column = 'genegis_' + column
-    
+
+    # 'Field names are limited to 64 characters for both file and 
+    # personal geodatabases.'
     if len(column) > 64:
         column = column[:63]
 
