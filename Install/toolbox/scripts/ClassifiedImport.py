@@ -54,11 +54,13 @@ def main(input_table=None, sr=None, output_loc=None,
             # Process: Create File GDB
             # SYNTAX: CreateFileGDB_management (out_folder_path, out_name, {out_version})
             arcpy.CreateFileGDB_management(output_loc, output_gdb, "CURRENT")
+            utils.msg("File GDB successfully created.")
+        else:
+            utils.msg("File GDB already exists, skipping.")
     except Exception as e:
         utils.msg("Error creating File GDB", mtype='error', exception=e)
+        sys.exit()
         
-    utils.msg("File GDB successfully created")
-
     # TODO: WE NEED TO DO A FULL CLASSIFICATION OF THE INPUT AND MANUALLY BUILD UP THE LAYER...
     # We'll have two columns per locus, need to import correctly
 
