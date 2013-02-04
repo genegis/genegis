@@ -98,9 +98,21 @@ def parse_table(input_file):
 
 def validate_table(input_file):
     (header, data, dialect) = parse_table(input_file)
-    # XXX: handle TWO COLUMNS with the same name? Does ArcGIS do this automatically?
-    header = [validate_column_label(column) for column in header]
-    
+     
+    # Handle multiple columns with the same name
+    validated_header = []
+    # Generate a list of columns which have duplicate names.
+    duplicate_cols = set([i for i in header if header.count(i) > 1])
+    duplicate_positions = collections.Counter(duplicate_cols)
+    for col in header:
+        label = validate_column_label(col)
+        # handle the duplicate columns, labeling each item uniquely
+        if col in duplicate_cols:
+            # get current dupe position
+            label = label + "_" + str(duplicate_positions[col])
+            duplicate_positions[col] += 1
+        validated_header.append(label)
+   
     # set up output file name 
     temp_dir = os.path.dirname(input_file)
     (label, ext) = os.path.splitext(os.path.basename(input_file))
@@ -112,7 +124,7 @@ def validate_table(input_file):
 
     with open(temp_csv, 'wb') as output_file:
         writer = csv.writer(output_file, dialect=dialect)
-        writer.writerow(header)
+        writer.writerow(validated_header)
         for row in data:
             writer.writerow(row)
     return temp_csv
