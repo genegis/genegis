@@ -129,6 +129,7 @@ def main(input_table=None, sr=None, output_loc=None,
     # Copy our features to a permanent layer
     try:
         fc_path = os.path.join(gdb_path, output_fc)
+
         # for this step, overwrite any existing results
         arcpy.env.overwriteOutput = config.overwrite
 
@@ -137,29 +138,17 @@ def main(input_table=None, sr=None, output_loc=None,
         arcpy.CopyFeatures_management(temporary_layer, fc_path, "", "0", "0", "0")
     except Exception as e:
         utils.msg("Error copying features to a feature class", mtype='error', exception=e)
+        sys.exit()
    
+    # clean up: remove intermediate steps. 
     try:
         arcpy.Delete_management(temporary_layer)
+        if file_type == 'Text':
+            # delete the temporary table with validated names.
+            os.remove(data_table)
     except Exception as e:
         utils.msg("Unable to delete temporary layer", mtype='error', exception=e)
-
-   
-    # finally, convert the imported feature into a new geometry
-    try:
-        fc_path = os.path.abspath(os.path.join(gdb_path, output_fc))
-        # for this step, overwrite any existing results
-        arcpy.env.overwriteOutput = config.overwrite
-
-        # Process: Copy Features
-        # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
-        arcpy.CopyFeatures_management(temporary_layer, fc_path, "", "0", "0", "0")
-    except Exception as e:
-        utils.msg("Error copying features to a feature class", mtype='error', exception=e)
-   
-    try:
-        arcpy.Delete_management(temporary_layer)
-    except Exception as e:
-        utils.msg("Unable to delete temporary layer", mtype='error', exception=e)
+        sys.exit()
 
     utils.msg("Feature Class successfully created, your SRGD file has been imported!")
 
