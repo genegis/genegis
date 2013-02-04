@@ -96,18 +96,24 @@ def main(input_table=None, sr=None, output_loc=None,
 
     except Exception as e:
         utils.msg("Error converting table %s to GDB" % input_table, mtype='error', exception=e)
+        sys.exit()
+
+    input_csv = os.path.join(gdb_path, label)
+    utils.msg("Table successfully imported: \n %s" % input_csv)
 
     # Convert the table to a temporary spatial feature
     try:
-
-        input_csv = os.path.join([gdb_path, label)]
-
         # A temporary XY Layer needed to create the feature class. 
         # NOTE: This table is deleted when the script finishes
-        temporary_layer = os.path.join([input_csv, '_xy_temp'])
-
+        temporary_layer = input_csv + '_xy_temp'
+          
         # 'location', ArcGIS passes semicolon separated values
-        (x, y) = location.split(";")
+        loc_parts = location.split(";")
+        # TODO: ArcGIS doesn't preserve order; do we need separate fields for these? or some other approach?
+        if loc_parts[0].lower() in ['x', 'longitude']:
+            (x, y) = loc_parts
+        else:
+            (y, x) = loc_parts
 
         # Process: Make XY Event Layer.  This layer is temporary and will be 
         # deleted upon script completion.
@@ -116,8 +122,9 @@ def main(input_table=None, sr=None, output_loc=None,
         arcpy.MakeXYEventLayer_management(input_csv, x, y, temporary_layer, sr)
     except Exception as e:
         utils.msg("Error making XY Event Layer", mtype='error', exception=e)
+        sys.exit()
     
-    utils.msg("XY event layer successfully created: \n %s" % temporary_layer)
+    utils.msg("XY event layer successfully created.")
   
     # Copy our features to a permanent layer
     try:
