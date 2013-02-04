@@ -135,10 +135,12 @@ def validate_column_label(column):
 
     More at: http://blogs.esri.com/esri/arcgis/2010/08/10/working-with-microsoft-excel-in-arcgis-desktop/
     """
-    INVALID_CHARS = '`~@#$%^&*()-+=|\,<>?/{}.!’[]:;'
+    INVALID_CHARS = '`~@#$%^&*()+=|\,<>?/{}.!’[]:;'
 
-    column = column.replace(" ", "_")
+    # replace a few common characters with underscores
+    column = column.replace(" ", "_").replace("-", "_")
     for c in INVALID_CHARS: column = column.replace(c, '')
+    # if the column starts with non-text, prefix the string with 'genegis'
     if not re.match('^[A-z]', column):
         column = 'genegis_' + column
 
