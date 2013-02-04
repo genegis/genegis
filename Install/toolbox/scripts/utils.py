@@ -71,25 +71,29 @@ def parse_table(input_file):
     # TODO: handle UTF-8 encodings robustly
     header = None
     data = None
-    with open(input_file, 'rb') as input_table: 
-        # sample the first 4k of the file
-        sample = input_table.read(4096)
-        sniffer = csv.Sniffer()
-    
-        if not sniffer.has_header(sample):
-            # require the input to have a valid header
-            raise MissingCSVHeader
-        else:
-            dialect = sniffer.sniff(sample)
-            # reset reading
-            input_table.seek(0)
+    dialect = None
+    try:
+        with open(input_file, 'rb') as input_table: 
+            # sample the first 4k of the file
+            sample = input_table.read(4096)
+            sniffer = csv.Sniffer()
         
-            table = csv.reader(input_table, dialect)
-            # pull off the first line of the CSV
-            header = table.next()
-            data = []
-            for row in table:
-                data.append(row)
+            if not sniffer.has_header(sample):
+                # require the input to have a valid header
+                raise MissingCSVHeader
+            else:
+                dialect = sniffer.sniff(sample)
+                # reset reading
+                input_table.seek(0)
+            
+                table = csv.reader(input_table, dialect)
+                # pull off the first line of the CSV
+                header = table.next()
+                data = []
+                for row in table:
+                    data.append(row)
+    except Exception as e:
+        raise e        
     return (header, data, dialect)
 
 # TODO: ADD TEST CASES FOR:
