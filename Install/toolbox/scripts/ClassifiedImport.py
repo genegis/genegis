@@ -72,7 +72,7 @@ def main(input_table=None, sr=None, output_loc=None,
     if file_type == 'Text':
         # Generate a temporary copy of the input CSV which corrects it for 
         # ArcGIS, stripping invalid column label characters.
-        data_table = validate_table(input_table)
+        data_table = utils.validate_table(input_table)
     else:
         data_table = input_table 
     # OPTIONS:
@@ -86,8 +86,11 @@ def main(input_table=None, sr=None, output_loc=None,
         arcpy.env.overwriteOutput = config.overwrite
         
         # generate table name based on input name
-        (label, ext) = os.path.basename(input_table)
-       
+        (label, ext) = os.path.splitext(os.path.basename(input_table))
+        
+        input_csv = os.path.join(gdb_path, label)
+        # TODO: validate label will produce a valid table name
+
         # write out our filtered table to ArcGIS
         arcpy.TableToTable_conversion(data_table, gdb_path, label)
 
