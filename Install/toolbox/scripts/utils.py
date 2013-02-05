@@ -55,6 +55,8 @@ def file_type(filename):
     known_types = {
         '.csv' : 'Text',
         '.txt' : 'Text',
+        '.asc' : 'Text',
+        '.tab' : 'Text',
         '.xls' : 'Excel',
         '.xlsx': 'Excel',
     }
