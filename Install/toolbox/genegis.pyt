@@ -12,9 +12,11 @@ for path in [local_path, os.path.join(local_path, '..')]:
     full_path = os.path.abspath(path)
     sys.path.insert(0, os.path.abspath(path))
 
+# addin specific configuration and utility functions
 import utils
 import config
-# import utilities from our invidivual scripts as well.
+
+# import utilities & config from our scripts as well
 from scripts import utils
 
 class Toolbox(object):
@@ -43,7 +45,6 @@ class ClassifiedImport(object):
         """Modify the values and properties of parameters before internal
         validation is performed.  This method is called whenever a parmater
         has been changed."""
-        print "parameters updated..."
         return
     
       def updateMessages(self):
@@ -68,7 +69,7 @@ class ClassifiedImport(object):
             'Location': 7,
             'Other': 8
         }
- 
+
     def getParameterInfo(self):
         # SRGD_Input_File
         input_csv = arcpy.Parameter()
@@ -145,7 +146,7 @@ class ClassifiedImport(object):
         other.direction = 'Input'
         other.multiValue = True
         other.filter.list = ['Region', 'Date_Time']
-
+        
         return [input_csv, sr, output_loc, output_gdb, output_fc, genetic, identification, loc, other]
 
     def isLicensed(self):
@@ -266,7 +267,7 @@ class ClassifiedImport(object):
                 msg = "Headers were modified based on ArcGIS field name restrictions:\n" \
                       + "\n".join(modified_result)
                 parameters[0].setWarningMessage(msg)
- 
+         
         if validator:
              return validator(parameters).updateMessages()
 
