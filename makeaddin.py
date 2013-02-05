@@ -7,10 +7,18 @@ current_path = os.path.dirname(os.path.abspath(__file__))
 out_zip_name = os.path.join(current_path, 
                             os.path.basename(current_path) + ".esriaddin")
 
-BACKUP_FILE_PATTERN = re.compile(".*_addin_[0-9]+[.]py$", re.IGNORECASE)
+backup_patterns = {
+    'PLUGIN_BACKUP_PATTERN': re.compile(".*_addin_[0-9]+[.]py$", re.IGNORECASE),
+    'VIM_SWAP_PATTERN': re.compile(".*.sw[op]$", re.IGNORECASE),
+    'COMPLIED_PYTHON_PATTERN': re.compile(".*.pyc$", re.IGNORECASE)
+}
 
 def looks_like_a_backup(filename):
-    return bool(BACKUP_FILE_PATTERN.match(filename))
+    is_backup = False
+    for name, pattern in backup_patterns.items():
+        if bool(pattern.match(filename)):
+            is_backup = True
+    return is_backup
 
 zip_file = zipfile.ZipFile(out_zip_name, 'w')
 for filename in ('config.xml', 'README.md', 'makeaddin.py'):
