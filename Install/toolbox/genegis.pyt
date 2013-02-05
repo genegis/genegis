@@ -179,36 +179,43 @@ class ClassifiedImport(object):
             (header, data, dialect) = utils.validated_table_results(input_table_name)
             # create a duplicate list; but a copy so we can modify the list as we go
             unused_values = list(header)
-            # map search strings to variable groups 
+            # map search strings to variable groups, include 'protected'
+            # column to explicitly define type for these columns
             group_expressions= [
-                ('Genetic', '^sex$'),
-                ('Genetic', '^haplotype$'),
-                ('Genetic', '^dlphap$'),
-                ('Genetic', '^l_'), 
-                ('Identification', '_id$'),
-                ('Location', '^x$'), 
-                ('Location', '^y$'),
-                ('Location', 'longitude'),
-                ('Location', 'latitude')
+               #  group     regex    column type
+                ('Genetic', '^sex$', 'Text'),
+                ('Genetic', '^haplotype$', 'Text'),
+                ('Genetic', '^dlphap$', 'Text'),
+                ('Genetic', '^l_', None), 
+                ('Identification', '_id$', 'Text'),
+                ('Location', '^x$', None), 
+                ('Location', '^y$', None),
+                ('Location', 'longitude', None),
+                ('Location', 'latitude', None)
             ]
-           
+
             # assign 'known' values based on some inference
             #f.write("Initial header: %s\n" % header)
-             
+
             # A little tricky: implement unique result lists for each of
             # our group types.
             results = dict(((group,[]) for group in dynamic_cols))
-            for (group, expr) in group_expressions:
+            for (group, expr, data_type) in group_expressions:
                 #f.write("current list of unused values at expr %s [%s]: %s\n" % (expr, group, unused_values))
-                for value in header:
+                for (i, value) in enumerate(header):
                     if re.search(expr, value, re.IGNORECASE):
                         #f.write("FOUND: %s in group %s\n" % (value, group))
                         results[group].append(value)
                         unused_values.remove(value)
+                        # if a data type is defined for this column,
+                        # record it so we can force a mapping.
+                        if data_type is not None:
+                            config.protected_columns[value] = (i + 1, data_type)
                     #else:
                     #    f.write("NOT FOUND: %s in group %s\n" % (value, group))
                 # modify the resulting attribute column list
                 #f.write("Applying final filtered list of %s to group %s\n" % (results, group))
+
             # any remaining attributes should be included under 'Other'
             results['Other'] = unused_values
 
@@ -276,7 +283,8 @@ class ClassifiedImport(object):
             genetic=parameters[5].valueAsText,
             identification=parameters[6].valueAsText,
             location=parameters[7].valueAsText,
-            other=parameters[8].valueAsText)
+            other=parameters[8].valueAsText,
+            protected_map=config.protected_columns)
         
 class extractRasterByPoints(object):
     class ToolValidator:

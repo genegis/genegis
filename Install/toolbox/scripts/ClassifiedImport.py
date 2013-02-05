@@ -37,7 +37,7 @@ import config
 def main(input_table=None, sr=None, output_loc=None,
     output_gdb=None, output_fc=None, genetic=None,
     identification=None, location=None, other=None,
-    mode=config.mode):
+    mode=config.mode, protected_map=None):
 
     # First, create a geodatabase for all our future results.
     # TODO: can we generate this from a single value?
@@ -73,8 +73,12 @@ def main(input_table=None, sr=None, output_loc=None,
         # Generate a temporary copy of the input CSV which corrects it for 
         # ArcGIS, stripping invalid column label characters.
         data_table = utils.validate_table(input_table)
+
+        # TODO: use field mapping to handle the date-time field?
+        utils.protect_columns(data_table, protected_map)
     else:
         data_table = input_table 
+    
     # OPTIONS:
     # arcpy.CopyRows_management("my_table.csv", "c:\\my.gdb\my_table")
     # COPY ROWS will add an Object ID field; table to table WILL NOT.
@@ -172,6 +176,7 @@ if __name__=='__main__':
         ('identification', None),
         ('location', None),
         ('other', None),
+        ('protected_map', None)
     )
 
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)

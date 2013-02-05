@@ -166,3 +166,30 @@ def validate_column_label(column):
         column = column[:63]
 
     return column
+
+def protect_columns(input_table_name=None, protected_columns={}):
+    # input table directory
+    input_dir = os.path.dirname(input_table_name)
+
+    # just the table name
+    table_name = os.path.basename(input_table_name)
+
+    # open the relevant schema.ini file
+    schema_path = os.path.join(input_dir, 'schema.ini')
+
+    # If it exists already, we want append. Don't use binary mode, let 
+    # Python auto-conver the newlines.
+    if os.path.exists(schema_path):
+        mode = 'a+'
+    else:
+        mode = 'w+'
+    with open(schema_path, mode) as schema_file:
+        header = "[{table_name}]\n".format(table_name=table_name)
+        schema_file.write(header)
+        for (value, res_dict) in protected_columns.items():
+            (idx, data_type) = res_dict
+            col_label = "Col{idx}={value} {data_type}\n".format(
+                idx=idx, value=value, data_type=data_type)
+            schema_file.write(col_label)
+
+    return schema_path

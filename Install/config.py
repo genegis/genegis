@@ -20,3 +20,7 @@ srid = 4326
 sr = arcpy.SpatialReference(srid)
 
 primary_results = None
+
+# hack: share state on which columns should be protected against data manipulation
+# columns which have explicit data typing set
+protected_columns = {}
