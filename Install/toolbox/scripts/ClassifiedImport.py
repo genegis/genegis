@@ -84,7 +84,6 @@ def main(input_table=None, sr=None, output_loc=None,
     # COPY ROWS will add an Object ID field; table to table WILL NOT.
     # arcpy.TableToTable_conversion (in_rows, out_path, out_name, {where_clause}, {field_mapping}, ...)
    
-    # TODO: use field mapping to handle the date-time field?
     # write out our table to the newly created GDB.
     try:
         arcpy.env.overwriteOutput = config.overwrite
@@ -92,11 +91,11 @@ def main(input_table=None, sr=None, output_loc=None,
         # generate table name based on input name
         (label, ext) = os.path.splitext(os.path.basename(input_table))
         
-        input_csv = os.path.join(gdb_path, label)
-        # TODO: validate label will produce a valid table name
+        # Validate label will produce a valid table name
+        validated_label = arcpy.ValidateTableName(label)
 
         # write out our filtered table to ArcGIS
-        arcpy.TableToTable_conversion(data_table, gdb_path, label)
+        arcpy.TableToTable_conversion(data_table, gdb_path, validated_label)
 
     except Exception as e:
         utils.msg("Error converting table %s to GDB" % input_table, mtype='error', exception=e)
