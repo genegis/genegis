@@ -151,7 +151,9 @@ def validate_column_label(column):
      - 64 character field names
      - can't use reserved words [http://support.microsoft.com/kb/286335]
 
-    More at: http://blogs.esri.com/esri/arcgis/2010/08/10/working-with-microsoft-excel-in-arcgis-desktop/
+    Alternatively, can use ValidateFieldName for a similar effect, 
+    without the same fine-grained control: 
+      http://resources.arcgis.com/en/help/main/10.1/index.html#//018v00000060000000
     """
     INVALID_CHARS = '`~@#$%^&*()+=|\,<>?/{}.!’[]:;'
 
