@@ -174,9 +174,13 @@ class ClassifiedImport(object):
         dynamic_cols = ['Genetic', 'Identification', 'Location', 'Other']
         unused_values = []
 
-        if parameters[self.cols['input_csv']] is not None:
+        input_table_name = parameters[self.cols['input_csv']].valueAsText
+        output_loc = parameters[self.cols['output_loc']].valueAsText
+        output_gdb = parameters[self.cols['output_gdb']].valueAsText
+        output_fc = parameters[self.cols['output_fc']].valueAsText
+
+        if input_table_name is not None:
             #f = open('genegis.log', 'w')
-            input_table_name = parameters[self.cols['input_csv']].valueAsText
             # read the validated header
             (header, data, dialect) = utils.validated_table_results(input_table_name)
             # create a duplicate list; but a copy so we can modify the list as we go
@@ -225,13 +229,15 @@ class ClassifiedImport(object):
             for (group, vals) in results.items():
                 parameters[self.cols[group]].filter.list = vals
                 parameters[self.cols[group]].value = vals
-            #f.write("Unused values remaining: %s\n" % unused_values) 
-            
-            
-            # try modifying our first attribute columns list
-            parameters[cols['Genetic']].filter.list = unused_values
 
-        # select each set of columns and filter dependent lists
+            #f.write("Unused values remaining: %s\n" % unused_values) 
+
+        if output_loc is not None and input_table_name is not None and output_gdb is not None:
+            # derive the output feature class name if these two parameters are set
+            (label, ext) = os.path.splitext(os.path.basename(input_table_name))
+            output_fc_path = os.path.join(output_loc, "%s.gdb" % output_gdb, "%s_Spatial" % label)
+            parameters[self.cols['output_fc']].value = output_fc_path
+
         """
         for i, label in enumerate(dynamic_cols[1:]):
             update_label = self.cols[label]
@@ -248,9 +254,8 @@ class ClassifiedImport(object):
 
     def updateMessages(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
-        in_table = parameters[self.cols['input_csv']]
-        if in_table is not None:
-            input_table_name = in_table.valueAsText
+        input_table_name = parameters[self.cols['input_csv']].valueAsText
+        if input_table_name is not None:
             # read the original data
             (orig_header, orig_data, orig_dialect) = utils.parse_table(input_table_name)
             # read the validated header
@@ -274,6 +279,7 @@ class ClassifiedImport(object):
 
     def execute(self, parameters, messages):
         from scripts import ClassifiedImport
+
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters
         ClassifiedImport.main(
@@ -287,7 +293,9 @@ class ClassifiedImport(object):
             location=parameters[7].valueAsText,
             other=parameters[8].valueAsText,
             protected_map=config.protected_columns)
-        
+
+        return
+
 class extractRasterByPoints(object):
     class ToolValidator:
       """Class for validating a tool's parameter values and controlling
