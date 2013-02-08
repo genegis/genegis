@@ -136,9 +136,14 @@ def main(input_table=None, sr=None, output_loc=None,
         # for this step, overwrite any existing results
         arcpy.env.overwriteOutput = config.overwrite
 
+        # set to the results for this step
+        add_outputs_default = arcpy.env.addOutputsToMap
+        arcpy.env.addOutputsToMap = False
         # Process: Copy Features
         # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
+        utils.msg("Executing copy features for our final result...")
         arcpy.CopyFeatures_management(temporary_layer, fc_path, "", "0", "0", "0")
+        utils.msg("Features succesfully created: \n %s" % fc_path)
     except Exception as e:
         utils.msg("Error copying features to a feature class", mtype='error', exception=e)
         sys.exit()
@@ -153,10 +158,8 @@ def main(input_table=None, sr=None, output_loc=None,
         utils.msg("Unable to delete temporary layer", mtype='error', exception=e)
         sys.exit()
 
-    utils.msg("Feature Class successfully created, your SRGD file has been imported!")
-
-
-
+    # reset adding of outputs.
+    arcpy.env.addOutputsToMap = add_outputs_default
     utils.msg("Feature Class successfully created, your SRGD file has been imported!")
 
 # when executing as a standalone script get parameters from sys
