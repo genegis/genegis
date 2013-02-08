@@ -20,12 +20,12 @@
     <Commands>
         <!-- Data manipulation -->
         <Button
-          caption="Import"
+          caption="Import Data"
           category="geneGIS"
           class="ImportData"
           id="genegis_import.button"
           image=""
-          message="Import data from a SRGD formatted CSV file."
+          message="Import data from a SRGD formatted table (CSV, Text or XLS Spreadsheet)."
           tip="">
           <Help heading="" />
       </Button>
