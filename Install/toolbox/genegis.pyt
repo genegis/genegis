@@ -107,9 +107,10 @@ class ClassifiedImport(object):
         output_fc= arcpy.Parameter()
         output_fc.name = u'Output_Feature_Class'
         output_fc.displayName = u'Output Feature Class'
-        output_fc.parameterType = 'Required'
-        output_fc.direction = 'Input'
-        output_fc.datatype = u'String'
+        output_fc.parameterType = 'Derived'
+        output_fc.direction = 'Output'
+        output_fc.datatype = u'DEFeatureClass'
+        output_fc.parameterDependencies = [output_loc.name, output_gdb.name]
 
         # genetic columns
         genetic = arcpy.Parameter()
