@@ -98,10 +98,10 @@
           category="geneGIS"
           class="LayerCombo"
           id="genegis_layer_combo.combobox"
-          itemSizeString="WWWWW"
+          itemSizeString="WWWWWWWWW"
           message="select a layer for analysis"
           rows="2"
-          sizeString="WWWWW"
+          sizeString="WWWWWWWWW"
           tip="Choose the layer to use for analysis.">
           <Help
             heading="Select Layer"
