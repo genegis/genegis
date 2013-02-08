@@ -328,6 +328,8 @@ class extractRasterByPoints(object):
         self.canRunInBackground = False
 
     def getParameterInfo(self):
+        # FIXME: Doesn't run if the user hasn't selected a layer in the combobox. Either throw an error before they run the tool, or let them fill it out, but populate it if they've selected a layer.
+
         # Raster Input
         # FIXME: only handles one raster currently
         input_raster = arcpy.Parameter()
