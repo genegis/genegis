@@ -131,8 +131,6 @@ def main(input_table=None, sr=None, output_loc=None,
   
     # Copy our features to a permanent layer
     try:
-        fc_path = os.path.join(gdb_path, output_fc)
-
         # for this step, overwrite any existing results
         arcpy.env.overwriteOutput = config.overwrite
 
@@ -141,9 +139,8 @@ def main(input_table=None, sr=None, output_loc=None,
         arcpy.env.addOutputsToMap = False
         # Process: Copy Features
         # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
-        utils.msg("Executing copy features for our final result...")
-        arcpy.CopyFeatures_management(temporary_layer, fc_path, "", "0", "0", "0")
-        utils.msg("Features succesfully created: \n %s" % fc_path)
+        arcpy.CopyFeatures_management(temporary_layer, output_fc, "", "0", "0", "0")
+        utils.msg("Features succesfully created: \n %s" % output_fc)
     except Exception as e:
         utils.msg("Error copying features to a feature class", mtype='error', exception=e)
         sys.exit()
@@ -152,8 +149,11 @@ def main(input_table=None, sr=None, output_loc=None,
     try:
         arcpy.Delete_management(temporary_layer)
         if file_type == 'Text':
-            # delete the temporary table with validated names.
-            os.remove(data_table)
+            # Delete the temporary table with validated names;
+            # temp file is stored in the same spot as the original.
+            temp_dir = os.path.dirname(input_table)
+            temp_path = os.path.join(temp_dir, data_table)
+            os.remove(temp_path)
     except Exception as e:
         utils.msg("Unable to delete temporary layer", mtype='error', exception=e)
         sys.exit()
