@@ -35,6 +35,14 @@ class ExportGenAlEx(object):
     def onClick(self):
         utils.toolDialog(genegis_toolbox, "ExportGenAlEx")
 
+class ExportKML(object):
+    """Implementation for genegis_export_kml.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        utils.toolDialog("Conversion Tools", "LayerToKML")
+
 #
 # summarization tools
 #
@@ -146,6 +154,7 @@ class LayerCombo(object):
             # prior to loading
             config.selected_object = None
         pass
+
     def onFocus(self, focused):
         # update the layer list _only_ on focus events, preventing this from
         # being triggered on the addin startup.

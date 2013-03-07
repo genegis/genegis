@@ -30,6 +30,7 @@
           <Help heading="" />
       </Button>
 
+        <!-- Export -->
         <Button
           caption="Export to GenAlEx"
           category="geneGIS"
@@ -40,6 +41,18 @@
           tip="">
           <Help heading="" />
         </Button>
+
+        <Button
+          caption="Export to KML"
+          category="geneGIS"
+          class="ExportKML"
+          id="genegis_export_kml.button"
+          image=""
+          message="Export data to KML. Style information will be retained, and export is of a single layer."
+          tip="">
+          <Help heading="" />
+        </Button>
+
 
         <!-- Summarization tools -->
         <Button
@@ -142,6 +155,7 @@
           separator="false">
           <Items>
             <Button refID="genegis_export_genalex.button" />
+            <Button refID="genegis_export_kml.button" /> 
           </Items>
         </Menu>
         <Menu
