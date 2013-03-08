@@ -187,7 +187,7 @@ class ClassifiedImport(object):
             unused_values = list(header)
             # map search strings to variable groups, include 'protected'
             # column to explicitly define type for these columns
-            group_expressions= [
+            group_expressions = [
                #  group     regex    column type
                 ('Genetic', '^sex$', 'Text'),
                 ('Genetic', '^haplotype$', 'Text'),
@@ -197,7 +197,8 @@ class ClassifiedImport(object):
                 ('Location', '^x$', None), 
                 ('Location', '^y$', None),
                 ('Location', 'longitude', None),
-                ('Location', 'latitude', None)
+                ('Location', 'latitude', None),
+                ('Other', '^date_time$', 'Text')
             ]
 
             # assign 'known' values based on some inference

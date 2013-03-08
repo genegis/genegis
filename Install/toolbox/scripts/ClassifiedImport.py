@@ -79,12 +79,7 @@ def main(input_table=None, sr=None, output_loc=None,
     else:
         data_table = input_table 
     
-    # OPTIONS:
-    # arcpy.CopyRows_management("my_table.csv", "c:\\my.gdb\my_table")
-    # COPY ROWS will add an Object ID field; table to table WILL NOT.
-    # arcpy.TableToTable_conversion (in_rows, out_path, out_name, {where_clause}, {field_mapping}, ...)
-   
-    # write out our table to the newly created GDB.
+    # write out our table, after additional validation.
     try:
         arcpy.env.overwriteOutput = config.overwrite
         
@@ -104,6 +99,26 @@ def main(input_table=None, sr=None, output_loc=None,
     input_csv = os.path.join(gdb_path, label)
     utils.msg("Table successfully imported: \n %s" % input_csv)
 
+    # intially, our date column is imported as text to prevent ArcGIS 
+    # from inadvertently munging it. Add a formatted date column.
+    try:
+        # TODO: make date field defined elsewhere.
+        input_time_field = "Date_Time"
+        field_name = 'Date_formatted'
+        expression = 'formatDate(!{input_time_field}!)'.format(
+            input_time_field=input_time_field)
+        code_block = """
+import dateutil.parser
+def formatDate(input_date):
+    parsed_date = dateutil.parser.parse(input_date)
+    return parsed_date.strftime("%m/%d/%Y %H:%M:%S")"""
+        arcpy.AddField_management(input_csv, field_name, 'DATE')
+        arcpy.CalculateField_management(input_csv, field_name, expression, "PYTHON_9.3", code_block)
+    except Exception as e:
+        utils.msg("Error parsing date information", mtype='error', exception=e)
+        sys.exit()
+    utils.msg("Added a formatted date field.")
+ 
     # Convert the table to a temporary spatial feature
     try:
         # A temporary XY Layer needed to create the feature class. 
