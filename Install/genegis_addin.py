@@ -146,6 +146,7 @@ class LayerCombo(object):
         self.enabled = True
         self.dropdownWidth = "WWWWWWW"
         self.width = "WWWWWWW"
+        self.value = None
 
     def onSelChange(self, selection):
         if selection:
