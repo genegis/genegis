@@ -20,7 +20,7 @@
     <Commands>
         <!-- Data manipulation -->
         <Button
-          caption="Import Data"
+          caption="Import"
           category="geneGIS"
           class="ImportData"
           id="genegis_import.button"
@@ -53,7 +53,18 @@
           <Help heading="" />
         </Button>
 
+        <Button
+          caption="Export to SRGD"
+          category="geneGIS"
+          class="ExportSRGD"
+          id="genegis_export_srgd.button"
+          image=""
+          message="Export data to a SRGD formatted table (CSV). Useful for uploading data to Shepard Project sites."
+          tip="">
+          <Help heading="" />
+      </Button>
 
+ 
         <!-- Summarization tools -->
         <Button
           caption="Extract Raster Values"
@@ -122,7 +133,17 @@
         </ComboBox>
       </Commands>
 
-      <Extensions></Extensions>
+      <Extensions>
+        <Extension 
+          autoLoad="true"
+          name="geneGIS"
+          showInExtensionDialog="true"
+          productName="geneGIS"
+          id="genegis_addin.extension"
+          description="combining genetic and spatial data"
+          class="geneGISExtension"
+          category="geneGIS setup" />
+      </Extensions>
 
       <!-- the primary toolbar which everything is nested within -->
       <Toolbars>
@@ -156,6 +177,7 @@
           <Items>
             <Button refID="genegis_export_genalex.button" />
             <Button refID="genegis_export_kml.button" /> 
+            <Button refID="genegis_export_srgd.button" /> 
           </Items>
         </Menu>
         <Menu
