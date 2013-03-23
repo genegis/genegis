@@ -13,7 +13,7 @@ for path in [local_path, os.path.join(local_path, '..')]:
     sys.path.insert(0, os.path.abspath(path))
 
 # addin specific configuration and utility functions
-import utils
+import utils as addin_utils
 import config
 
 # import utilities & config from our scripts as well
@@ -23,7 +23,7 @@ class Toolbox(object):
     def __init__(self):
         self.label = u'geneGIS_Jan_2013'
         self.alias = ''
-        self.tools = [ExportGenAlEx, SelectDataByAttributes, ClassifiedImport, extractRasterByPoints]
+        self.tools = [ExportGenAlEx, SelectDataByAttributes, ClassifiedImport, extractRasterByPoints, Export]
 
 # Tool implementation code
 class ClassifiedImport(object):
@@ -621,264 +621,59 @@ class SelectDataByAttributes(object):
         if validator:
              return validator(parameters).updateMessages()
     def execute(self, parameters, messages):
-        with script_run_as(u'C:\\data\\arcgis\\toolboxes\\geneGIS_29July2012\\Scripts\\SelectByAttributes.py'):
-            # ------------------------------------------------------------------------------------------------------
-            # SelectByAttributes.py
-            #
-            # Created by: Dori Dick
-            #             College of Earth, Ocean and Atmospheric Sciences
-            #             Oregon State Univeristy
-            #
-            # Created on: 20 April 2012
-            # Last modified: 26 April 2012
-            # 
-            # Description: This script allows the user to perform up to 3 Select By Attribute selections on an input 
-            #                     feature class and then exports the selected records to a new feature class.  A log text
-            #                     file is also created providing a record of the inputs and outputs from the tool run.  For
-            #                     easy reference, the log file will have the same name as the output feature class.
-            #
-            #                     Selections are based on the attribute fields of the feature class and use a SQL 
-            #                     expression for the selection criteria.  The first selection is required and considered to be
-            #                     a "NEW_SELECTION".  The other  two selections are optional.  
-            #
-            #                     There are 3 selection types available to use with this tool:
-            #                            1. NEW_SELECTION = The resulting selection; replaces any previous existing selection
-            #                            2. ADD_TO_SELECTION = The resulting selection is added to an existing selection. 
-            #                                                                           If no selection exists, it acts like a NEW_SELECTION
-            #                            3. SUBSET_SELECTION = The resulting selection is combined with an existing selection; only
-            #                                                                          records common to both are retained.  
-            #
-            # Required Inputs: An existing Feature Class containing spatially referenced genetic data 
-            #                           A NEW_SELECTION SQL expression
-            #                           An output location (geodatabase) and name for the newly created feature class.  
-            #                           An output location where the log file will be written (NOTE: this file willl have the same name
-            #                                  as the output feature class.)
-            #
-            # Optional Inputs: A second and third selection type and assicated SQL expression
-            #
-            # Script Outputs: A new geodatabase feature class and a log text file - both with the same name to allow for easy
-            #                                 reference
-            #              
-            # This script was developed to work with ArcGIS 10 and Python 2.6 installed during ArcGIS installation. 
-            #
-            # ------------------------------------------------------------------------------------------------------
-            
-            # Import arcpy and datetime modules
-            try:    
-                import arcpy
-                from datetime import datetime
-                #import UniqueValue
-            
-            except:
-                print "Error importing modules"
-                print arcpy.GetMessages()
-                
-            messages.AddMessage("Arcpy and datetime modules successfully imported.")
-            
-            print "All needed modules (arcpy, datetime) imported successfully."
-            
-            arcpy.env.overwriteOutput = 1
-            
-            # Setting a boolean statement.  NOTE: The default is set to True so that it will run as a tool within ArcGIS.  
-            # To run the script outside of ArcGIS, change to False in the next line of code
-            RunningWithArcGISGUI = (True)
-            
-            try:
-                # if the script is running within ArcGIS as a tool, get the following user defined parameters: 
-                if (RunningWithArcGISGUI) == (True):            
-                    
-                    # The Input Feature Class
-                    Parameter1 = parameters[0].valueAsText 
-                    
-                    # Output Layer -- a temporary layer from which the selections are made. 
-                    # NOTE: This file is deleted automatically when the script finishes
-                    Parameter2 = "TempLayer"
-                  
-                    # Selection Type 1 -- The first selection must be a NEW_SELECTION
-                    # This user input is required in order for the tool to run
-                    Parameter3 = parameters[1].valueAsText
-                    
-                    # SQL expression 1 -- The string statement, in SQL code, that will be used to select 
-                    # the desired records
-                    Parameter4 = parameters[2].valueAsText
-                     
-                    # Selection Type 2  -- A second selection that can be either ADD_TO_SELECTION or 
-                    # SUBSET_SELECTION   
-                    # NOTE: This selection is optional
-                    Parameter5 = parameters[3].valueAsText
-                    
-                    # SQL statement 2 -- The string statement, in SQL code, that will be used to select 
-                    # the desired records
-                    Parameter6 = parameters[4].valueAsText
-                    
-                    # Selection Type 3 -- A third selection that can be either ADD_TO_SELECTION or 
-                    # SUBSET_SELECTION   
-                    # NOTE: This selection is optional    
-                    Parameter7 = parameters[5].valueAsText
-                    
-                    # SQL statement 3 -- The string statement, in SQL code, that will be used to select 
-                    # the desired records
-                    Parameter8 = parameters[6].valueAsText
-                    
-                     # Location of Output Feature Class -- This must be a location within a geodatabase
-                    Parameter9 = parameters[7].valueAsText
-                    
-                    # Output Feature Class Name
-                    Parameter10 = parameters[8].valueAsText
-                    
-                    # Location of log text file created for this tool run
-                    Parameter11 = parameters[9].valueAsText    
-                
-            # if the script is NOT running within ArcGIS as a tool, please define the following parameters by hard 
-            # coding all the inputs below EXCEPT Parameter2
-                else:       
-                    # The Input Feature Class
-                    Parameter1 =  "C:\\geneGIS\\WorkingFolder\\test_20March.gdb\\SPLASH_Whales"
-                    
-                    # Output Layer -- a temporary layer from which the selections are made. 
-                    # NOTE: This file is deleted automatically when the script finishes
-                    Parameter2 = "TempLayer"
-                    
-                    # Selection Type 1 -- The first selection must be a NEW_SELECTION
-                    # This user input is required in order for the tool to run
-                    Parameter3 = "NEW_SELECTION"
-                    
-                    # SQL expression 1 -- The string statement, in SQL code, that will be used to select 
-                    # the desired records
-                    Parameter4 =  "\"Haplotype\" = 'E1'"
-                    
-                    # Selection Type 2  -- A second selection that can be either ADD_TO_SELECTION or 
-                    # SUBSET_SELECTION   
-                    Parameter5 = "SUBSET_SELECTION"
-                    
-                     # SQL statement 2 -- The string statement, in SQL code, that will be used to select 
-                    # the desired records
-                    Parameter6 = "\"Area\" ='CA-OR'"
-                    
-                    # Selection Type 3 -- A third selection that can be either ADD_TO_SELECTION or 
-                    # SUBSET_SELECTION   
-                    Parameter7 = "SUBSET_SELECTION"
-                    
-                    # SQL statement 3 -- The string statement, in SQL code, that will be used to select 
-                    # the desired records
-                    Parameter8 = "\"Sex\" = 'F'"
-                    
-                    # Location of Output Feature Class -- This must be a location within a geodatabase
-                    Parameter9 = "C:\\geneGIS\\WorkingFolder\\test_20March.gdb"
-                    
-                    # Output Feature Class Name
-                    Parameter10 = "test_selection"     
-                    
-                    # Location of log text file created for this tool run
-                    Parameter11 = "C:\\geneGIS\\WorkingFolder"
-                    
-            except:
-                print ("Error setting tool parameters")
-                print arcpy.GetMessages()
-            
-            print "Parameters successfully defined!"
-            messages.AddMessage("Parameters Successfully defined!")
-            
-            try:
-                
-                # Process: Make Feature Layer.  This layer is temporary and will be deleted upon script completion.
-                # SYNTAX: MakeFeatureLayer_management (in_features, out_layer, {where_clause}, {workspace}, {field_info})
-                arcpy.MakeFeatureLayer_management(Parameter1, Parameter2, "", "", "")  
-                
-            except:
-                print ("Error setting tool parameters")
-                print arcpy.GetMessages()
-            messages.AddMessage("Make Feature Layer completed")
-            
-            try:
-                # Process: Select Layer By Attribute
-                # SYNTAX: SelectLayerByAttribute_management (in_layer_or_view, {selection_type}, {where_clause})
-                arcpy.SelectLayerByAttribute_management(Parameter2, Parameter3, Parameter4)
-            
-            except:
-                print("Unable to complete Select Layer by Attribute")
-                print arcpy.GetMessages()
-            messages.AddMessage("Select Layer By Attribute 1 successfully completed!")
-            
-            try:
-                # if Selection Type 2 (Parameter5) is not blank, conduct the following selection, otherwise pass
-                if Parameter5 <> "":              
-                    
-                    # Process: Select Layer By Attribute
-                    # SYNTAX: SelectLayerByAttribute_management (in_layer_or_view, {selection_type}, {where_clause})        
-                    arcpy.SelectLayerByAttribute_management(Parameter2, Parameter5, Parameter6)
-                    
-                else:
-                    pass
-                
-            except:
-                    print("Unable to complete Select Layer by Attribute")
-                    print arcpy.GetMessages()
-            messages.AddMessage("Select Layer By Attribute 2 successfully completed!")
-            
-            try:
-                # if Selection Type 3 (Parameter7) is not blank, conduct the following selection, otherwise pass
-                if Parameter7 <> "":
-                    
-                    # Process: Select Layer By Attribute
-                    # SYNTAX: SelectLayerByAttribute_management (in_layer_or_view, {selection_type}, {where_clause})         
-                    arcpy.SelectLayerByAttribute_management(Parameter2, Parameter7, Parameter8)
-                    
-                else:
-                    pass
-                
-            except:
-                    print("Unable to complete Select Layer by Attribute")
-                    print arcpy.GetMessages()
-            messages.AddMessage("Select Layer By Attribute 3 successfully completed!")
-            
-            try:
-                
-                # Process: Copy Features
-                # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
-                arcpy.CopyFeatures_management(Parameter2, Parameter9 + "\\" + Parameter10, "", "0", "0", "0")
-            
-            except:
-                print("Unable to copy features to a new feature class")
-                print arcpy.GetMessages()
-            messages.AddMessage("Selected records copied to a new feature class")
-            
-            
-            # Create and open a log text file that will contain the details of the current tool run 
-            OutputFile = open(Parameter11 + "\\" + Parameter10 + ".txt", "w")
-            
-            OutputFile.write("\n")
-            OutputFile.write("*** Details from running the tool \"Select Data By Attributes\" ***" )
-            OutputFile.write("\n")
-            OutputFile.write("\n")
-            OutputFile.write("\n")
-            OutputFile.write("Select Data by Attributes Tool was run on: " + str(datetime.now())) 
-            OutputFile.write("\n")
-            OutputFile.write("\n")
-            OutputFile.write("Input Feature Class used: " + Parameter1)
-            OutputFile.write("\n")
-            OutputFile.write("\n")
-            OutputFile.write("First Selection Type used: " + Parameter3)
-            OutputFile.write("\n")
-            OutputFile.write("\n")
-            OutputFile.write("First Selection SQL statement: " + Parameter4)
-            OutputFile.write("\n")
-            OutputFile.write("\n")
-            OutputFile.write("Second Selection Type used: " + Parameter5)
-            OutputFile.write("\n")
-            OutputFile.write("\n")
-            OutputFile.write("Second Selection SQL statement: " + Parameter6)
-            OutputFile.write("\n")
-            OutputFile.write("\n")
-            OutputFile.write("Third Selection Type used: " + Parameter7)
-            OutputFile.write("\n")
-            OutputFile.write("\n")
-            OutputFile.write("Third Selection SQL statement: " + Parameter8)
-            OutputFile.write("\n")
-            OutputFile.write("\n")
-            OutputFile.write("Output Feature Class: " + Parameter9 + "\\" + Parameter10)
-            OutputFile.write("\n")
-            OutputFile.write("\n")
-            OutputFile.write("Log File: " + Parameter11+ "\\" + Parameter10 + ".txt")
-            
-            print ("Done!")
+        from scripts import SelectByAttributes 
+        # if the script is running within ArcGIS as a tool, get the following
+        # user defined parameters:  
+        SelectByAttributes.main(
+            xx=parameters[0].valueAsText,
+            yy=parameters[1].valueAsText,
+            zz=parameters[2].valueAsText,
+            aa=parameters[3].valueAsText)
+
+class Export(object):
+    def __init__(self):
+        self.label = u'Export SRGD File'
+        self.description = u'Export SRGD results.'
+        self.canRunInBackground = False
+        self.cols = {
+            'input_feature': 0,
+            'output_feature': 1
+        }
+
+    def getParameterInfo(self):
+        input_feature = arcpy.Parameter()
+        input_feature.name = 'Input_Feature'
+        input_feature.displayName = 'Input Feature'
+        input_feature.parameterType = 'Required'
+        input_feature.direction = 'Input'
+        input_feature.datatype = 'DEFeatureClass'
+
+        # Output_CSV
+        output_csv= arcpy.Parameter()
+        output_csv.name = u'Output_Feature_Table'
+        output_csv.displayName = u'Output Feature Table'
+        output_csv.parameterType = 'Required'
+        output_csv.direction = 'Output'
+        output_csv.datatype = u'File'
+
+        return [input_feature, output_csv]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+        input_feature = parameters[0].valueAsText
+        output_csv = parameters[1].valueAsText
+        # run export on this feature class.
+        addin_utils.writeToSRGD(input_feature, output_csv)
+        messages.addMessage("exported results saved to %s." % output_csv)

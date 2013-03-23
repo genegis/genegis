@@ -41,9 +41,30 @@ class ExportKML(object):
         self.enabled = True
         self.checked = False
     def onClick(self):
+        # TODO: update this to custom code (issue #22)
         utils.toolDialog("Conversion Tools", "LayerToKML")
 
-#
+class ExportSRGD(object):
+    """Implementation for genegis_export_kml.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+
+    def onClick(self):
+        #with open("c:\\log\\genegis-export-srgd.csv", 'w') as f:
+        #    f.write("onclick Called! trying to get layer combo value...\n")
+        fc = config.selected_layer
+        if fc is None:
+            msg = "Nothing selected. Please enter a valid layer into the geneGIS selection box."
+            title = "Export SRGD: ComboBox value"
+            #f.write("writing message box...\n")
+            pythonaddins.MessageBox(msg, title)
+        else: 
+            #f.write("have a valid layer selected, %s\n" % fc)
+            output_path = pythonaddins.SaveDialog("Output SRGD file name", "SRGD_%s.csv" % fc)
+            #f.write("got output_path = `%s`\n" % output_path)
+            utils.writeToSRGD(fc, output_path)
+
 # summarization tools
 #
 

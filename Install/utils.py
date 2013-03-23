@@ -150,3 +150,14 @@ def intersectFeatures(input_feature, intersect_feature, output_feature):
     arcpy.env.addOutputsToMap = add_output
 
     return output_feature
+
+def writeToSRGD(fc, output_path):
+    # TODO: resolve issues in #39.
+    with open(output_path, 'w') as output_file:
+        ignored_fields = ['OID', 'OBJECTID', 'Shape']
+        fields = [field.name for field in arcpy.ListFields(fc) if \
+            field.name not in ignored_fields]
+        output_file.write(",".join(fields) + '\n')
+        with arcpy.da.SearchCursor(fc, fields) as cursor:
+            for row in cursor:
+                output_file.write(",".join([str(r) for r in row]) + "\n")
