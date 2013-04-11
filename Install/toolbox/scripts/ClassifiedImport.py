@@ -111,7 +111,8 @@ def main(input_table=None, sr=None, output_loc=None,
 import dateutil.parser
 def formatDate(input_date):
     parsed_date = dateutil.parser.parse(input_date)
-    return parsed_date.strftime("%m/%d/%Y %H:%M:%S")"""
+    format_date = parsed_date.strftime("%m/%d/%Y %H:%M:%S")
+    return format_date"""
         arcpy.AddField_management(input_csv, field_name, 'DATE')
         arcpy.CalculateField_management(input_csv, field_name, expression, "PYTHON_9.3", code_block)
     except Exception as e:
