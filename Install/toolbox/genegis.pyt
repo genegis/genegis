@@ -656,6 +656,9 @@ class Export(object):
         output_csv.direction = 'Output'
         output_csv.datatype = u'File'
 
+        # output CSV must be of the types we parse.
+        output_csv.filter.list = ['csv']
+
         return [input_feature, output_csv]
 
     def isLicensed(self):
