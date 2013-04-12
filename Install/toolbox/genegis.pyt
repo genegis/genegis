@@ -673,7 +673,11 @@ class Export(object):
 
     def execute(self, parameters, messages):
         input_feature = parameters[0].valueAsText
-        output_csv = parameters[1].valueAsText
+        output_csv = parameters[1].valueAsText 
+        (label, ext) = os.path.splitext(os.path.basename(output_csv))
+        if ext.lower() != "csv":
+                output_csv = label + ".csv"        
+        arcpy.env.addOutputsToMap  = False
         # run export on this feature class.
         addin_utils.writeToSRGD(input_feature, output_csv)
         messages.addMessage("exported results saved to %s." % output_csv)
