@@ -650,8 +650,8 @@ class Export(object):
 
         # Output_CSV
         output_csv= arcpy.Parameter()
-        output_csv.name = u'Output_Feature_Table'
-        output_csv.displayName = u'Output Feature Table'
+        output_csv.name = u'Output_SRGD_File'
+        output_csv.displayName = u'Output SRGD CSV File'
         output_csv.parameterType = 'Required'
         output_csv.direction = 'Output'
         output_csv.datatype = u'File'
