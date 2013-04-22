@@ -121,7 +121,6 @@ def formatDate(input_date):
     except Exception as e:
         utils.msg("Error parsing date information", mtype='error', exception=e)
         sys.exit()
-    utils.msg("Added a formatted date field: {field_name}.".format(field_name=field_name))
  
     # Convert the table to a temporary spatial feature
     try:
