@@ -3,6 +3,7 @@ import sys
 
 import arcpy
 import pythonaddins
+import dateutil.parser
 
 # enable local imports
 local_path = os.path.dirname(__file__)
@@ -152,12 +153,34 @@ def intersectFeatures(input_feature, intersect_feature, output_feature):
     return output_feature
 
 def writeToSRGD(fc, output_path):
+    #arcpy.AddError("ERROR!")
     # TODO: resolve issues in #39.
     with open(output_path, 'w') as output_file:
         ignored_fields = ['OID', 'OBJECTID', 'Shape']
         fields = [field.name for field in arcpy.ListFields(fc) if \
             field.name not in ignored_fields]
         output_file.write(",".join(fields) + '\n')
+        our_date = "Date_formatted"
+        date_pos = fields.index(our_date)
         with arcpy.da.SearchCursor(fc, fields) as cursor:
             for row in cursor:
-                output_file.write(",".join([str(r) for r in row]) + "\n")
+                formatted_row = list(row[:])
+                date_value = row[date_pos]
+                try:
+                    formatted_row[date_pos] = formatDate(date_value)
+                except Exception as e:                    
+                    arcpy.AddError(e)
+                output_file.write(",".join([str(r) for r in formatted_row]) + "\n")
+               
+def formatDate(input_date):
+    """
+    if type (input_date) == 'str':
+        # do what we did before
+        parsed_date = dateutil.parser.parse(input_date)
+    else:
+        # we got a datetime object! we don't NEED to parse it from a string, just use it as-is
+        parsed_date = input_date
+    """    
+    format_date = input_date.strftime("%Y-%m-%d %H:%M:%S"). replace(" ", "T")      
+    return format_date
+
