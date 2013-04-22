@@ -98,6 +98,7 @@ def main(input_table=None, sr=None, output_loc=None,
 
     input_csv = os.path.join(gdb_path, label)
     utils.msg("Table successfully imported: \n %s" % input_csv)
+    fields = [f.name.lower() for f in arcpy.ListFields(input_csv)] 
 
     # intially, our date column is imported as text to prevent ArcGIS 
     # from inadvertently munging it. Add a formatted date column.
@@ -111,18 +112,20 @@ def main(input_table=None, sr=None, output_loc=None,
 import dateutil.parser
 def formatDate(input_date):
     parsed_date = dateutil.parser.parse(input_date)
-    format_date = parsed_date.strftime("%m/%d/%Y %H:%M:%S")
-    return format_date"""
-        arcpy.AddField_management(input_csv, field_name, 'DATE')
-        arcpy.CalculateField_management(input_csv, field_name, expression, "PYTHON_9.3", code_block)
+    return parsed_date.strftime("%m/%d/%Y %H:%M:%S")"""
+        # check if a formatted date field exists; if so skip this step
+        if field_name.lower() not in fields:
+            arcpy.AddField_management(input_csv, field_name, 'DATE')
+            arcpy.CalculateField_management(input_csv, field_name, expression, "PYTHON_9.3", code_block)
+            utils.msg("Added a formatted date field: {field_name}.".format(field_name=field_name))
     except Exception as e:
         utils.msg("Error parsing date information", mtype='error', exception=e)
         sys.exit()
-    utils.msg("Added a formatted date field.")
+    utils.msg("Added a formatted date field: {field_name}.".format(field_name=field_name))
  
     # Convert the table to a temporary spatial feature
     try:
-        # A temporary XY Layer needed to create the feature class. 
+        # A temporary XY Layer needed to create the feature class.
         # NOTE: This table is deleted when the script finishes
         temporary_layer = input_csv + '_xy_temp'
           
