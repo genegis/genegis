@@ -86,14 +86,13 @@ def getLayerByName(name):
 
 def loadLayer(file_name):
     layer = None
-    if os.path.exists(file_name):
-        layer = arcpy.mapping.Layer(fc_name)
-        if layer is not None:
-            mxd = arcpy.mapping.MapDocument("CURRENT")
-            df = arcpy.mapping.ListDataFrames(mxd, "*")[0]
-            arcpy.mapping.AddLayer(df, layer, "TOP")
-            arcpy.RefreshActiveView()
-            arcpy.RefreshTOC()
+    layer = arcpy.mapping.Layer(file_name)
+    if layer is not None:
+        mxd = arcpy.mapping.MapDocument("CURRENT")
+        df = arcpy.mapping.ListDataFrames(mxd, "*")[0]
+        arcpy.mapping.AddLayer(df, layer, "TOP")
+        arcpy.RefreshActiveView()
+        arcpy.RefreshTOC()
     return layer
 
 def extentPolygon(extent, source_layer=None):
