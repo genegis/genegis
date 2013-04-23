@@ -1,8 +1,14 @@
 import os
 import arcpy
 
-# current directory
-local_path = os.path.dirname(__file__)
+app_name = 'geneGIS'
+
+# make a configuration directory
+config_dir = os.path.join(os.environ['APPDATA'], app_name)
+if not os.path.exists(config_dir):
+    os.mkdir(config_dir)
+
+fc_path_file = os.path.join(config_dir, 'feature-class.txt')
 
 # default mode for tools. Expect tools to be run from a Python toolbox,
 # not the command line by default.
