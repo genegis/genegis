@@ -1,4 +1,5 @@
 import arcpy
+import os
 
 selected_layer = None
 selected_object = None
@@ -24,3 +25,10 @@ primary_results = None
 # hack: share state on which columns should be protected against data manipulation
 # columns which have explicit data typing set
 protected_columns = {}
+app_name = 'geneGIS'
+
+# make a configuration directory if needed
+config_dir = os.path.join(os.environ['APPDATA'], app_name)
+if not os.path.exists(config_dir):
+    os.mkdir(config_dir)
+fc_path_file = os.path.join(config_dir, 'feature-class.txt')
