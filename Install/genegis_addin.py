@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 import arcpy
 import pythonaddins
@@ -26,6 +27,7 @@ class ImportData(object):
         self.checked = False
     def onClick(self):
         utils.toolDialog(genegis_toolbox, "ClassifiedImport")
+
 
 class ExportGenAlEx(object):
     """Implementation for genegis_export_genalex_codominant.button (Button)"""
@@ -167,7 +169,18 @@ class LayerCombo(object):
         self.enabled = True
         self.dropdownWidth = "WWWWWWW"
         self.width = "WWWWWWW"
-        self.value = None
+        self.value = self.getFeatureClassFromDisk(timeout=3600)
+
+    def getFeatureClassFromDisk(self, timeout=None):
+        # this is a hack -- if the class has been updated recently, refresh the list
+        # diff_in_sec = time.time() - os.path.getmtime() 
+        # if diff_in_sec < 300: do the thang
+        if os.path.exists(config.fc_path_file):
+            diff_in_sec = time.time() - os.path.getmtime(config.fc_path_file)
+            if timeout is None or diff_in_sec <= timeout:
+                with open(config.fc_path_file) as f:
+                    layer = utils.loadLayer(f.read()) 
+        return layer
 
     def onSelChange(self, selection):
         if selection:
