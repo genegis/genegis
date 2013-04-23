@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 import arcpy
 import pythonaddins
@@ -95,6 +96,16 @@ def loadLayer(file_name):
         arcpy.RefreshActiveView()
         arcpy.RefreshTOC()
     return layer
+
+def loadDefaultLayer(timeout=3600):
+    # this is a hack -- if the class has been updated recently, refresh the list
+    layer = None
+    if os.path.exists(config.fc_path_file):
+        diff_in_sec = time.time() - os.path.getmtime(config.fc_path_file)
+        if timeout is None or diff_in_sec <= timeout:
+            with open(config.fc_path_file) as f:
+                layer = loadLayer(f.read()) 
+    return layer  
 
 def extentPolygon(extent, source_layer=None):
     polygon_extent = None
