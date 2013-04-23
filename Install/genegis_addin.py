@@ -167,8 +167,8 @@ class LayerCombo(object):
         self.items = ['genetic_points']
         self.editable = True
         self.enabled = True
-        self.dropdownWidth = "WWWWWWW"
-        self.width = "WWWWWWW"
+        self.dropdownWidth = "WWWWWWWWWWWWWWWWWWWW"
+        self.width = "WWWWWWWWWWWWWWWWWWWW"
         self.value = self.getFeatureClassFromDisk(timeout=3600)
 
     def getFeatureClassFromDisk(self, timeout=None):
