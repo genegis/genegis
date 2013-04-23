@@ -159,10 +159,16 @@ def formatDate(input_date):
         # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
         arcpy.CopyFeatures_management(temporary_layer, output_fc, "", "0", "0", "0")
         utils.msg("Features succesfully created: \n %s" % output_fc)
+
+        # Because we can't pass around objects between this process and the calling
+        # addin environment, dump out the file name to disk in the same
+        # directory as genegis.pyt
+        with open(config.fc_path_file, 'w') as output_file:
+            output_file.write(output_fc.strip())
     except Exception as e:
         utils.msg("Error copying features to a feature class", mtype='error', exception=e)
         sys.exit()
-   
+  
     # clean up: remove intermediate steps. 
     try:
         arcpy.Delete_management(temporary_layer)
