@@ -185,7 +185,20 @@ class LayerCombo(object):
             self.layers = utils.currentLayers()
             if len(self.layers) > 0:
                 self.items = [l.name for l in self.layers]
+
     def onEnter(self):
         pass
+
     def refresh(self):
         pass
+
+class geneGISExtension(object):
+    """Implementation for genegis_layer_combo.combobox (Combobox)"""
+    def __init__(self):
+        self.enabled = True
+
+    def itemAdded(self, new_item):
+        lc = LayerCombo()
+        val = util.loadDefaultLayer()
+        lc.value = val
+        lc.refresh()
