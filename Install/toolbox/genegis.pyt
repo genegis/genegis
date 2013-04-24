@@ -380,14 +380,27 @@ class extractRasterByPoints(object):
              return validator(parameters).updateMessages()
 
     def execute(self, parameters, messages):
-        messages.addMessage("got selected layer: %s" % config.selected_layer)
-        input_raster = parameters[0].valueAsText
-        selected_layer = config.selected_layer
-        output_table = parameters[1].valueAsText
-        messages.addMessage("executing Sample on %i rasters..." % 1)
-        messages.addMessage("using preselected point layer, '%s'" % selected_layer)
-        arcpy.CheckOutExtension("Spatial")
-        arcpy.sa.Sample([input_raster], selected_layer.dataSource, output_table, "NEAREST")
+        from scripts import ExtractRasterByValue
+       
+
+        # if the script is running within ArcGIS as a tool, get the following
+        # user defined parameters
+        ExtractRasterByValue.main(
+            input_raster=parameters[0].valueAsText,
+            selected_layer=config.selected_layer.dataSource,
+            output_fc=parameters[1].valueAsText)
+        
+        """
+        [def execute(self, parameters, messages):]
+        [messages.addMessage("got selected layer: %s" % config.selected_layer)]
+        [input_raster = parameters[0].valueAsText]
+        [selected_layer = config.selected_layer]
+        [output_table = parameters[1].valueAsText]
+        [messages.addMessage("executing Sample on %i rasters..." % 1)]
+        [messages.addMessage("using preselected point layer, '%s'" % selected_layer)]
+        [arcpy.CheckOutExtension("Spatial")]
+        [arcpy.sa.Sample([input_raster], selected_layer.dataSource, output_table, "NEAREST")]"""
+
 
 class ExportGenAlEx(object):
     class ToolValidator:
