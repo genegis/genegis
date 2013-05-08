@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# ClassifiedImport.py
+# ExtractRasterValuesToPoints.py
 #
 # Created by: Dori Dick
 #             College of Earth, Ocean and Atmospheric Sciences
@@ -34,16 +34,23 @@ import binascii
 import utils
 import config
 
-def main(input_raster=None, selected_layer=None, output_fc=None,
-    mode=config.mode):
+def main(input_raster=None, selected_layer=None, output_ft=None, 
+         mode=config.mode):
 
-        utils.msg("Executing ExtractRasterByValue.")   
+        utils.msg("Executing ExtractRasterValuesToPoints.")   
         arcpy.CheckOutExtension("Spatial")
         utils.msg("Checking out Spatial Analyst Extension.")
-        arcpy.sa.Sample([input_raster], selected_layer, output_fc, "NEAREST")
-        utils.msg("Values successfully extracted")       
-        #arcpy.JoinField_management ("GOA_Encounters","OBJECTID","ETOPO1_Clip_extractRasterByP1", "GOA_Encounters", "ETOPO1_clip")
-           
+        arcpy.sa.ExtractMultiValuesToPoints(selected_layer, input_raster, "NONE")
+        utils.msg("Values successfully extracted")  
+
+        #arcpy.sa.Sample([input_raster], selected_layer, output_ft, "NEAREST")             
+        #utils.msg(selected_layer)
+        #utils.msg(output_ft)
+        #arcpy.JoinField_management(selected_layer, "OBJECTID", output_ft, "GOA_Encounters_copy", "ETOPO1_clip")
+        #arcpy.JoinField_management (in_data, in_field, join_table, join_field, {fields})
+       
+       
+          
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':
 
