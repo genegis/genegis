@@ -23,7 +23,7 @@ class Toolbox(object):
     def __init__(self):
         self.label = u'geneGIS_Jan_2013'
         self.alias = ''
-        self.tools = [ExportGenAlEx, SelectDataByAttributes, ClassifiedImport, extractRasterByPoints, Export]
+        self.tools = [ExportGenAlEx, SelectDataByAttributes, ClassifiedImport, ExtractRasterByPoints, ExportGenepop, Export]
 
 # Tool implementation code
 class ClassifiedImport(object):
@@ -297,7 +297,7 @@ class ClassifiedImport(object):
 
         return
 
-class extractRasterByPoints(object):
+class ExtractRasterByPoints(object):
     class ToolValidator:
       """Class for validating a tool's parameter values and controlling
       the behavior of the tool's dialog."""
@@ -324,7 +324,7 @@ class extractRasterByPoints(object):
         return
     
     def __init__(self):
-        self.label = u'Extract Raster Values'
+        self.label = u'Extract Raster Values To Points'
         self.description = u'This tool allows extraction of one or more rasters at our sample locations.'
         self.canRunInBackground = False
 
@@ -339,7 +339,7 @@ class extractRasterByPoints(object):
         input_raster.parameterType = 'Required'
         input_raster.direction = 'Input'
         input_raster.datatype = u'Raster Dataset'
-        input_raster.multiValue = False
+        input_raster.multiValue = True
         """
         # FIXME: re-enable multiple input rasters; issue #2
         input_raster.multiValue = True
@@ -356,14 +356,22 @@ class extractRasterByPoints(object):
                 input_raster.filter.list = filter_list
         """
         # Output_Feature_Table
-        output_ft= arcpy.Parameter()
-        output_ft.name = u'Output_Feature_Table'
-        output_ft.displayName = u'Output Feature Table'
-        output_ft.parameterType = 'Required'
-        output_ft.direction = 'Output'
-        output_ft.datatype = u'Table'
-
-        return [input_raster, output_ft]
+        #output_ft= arcpy.Parameter()
+        #output_ft.name = u'Output_Feature_Table'
+        #output_ft.displayName = u'Output Feature Table'
+        #output_ft.parameterType = 'Required'
+        #output_ft.direction = 'Output'
+        #output_ft.datatype = u'Table'
+        
+        #Output_Feature_Class
+        #output_fc=arcpy.Parameter()
+        #output_fc.name=u'Output_Feature_Class'
+        #output_fc.displayName = u'Output Feature Class'
+        #output_fc.parameterType = 'Required'
+        #output_fc.direction = 'Output'
+        #output_fc.datatype = u'Feature Class'
+        
+        return [input_raster]
 
     def isLicensed(self):
         return True
@@ -380,15 +388,14 @@ class extractRasterByPoints(object):
              return validator(parameters).updateMessages()
 
     def execute(self, parameters, messages):
-        from scripts import ExtractRasterByValue
-       
+        from scripts import ExtractRasterValuesToPoints       
 
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters
-        ExtractRasterByValue.main(
+        ExtractRasterValuesToPoints.main(
             input_raster=parameters[0].valueAsText,
-            selected_layer=config.selected_layer.dataSource,
-            output_fc=parameters[1].valueAsText)
+            selected_layer=config.selected_layer.dataSource)
+            #, output_ft=parameters[1].valueAsText)
         
         """
         [def execute(self, parameters, messages):]
