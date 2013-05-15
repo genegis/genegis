@@ -332,7 +332,6 @@ class ExtractRasterByPoints(object):
         # FIXME: Doesn't run if the user hasn't selected a layer in the combobox. Either throw an error before they run the tool, or let them fill it out, but populate it if they've selected a layer.
 
         # Raster Input
-        # FIXME: only handles one raster currently
         input_raster = arcpy.Parameter()
         input_raster.name = u'Input_Raster'
         input_raster.displayName = u'Input Raster'
@@ -340,37 +339,7 @@ class ExtractRasterByPoints(object):
         input_raster.direction = 'Input'
         input_raster.datatype = u'Raster Dataset'
         input_raster.multiValue = True
-        """
-        # FIXME: re-enable multiple input rasters; issue #2
-        input_raster.multiValue = True
-        if config.all_layers is not None:
-            filter_list = []
-            for layer in config.all_layers:
-                try:
-                    desc = arcpy.Describe(layer)
-                    if desc.datasetType == 'RasterDataset':
-                        filter_list.append(layer)
-                except:
-                    # silently skip layers which don't support describe (e.g. AGOL).
-                    continue
-                input_raster.filter.list = filter_list
-        """
-        # Output_Feature_Table
-        #output_ft= arcpy.Parameter()
-        #output_ft.name = u'Output_Feature_Table'
-        #output_ft.displayName = u'Output Feature Table'
-        #output_ft.parameterType = 'Required'
-        #output_ft.direction = 'Output'
-        #output_ft.datatype = u'Table'
-        
-        #Output_Feature_Class
-        #output_fc=arcpy.Parameter()
-        #output_fc.name=u'Output_Feature_Class'
-        #output_fc.displayName = u'Output Feature Class'
-        #output_fc.parameterType = 'Required'
-        #output_fc.direction = 'Output'
-        #output_fc.datatype = u'Feature Class'
-        
+       
         return [input_raster]
 
     def isLicensed(self):
@@ -394,20 +363,8 @@ class ExtractRasterByPoints(object):
         # user defined parameters
         ExtractRasterValuesToPoints.main(
             input_raster=parameters[0].valueAsText,
-            selected_layer=config.selected_layer.dataSource)
-            #, output_ft=parameters[1].valueAsText)
-        
-        """
-        [def execute(self, parameters, messages):]
-        [messages.addMessage("got selected layer: %s" % config.selected_layer)]
-        [input_raster = parameters[0].valueAsText]
-        [selected_layer = config.selected_layer]
-        [output_table = parameters[1].valueAsText]
-        [messages.addMessage("executing Sample on %i rasters..." % 1)]
-        [messages.addMessage("using preselected point layer, '%s'" % selected_layer)]
-        [arcpy.CheckOutExtension("Spatial")]
-        [arcpy.sa.Sample([input_raster], selected_layer.dataSource, output_table, "NEAREST")]"""
-
+            selected_layer=config.selected_layer.dataSource)      
+   
 
 class ExportGenAlEx(object):
     class ToolValidator:
@@ -426,7 +383,7 @@ class ExportGenAlEx(object):
     
       def updateParameters(self):
         """Modify the values and properties of parameters before internal
-        validation is performed.  This method is called whenever a parmater
+        validation is performed.  This method is called whenever a parameter
         has been changed."""
         return
     
@@ -452,9 +409,10 @@ class ExportGenAlEx(object):
         where_clause = arcpy.Parameter()
         where_clause.name = u'Where_Clause'
         where_clause.displayName = u'Where Clause'
-        where_clause.parameterType = 'Optional'
-        where_clause.direction = 'Input'
         where_clause.datatype = u'SQL Expression'
+        where_clause.parameterType = 'Optional'
+        where_clause.direction = 'Input'        
+        where_clause.Obtainedfrom= input_features
 
         # Attribute_Field__to_order_by_population_
         order_by = arcpy.Parameter()
@@ -463,6 +421,7 @@ class ExportGenAlEx(object):
         order_by.parameterType = 'Optional'
         order_by.direction = 'Input'
         order_by.datatype = u'Field'
+        
 
         """
         # Output_File_Location
@@ -514,7 +473,100 @@ class ExportGenAlEx(object):
             where_clause=parameters[1].valueAsText,
             order_by=parameters[2].valueAsText,
             output_name=parameters[3].valueAsText)
-            
+        
+class ExportGenepop(object):
+    class ToolValidator:
+      """Class for validating a tool's parameter values and controlling
+      the behavior of the tool's dialog."""
+    
+      def __init__(self, parameters):
+        """Setup arcpy and the list of tool parameters."""
+        import arcpy
+        self.params = parameters
+    
+      def initializeParameters(self):
+        """Refine the properties of a tool's parameters.  This method is
+        called when the tool is opened."""
+        return
+    
+      def updateParameters(self):
+        """Modify the values and properties of parameters before internal
+        validation is performed.  This method is called whenever a parmater
+        has been changed."""
+        return
+    
+      def updateMessages(self):
+        """Modify the messages created by internal validation for each tool
+        parameter.  This method is called after internal validation."""
+        return
+    
+    def __init__(self):
+        self.label = u'Export to Genepop'
+        self.description = u'This tool allows the user to export data to a text file that follows the required input format for Genepop (Raymond and Rousset 1995; Rousset 2008).  For more information see: \r\n\r\nhttp://genepop.curtin.edu.au/\r\n'
+        self.canRunInBackground = False
+        
+    def getParameterInfo(self):
+        # Input_Feature_Class
+        input_features = arcpy.Parameter()
+        input_features.name = u'Input_Feature_Class'
+        input_features.displayName = u'Input Feature Class'
+        input_features.parameterType = 'Required'
+        input_features.direction = 'Input'
+        input_features.datatype = 'Feature Layer'
+        
+        # Where_Clause
+        where_clause = arcpy.Parameter()
+        where_clause.name = u'Where_Clause'
+        where_clause.displayName = u'Where Clause'
+        where_clause.parameterType = 'Optional'
+        where_clause.direction = 'Output'
+        where_clause.datatype = u'SQL Expression'
+        where_clause.parameterDependencies= [input_features.name] 
+        
+        # Attribute_Field__to_order_by_population_
+        order_by = arcpy.Parameter()
+        order_by.name = u'Attribute_Field_to_order_by_population_'
+        order_by.displayName = u'Attribute Field (to order by population)'
+        order_by.parameterType = 'Required'
+        order_by.direction = 'Input'
+        order_by.datatype = u'Field'
+        order_by.parameterDependencies=[input_features.name]
+
+        # Output_File_Location
+        output_name = arcpy.Parameter()
+        output_name.name = u'Output_File'
+        output_name.displayName = u'Output File'
+        output_name.parameterType = 'Required'
+        output_name.direction = 'Output'
+        output_name.datatype = u'File'
+
+        return [input_features, where_clause, order_by, output_name]
+        
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+        from scripts import ExportToGenepop       
+
+        # if the script is running within ArcGIS as a tool, get the following
+        # user defined parameters
+        ExportToGenepop.main(
+            input_features=parameters[0].valueAsText,
+            where_clause=parameters[1].valueAsText, 
+            order_by=parameters[2].valueAsText,
+            output_name=parameters[3].valueAsText)       
+          
 
 class SelectDataByAttributes(object):
     class ToolValidator:
@@ -533,7 +585,7 @@ class SelectDataByAttributes(object):
     
       def updateParameters(self):
         """Modify the values and properties of parameters before internal
-        validation is performed.  This method is called whenever a parmater
+        validation is performed.  This method is called whenever a parameter
         has been changed."""
         return
     
@@ -701,3 +753,4 @@ class Export(object):
         # run export on this feature class.
         addin_utils.writeToSRGD(input_feature, output_csv)
         messages.addMessage("exported results saved to %s." % output_csv)
+

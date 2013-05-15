@@ -52,8 +52,8 @@ def main(input_features=None, where_clause=None, order_by=None,  output_name=Non
         
         # Create the Genepop header information required for the text file. 
         # NOTE: Line 1 includes user inputed information about the data in the file.  Lines 2-15 list the generic Loci names
-        '''What we want is to have the script write out the acutal Loci names of the input file.  This way it will be specific to the user and will not be 
-        fixed in naming convention or the number of loci '''
+        #FIXME: What we want is to have the script write out the acutal Loci names of the input file.  This way it will be specific to the user and will not be 
+        #fixed in naming convention or the number of loci 
         output_name.write("Export to Genepop from the feature class: " + input_features + ". Export occurred on: " + str(datetime.now()) + "\n")  
         output_name.write("Locus1\n")
         output_name.write("Locus2\n")
