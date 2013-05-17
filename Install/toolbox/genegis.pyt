@@ -2,8 +2,10 @@
 
 import csv
 import os
-import sys
 import re
+import sys
+import time
+
 import arcpy
 
 # enable local imports; allow importing both this directory and one above
@@ -709,7 +711,7 @@ class Export(object):
         self.canRunInBackground = False
         self.cols = {
             'input_feature': 0,
-            'output_feature': 1
+            'output_csv': 1
         }
 
     def getParameterInfo(self):
@@ -718,7 +720,7 @@ class Export(object):
         input_feature.displayName = 'Input Feature'
         input_feature.parameterType = 'Required'
         input_feature.direction = 'Input'
-        input_feature.datatype = 'DEFeatureClass'
+        input_feature.datatype = 'GPFeatureLayer'
 
         # Output_CSV
         output_csv= arcpy.Parameter()
@@ -735,6 +737,15 @@ class Export(object):
 
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
+
+        output_csv = parameters[self.cols['output_csv']].valueAsText
+        if output_csv is not None:
+            # make sure the output file name has a CSV extension.
+            (label, ext) = os.path.splitext(os.path.basename(output_csv))
+            if ext.lower() != "csv":
+                output_csv = label + ".csv"        
+            parameters[self.cols['output_csv']].value = output_csv
+
         if validator:
              return validator(parameters).updateParameters()
 
@@ -746,11 +757,9 @@ class Export(object):
     def execute(self, parameters, messages):
         input_feature = parameters[0].valueAsText
         output_csv = parameters[1].valueAsText 
-        (label, ext) = os.path.splitext(os.path.basename(output_csv))
-        if ext.lower() != "csv":
-                output_csv = label + ".csv"        
         arcpy.env.addOutputsToMap  = False
         # run export on this feature class.
+        messages.addMessage("Running export...")
         addin_utils.writeToSRGD(input_feature, output_csv)
-        messages.addMessage("exported results saved to %s." % output_csv)
-
+        messages.addMessage("Exported results saved to %s." % output_csv)
+        time.sleep(4)

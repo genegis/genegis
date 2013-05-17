@@ -175,7 +175,6 @@ def intersectFeatures(input_feature, intersect_feature, output_feature):
     return output_feature
 
 def writeToSRGD(fc, output_path):
-    #arcpy.AddError("ERROR!")
     # TODO: resolve issues in #39.
     with open(output_path, 'w') as output_file:
         ignored_fields = ['OID', 'OBJECTID', 'Shape']
@@ -183,15 +182,20 @@ def writeToSRGD(fc, output_path):
             field.name not in ignored_fields]
         output_file.write(",".join(fields) + '\n')
         our_date = "Date_formatted"
-        date_pos = fields.index(our_date)
+        date_exists = False
+        # If we don't have a formatted date field, don't try to manipulate it.
+        if our_date in fields:
+            date_pos = fields.index(our_date)
+            date_exists = True
         with arcpy.da.SearchCursor(fc, fields) as cursor:
             for row in cursor:
                 formatted_row = list(row[:])
-                date_value = row[date_pos]
-                try:
-                    formatted_row[date_pos] = formatDate(date_value)
-                except Exception as e:                    
-                    arcpy.AddError(e)
+                if date_exists:
+                    date_value = row[date_pos]
+                    try:
+                        formatted_row[date_pos] = formatDate(date_value)
+                    except Exception as e:                    
+                        arcpy.AddError(e)
                 output_file.write(",".join([str(r) for r in formatted_row]) + "\n")
                
 def formatDate(input_date):
