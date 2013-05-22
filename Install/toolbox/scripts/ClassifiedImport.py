@@ -121,7 +121,10 @@ def formatDate(input_date):
     except Exception as e:
         utils.msg("Error parsing date information", mtype='error', exception=e)
         sys.exit()
- 
+
+    # coordinate columns
+    x = y = None
+
     # Convert the table to a temporary spatial feature
     try:
         # A temporary XY Layer needed to create the feature class.
@@ -160,15 +163,29 @@ def formatDate(input_date):
         arcpy.CopyFeatures_management(temporary_layer, output_fc, "", "0", "0", "0")
         utils.msg("Features succesfully created: \n %s" % output_fc)
 
-        # Because we can't pass around objects between this process and the calling
-        # addin environment, dump out the file name to disk in the same
-        # directory as genegis.pyt
-        with open(config.fc_path_file, 'w') as output_file:
-            output_file.write(output_fc.strip())
     except Exception as e:
         utils.msg("Error copying features to a feature class", mtype='error', exception=e)
         sys.exit()
-  
+
+    # Because we can't pass around objects between this process and the calling
+    # addin environment, dump out the settings to our shared configuration file.
+    try:
+        config.update('fc_path', output_fc.strip())
+        config.update('x', x) 
+        config.update('y', y) 
+
+        var_types = {'identification': identification,
+                'genetic': genetic,
+                'location': location,
+                'other': other}
+    
+        for (var, val) in var_types.items():
+            config.update('%s_columns' % var, val.strip())
+
+    except Exception as e:
+        utils.msg("Error creating output configuration file: " % config.config_path)
+        sys.exit()
+
     # clean up: remove intermediate steps. 
     try:
         arcpy.Delete_management(temporary_layer)
