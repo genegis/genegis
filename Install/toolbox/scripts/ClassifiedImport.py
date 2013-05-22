@@ -180,8 +180,12 @@ def formatDate(input_date):
                 'other': other}
     
         # the first ID field should be used as the default key.
-        id_items = identification.split(";")
-        config.update(id_items[0])
+        id_cols = identification.split(";")
+        id_field = id_cols[0]
+        for (i, col) in enumerate(id_cols):
+            if col.lower() == 'individual_id':
+                id_field = id_cols[i]
+        config.update('id_field', id_field)
 
         for (var, val) in var_types.items():
             config.update('%s_columns' % var, val.strip())
