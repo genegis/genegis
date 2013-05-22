@@ -54,7 +54,7 @@ def main(input_table=None, sr=None, output_loc=None,
             # Process: Create File GDB
             # SYNTAX: CreateFileGDB_management (out_folder_path, out_name, {out_version})
             arcpy.CreateFileGDB_management(output_loc, output_gdb, "CURRENT")
-            utils.msg("File geodatabase successfully created.")
+            utils.msg("File geodatabase `%s` successfully created." % gdb_path)
         else:
             utils.msg("File geodatabase already exists, skipping creation.")
     except Exception as e:
