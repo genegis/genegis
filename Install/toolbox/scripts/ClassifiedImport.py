@@ -171,19 +171,23 @@ def formatDate(input_date):
     # addin environment, dump out the settings to our shared configuration file.
     try:
         config.update('fc_path', output_fc.strip())
-        config.update('x', x) 
-        config.update('y', y) 
+        config.update('x_coord', x) 
+        config.update('y_coord', y) 
 
         var_types = {'identification': identification,
                 'genetic': genetic,
                 'location': location,
                 'other': other}
     
+        # the first ID field should be used as the default key.
+        id_items = identification.split(";")
+        config.update(id_items[0])
+
         for (var, val) in var_types.items():
             config.update('%s_columns' % var, val.strip())
 
     except Exception as e:
-        utils.msg("Error creating output configuration file: " % config.config_path)
+        utils.msg("Error creating output configuration file: %s" % config.config_path)
         sys.exit()
 
     # clean up: remove intermediate steps. 
@@ -223,4 +227,5 @@ if __name__=='__main__':
     )
 
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
-    main(*defaults.values(), mode='script')
+    defaults['mode'] = 'script'
+    main(**defaults)
