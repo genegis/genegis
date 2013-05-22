@@ -54,11 +54,11 @@ def main(input_table=None, sr=None, output_loc=None,
             # Process: Create File GDB
             # SYNTAX: CreateFileGDB_management (out_folder_path, out_name, {out_version})
             arcpy.CreateFileGDB_management(output_loc, output_gdb, "CURRENT")
-            utils.msg("File GDB successfully created.")
+            utils.msg("File geodatabase successfully created.")
         else:
-            utils.msg("File GDB already exists, skipping creation.")
+            utils.msg("File geodatabase already exists, skipping creation.")
     except Exception as e:
-        utils.msg("Error creating File GDB", mtype='error', exception=e)
+        utils.msg("Error creating file geodatabase", mtype='error', exception=e)
         sys.exit()
         
     # TODO: WE NEED TO DO A FULL CLASSIFICATION OF THE INPUT AND MANUALLY BUILD UP THE LAYER...
