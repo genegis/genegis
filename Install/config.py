@@ -21,17 +21,17 @@ def create(config_path):
             os.mkdir(config_dir)
         cfg = ConfigParser.SafeConfigParser()
         cfg.add_section(app_name)
-        for var in config_vars:
-            cfg.set(app_name, var, 'None')
+        for (var, val) in config_vars.items():
+            cfg.set(app_name, var, str(val))
         with open(config_path, 'wb') as config_file:
             cfg.write(config_file)
-    
+
+app_name = 'geneGIS'
 # make a configuration directory if needed
 config_dir = os.path.join(os.environ['APPDATA'], app_name)
 config_path = os.path.join(config_dir, "%s.cfg" % app_name)
 
 config_vars = {
-    'app_name': 'geneGIS',
     'fc_path': None, # path to the imported feature class
     'identification_columns': None,
     'genetic_columns': None, 
@@ -68,7 +68,7 @@ all_layers = None
 
 # default spatialReference id (WGS 84), updated when a layer
 # is selected from the combobox.
-sr = arcpy.SpatialReference(settings.srid)
+sr = arcpy.SpatialReference(int(settings.srid))
 
 # map search strings to variable groups, include 'protected'
 # column to explicitly define type for these columns
