@@ -42,7 +42,7 @@ import utils
 import config
 
 def main(input_features=None, where_clause=None, order_by=None,  output_name=None, 
-         mode=config.mode):
+         mode=config.settings.mode):
         
         utils.msg("Executing ExportToGenepop.")   
         

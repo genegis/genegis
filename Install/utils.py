@@ -100,8 +100,8 @@ def loadLayer(file_name):
 def loadDefaultLayer(timeout=3600):
     # this is a hack -- if the class has been updated recently, refresh the list
     layer = None
-    if os.path.exists(config.fc_path_file):
-        diff_in_sec = time.time() - os.path.getmtime(config.fc_path_file)
+    if os.path.exists(config.settings.fc_path):
+        diff_in_sec = time.time() - os.path.getmtime(config.settings.fc_path)
         if timeout is None or diff_in_sec <= timeout:
             with open(config.fc_path_file) as f:
                 layer = loadLayer(f.read()) 

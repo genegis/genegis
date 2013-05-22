@@ -35,7 +35,7 @@ import utils
 import config
 
 def main(input_raster=None, selected_layer=None, output_ft=None, 
-         mode=config.mode):
+         mode=config.settings.mode):
 
         utils.msg("Executing ExtractRasterValuesToPoints.")   
         arcpy.CheckOutExtension("Spatial")

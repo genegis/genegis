@@ -36,7 +36,7 @@ def msg(output_msg, mtype='message', exception=None):
         arcpy_messages = arcpy.GetMessages()
         tb = sys.exc_info()[2]
         tbinfo = traceback.format_tb(tb)[0]
-        if config.mode == 'script':
+        if config.settings.mode == 'script':
             if exception:
                 # print the raw exception
                 print exception
@@ -49,7 +49,7 @@ def msg(output_msg, mtype='message', exception=None):
                 arcpy.AddError(exception)
             arcpy.AddError(arcpy_messages)
             arcpy.AddMessage("Python Error: ${tbinfo}".format(tbinfo=tbinfo))
-    elif config.mode == 'script':
+    elif config.settings.mode == 'script':
         print output_msg
     else:
         if mtype == 'message':
