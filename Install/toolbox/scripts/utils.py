@@ -8,7 +8,15 @@ import binascii
 import traceback
 
 import arcpy
-# local import
+
+# enable local imports; redirect config calls to general config
+def add_install_path():
+    local_path = os.path.dirname(__file__)
+    for path in [local_path, os.path.join(local_path, '..', '..')]:
+        full_path = os.path.abspath(path)
+        sys.path.insert(0, full_path)
+
+add_install_path() # pull config from parent project
 import config
 
 def parameters_from_args(defaults_tuple=None, sys_args=None):
