@@ -187,21 +187,6 @@ class ClassifiedImport(object):
             (header, data, dialect) = utils.validated_table_results(input_table_name)
             # create a duplicate list; but a copy so we can modify the list as we go
             unused_values = list(header)
-            # map search strings to variable groups, include 'protected'
-            # column to explicitly define type for these columns
-            group_expressions = [
-               #  group     regex    column type
-                ('Genetic', '^sex$', 'Text'),
-                ('Genetic', '^haplotype$', 'Text'),
-                ('Genetic', '^dlphap$', 'Text'),
-                ('Genetic', '^l_', None), 
-                ('Identification', '_id$', 'Text'),
-                ('Location', '^x$', None), 
-                ('Location', '^y$', None),
-                ('Location', 'longitude', None),
-                ('Location', 'latitude', None),
-                ('Other', '^date_time$', 'Text')
-            ]
 
             # assign 'known' values based on some inference
             #f.write("Initial header: %s\n" % header)
@@ -209,7 +194,7 @@ class ClassifiedImport(object):
             # A little tricky: implement unique result lists for each of
             # our group types.
             results = dict(((group,[]) for group in dynamic_cols))
-            for (group, expr, data_type) in group_expressions:
+            for (group, expr, data_type) in config.group_expressions:
                 #f.write("current list of unused values at expr %s [%s]: %s\n" % (expr, group, unused_values))
                 for (i, value) in enumerate(header):
                     if re.search(expr, value, re.IGNORECASE):
