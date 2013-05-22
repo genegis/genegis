@@ -506,7 +506,13 @@ class ExportGenepop(object):
         self.label = u'Export to Genepop'
         self.description = u'This tool allows the user to export data to a text file that follows the required input format for Genepop (Raymond and Rousset 1995; Rousset 2008).  For more information see: \r\n\r\nhttp://genepop.curtin.edu.au/\r\n'
         self.canRunInBackground = False
-        
+        self.cols = {
+            'input_features': 0,
+            'where_clause': 1,
+            'order_by': 2,
+            'output_name': 3
+        }
+
     def getParameterInfo(self):
         # Input_Feature_Class
         input_features = arcpy.Parameter()
@@ -549,6 +555,12 @@ class ExportGenepop(object):
 
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
+
+        output_name = parameters[self.cols['output_name']].valueAsText
+        if output_name is not None:
+            # make sure the output file name has a TXT extension.
+            output_name = utils.add_file_extension(output_name, 'txt')
+            parameters[self.cols['output_name']].value = output_name
 
         if validator:
              return validator(parameters).updateParameters()
@@ -741,9 +753,7 @@ class Export(object):
         output_csv = parameters[self.cols['output_csv']].valueAsText
         if output_csv is not None:
             # make sure the output file name has a CSV extension.
-            (label, ext) = os.path.splitext(os.path.basename(output_csv))
-            if ext.lower() != "csv":
-                output_csv = label + ".csv"        
+            output_csv = utils.add_file_extension(output_csv, 'csv')
             parameters[self.cols['output_csv']].value = output_csv
 
         if validator:

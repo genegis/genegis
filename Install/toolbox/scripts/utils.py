@@ -197,3 +197,11 @@ def protect_columns(input_table_name=None, protected_columns={}):
             schema_file.write(col_label)
 
     return schema_path
+
+def add_file_extension(input_name, expected_ext):
+    name_with_ext = input_name
+    ext = expected_ext.lower()
+    (label, input_ext) = os.path.splitext(os.path.basename(input_name))
+    if input_ext.lower() != ext:
+        name_with_ext = "{label}.{ext}".format(label = label, ext=ext)
+    return name_with_ext
