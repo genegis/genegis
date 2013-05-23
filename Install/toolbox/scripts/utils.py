@@ -8,7 +8,15 @@ import binascii
 import traceback
 
 import arcpy
-# local import
+
+# enable local imports; redirect config calls to general config
+def add_install_path():
+    local_path = os.path.dirname(__file__)
+    for path in [local_path, os.path.join(local_path, '..', '..')]:
+        full_path = os.path.abspath(path)
+        sys.path.insert(0, full_path)
+
+add_install_path() # pull config from parent project
 import config
 
 def parameters_from_args(defaults_tuple=None, sys_args=None):
@@ -28,7 +36,7 @@ def msg(output_msg, mtype='message', exception=None):
         arcpy_messages = arcpy.GetMessages()
         tb = sys.exc_info()[2]
         tbinfo = traceback.format_tb(tb)[0]
-        if config.mode == 'script':
+        if config.settings.mode == 'script':
             if exception:
                 # print the raw exception
                 print exception
@@ -41,7 +49,7 @@ def msg(output_msg, mtype='message', exception=None):
                 arcpy.AddError(exception)
             arcpy.AddError(arcpy_messages)
             arcpy.AddMessage("Python Error: ${tbinfo}".format(tbinfo=tbinfo))
-    elif config.mode == 'script':
+    elif config.settings.mode == 'script':
         print output_msg
     else:
         if mtype == 'message':
@@ -197,3 +205,11 @@ def protect_columns(input_table_name=None, protected_columns={}):
             schema_file.write(col_label)
 
     return schema_path
+
+def add_file_extension(input_name, expected_ext):
+    name_with_ext = input_name
+    ext = expected_ext.lower()
+    (label, input_ext) = os.path.splitext(os.path.basename(input_name))
+    if input_ext.lower() != ext:
+        name_with_ext = "{label}.{ext}".format(label = label, ext=ext)
+    return name_with_ext

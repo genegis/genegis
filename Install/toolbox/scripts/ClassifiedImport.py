@@ -37,12 +37,12 @@ import config
 def main(input_table=None, sr=None, output_loc=None,
     output_gdb=None, output_fc=None, genetic=None,
     identification=None, location=None, other=None,
-    mode=config.mode, protected_map=None):
+    mode=config.settings.mode, protected_map=None):
 
     # First, create a geodatabase for all our future results.
     # TODO: can we generate this from a single value?
     gdb_path = os.path.abspath(os.path.join(output_loc, output_gdb + '.gdb'))
-
+    
     # check if we received a value spatial reference -- if not, use WGS84.
     if sr in ('', None):
         # default spatial reference can be redefined.
@@ -54,11 +54,11 @@ def main(input_table=None, sr=None, output_loc=None,
             # Process: Create File GDB
             # SYNTAX: CreateFileGDB_management (out_folder_path, out_name, {out_version})
             arcpy.CreateFileGDB_management(output_loc, output_gdb, "CURRENT")
-            utils.msg("File GDB successfully created.")
+            utils.msg("File geodatabase `%s` successfully created." % gdb_path)
         else:
-            utils.msg("File GDB already exists, skipping creation.")
+            utils.msg("File geodatabase already exists, skipping creation.")
     except Exception as e:
-        utils.msg("Error creating File GDB", mtype='error', exception=e)
+        utils.msg("Error creating file geodatabase", mtype='error', exception=e)
         sys.exit()
         
     # TODO: WE NEED TO DO A FULL CLASSIFICATION OF THE INPUT AND MANUALLY BUILD UP THE LAYER...
@@ -121,7 +121,10 @@ def formatDate(input_date):
     except Exception as e:
         utils.msg("Error parsing date information", mtype='error', exception=e)
         sys.exit()
- 
+
+    # coordinate columns
+    x = y = None
+
     # Convert the table to a temporary spatial feature
     try:
         # A temporary XY Layer needed to create the feature class.
@@ -160,15 +163,37 @@ def formatDate(input_date):
         arcpy.CopyFeatures_management(temporary_layer, output_fc, "", "0", "0", "0")
         utils.msg("Features succesfully created: \n %s" % output_fc)
 
-        # Because we can't pass around objects between this process and the calling
-        # addin environment, dump out the file name to disk in the same
-        # directory as genegis.pyt
-        with open(config.fc_path_file, 'w') as output_file:
-            output_file.write(output_fc.strip())
     except Exception as e:
         utils.msg("Error copying features to a feature class", mtype='error', exception=e)
         sys.exit()
-  
+
+    # Because we can't pass around objects between this process and the calling
+    # addin environment, dump out the settings to our shared configuration file.
+    try:
+        config.update('fc_path', output_fc.strip())
+        config.update('x_coord', x) 
+        config.update('y_coord', y) 
+
+        var_types = {'identification': identification,
+                'genetic': genetic,
+                'location': location,
+                'other': other}
+    
+        # the first ID field should be used as the default key.
+        id_cols = identification.split(";")
+        id_field = id_cols[0]
+        for (i, col) in enumerate(id_cols):
+            if col.lower() == 'individual_id':
+                id_field = id_cols[i]
+        config.update('id_field', id_field)
+
+        for (var, val) in var_types.items():
+            config.update('%s_columns' % var, val.strip())
+
+    except Exception as e:
+        utils.msg("Error creating output configuration file: %s" % config.config_path)
+        sys.exit()
+
     # clean up: remove intermediate steps. 
     try:
         arcpy.Delete_management(temporary_layer)
@@ -194,7 +219,7 @@ if __name__=='__main__':
     defaults_tuple = (
         ('input_table',
         "C:\\geneGIS\\WorkingFolder\\SRGD_Photo_GeneSPLASH_CentAM_CA_OR_Feb12_v3.csv"),
-        ('sr', DEFAULT_SR),
+        ('sr', config.DEFAULT_SR),
         ('output_loc', "C:\\geneGIS\\WorkingFolder"),
         ('output_gdb', "PG_SPLASH_Subset2"),
         ('output_fc', "TestFC"),
@@ -206,4 +231,5 @@ if __name__=='__main__':
     )
 
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
-    main(*defaults.values(), mode='script')
+    defaults['mode'] = 'script'
+    main(**defaults)

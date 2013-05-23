@@ -187,21 +187,6 @@ class ClassifiedImport(object):
             (header, data, dialect) = utils.validated_table_results(input_table_name)
             # create a duplicate list; but a copy so we can modify the list as we go
             unused_values = list(header)
-            # map search strings to variable groups, include 'protected'
-            # column to explicitly define type for these columns
-            group_expressions = [
-               #  group     regex    column type
-                ('Genetic', '^sex$', 'Text'),
-                ('Genetic', '^haplotype$', 'Text'),
-                ('Genetic', '^dlphap$', 'Text'),
-                ('Genetic', '^l_', None), 
-                ('Identification', '_id$', 'Text'),
-                ('Location', '^x$', None), 
-                ('Location', '^y$', None),
-                ('Location', 'longitude', None),
-                ('Location', 'latitude', None),
-                ('Other', '^date_time$', 'Text')
-            ]
 
             # assign 'known' values based on some inference
             #f.write("Initial header: %s\n" % header)
@@ -209,7 +194,7 @@ class ClassifiedImport(object):
             # A little tricky: implement unique result lists for each of
             # our group types.
             results = dict(((group,[]) for group in dynamic_cols))
-            for (group, expr, data_type) in group_expressions:
+            for (group, expr, data_type) in config.group_expressions:
                 #f.write("current list of unused values at expr %s [%s]: %s\n" % (expr, group, unused_values))
                 for (i, value) in enumerate(header):
                     if re.search(expr, value, re.IGNORECASE):
@@ -506,7 +491,13 @@ class ExportGenepop(object):
         self.label = u'Export to Genepop'
         self.description = u'This tool allows the user to export data to a text file that follows the required input format for Genepop (Raymond and Rousset 1995; Rousset 2008).  For more information see: \r\n\r\nhttp://genepop.curtin.edu.au/\r\n'
         self.canRunInBackground = False
-        
+        self.cols = {
+            'input_features': 0,
+            'where_clause': 1,
+            'order_by': 2,
+            'output_name': 3
+        }
+
     def getParameterInfo(self):
         # Input_Feature_Class
         input_features = arcpy.Parameter()
@@ -543,12 +534,18 @@ class ExportGenepop(object):
         output_name.datatype = u'File'
 
         return [input_features, where_clause, order_by, output_name]
-        
+
     def isLicensed(self):
         return True
 
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
+
+        output_name = parameters[self.cols['output_name']].valueAsText
+        if output_name is not None:
+            # make sure the output file name has a TXT extension.
+            output_name = utils.add_file_extension(output_name, 'txt')
+            parameters[self.cols['output_name']].value = output_name
 
         if validator:
              return validator(parameters).updateParameters()
@@ -559,7 +556,7 @@ class ExportGenepop(object):
              return validator(parameters).updateMessages()
 
     def execute(self, parameters, messages):
-        from scripts import ExportToGenepop       
+        from scripts import ExportToGenepop
 
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters
@@ -567,8 +564,7 @@ class ExportGenepop(object):
             input_features=parameters[0].valueAsText,
             where_clause=parameters[1].valueAsText, 
             order_by=parameters[2].valueAsText,
-            output_name=parameters[3].valueAsText)       
-          
+            output_name=parameters[3].valueAsText)
 
 class SelectDataByAttributes(object):
     class ToolValidator:
@@ -741,9 +737,7 @@ class Export(object):
         output_csv = parameters[self.cols['output_csv']].valueAsText
         if output_csv is not None:
             # make sure the output file name has a CSV extension.
-            (label, ext) = os.path.splitext(os.path.basename(output_csv))
-            if ext.lower() != "csv":
-                output_csv = label + ".csv"        
+            output_csv = utils.add_file_extension(output_csv, 'csv')
             parameters[self.cols['output_csv']].value = output_csv
 
         if validator:
