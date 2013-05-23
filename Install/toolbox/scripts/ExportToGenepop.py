@@ -64,18 +64,17 @@ def main(input_features=None, where_clause=None, order_by=None,  output_name=Non
         genetic_columns = config.settings.genetic_columns.split(";")
         loci_expr = '^l_(.*)_[0-9]+'
         for field in [f.name for f in arcpy.ListFields(input_features)]:
-            if field in genetic_columns:
-                match = re.match(loci_expr, field, re.IGNORECASE)
-                if match:
-                    name = match.groups()[0]
-                    if loci.has_key(name):
-                        loci[name].append(field)
-                    else:
-                        loci[name] = [field] 
-                    loci_columns.append(field)
+            match = re.match(loci_expr, field, re.IGNORECASE)
+            if match:
+                name = match.groups()[0]
+                if loci.has_key(name):
+                    loci[name].append(field)
+                else:
+                    loci[name] = [field] 
+                loci_columns.append(field)
 
         output_file.write("\n".join(loci.keys()) + "\n")
-        utils.msg("loci set: %s" % loci.keys())
+        utils.msg("loci set: {0}".format(",".join(loci.keys())))
         # sql clause can be prefix or suffix; set up ORDER BY
         sql_clause = (None, "ORDER BY {0} ASC".format(order_by))
         # query the input_features in ascending order; filtering as needed
