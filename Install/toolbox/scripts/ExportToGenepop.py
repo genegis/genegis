@@ -24,9 +24,6 @@ on more than just genetics (i.e. photo-id).
 Script Outputs:
 A text file formatted to meet the required input file format for Genepop.
 
-NOTE:  Keep a record of the Loci names and their order as this script uses generic locus names
-(e.g., Locus1_A1, Locus1_A2, Locus2_A1, Locus2_A2 etc.)
-
 This script was developed to work with ArcGIS 10.1 and Python 2.7 installed during ArcGIS installation.
 '''
 
