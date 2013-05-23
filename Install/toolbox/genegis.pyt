@@ -534,7 +534,7 @@ class ExportGenepop(object):
         output_name.datatype = u'File'
 
         return [input_features, where_clause, order_by, output_name]
-        
+
     def isLicensed(self):
         return True
 
@@ -556,7 +556,7 @@ class ExportGenepop(object):
              return validator(parameters).updateMessages()
 
     def execute(self, parameters, messages):
-        from scripts import ExportToGenepop       
+        from scripts import ExportToGenepop
 
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters
@@ -564,8 +564,7 @@ class ExportGenepop(object):
             input_features=parameters[0].valueAsText,
             where_clause=parameters[1].valueAsText, 
             order_by=parameters[2].valueAsText,
-            output_name=parameters[3].valueAsText)       
-          
+            output_name=parameters[3].valueAsText)
 
 class SelectDataByAttributes(object):
     class ToolValidator:
