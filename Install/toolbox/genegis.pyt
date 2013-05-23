@@ -25,8 +25,15 @@ class Toolbox(object):
     def __init__(self):
         self.label = u'geneGIS_Jan_2013'
         self.alias = ''
-        self.tools = [ExportGenAlEx, SelectDataByAttributes, ClassifiedImport, ExtractRasterByPoints, ExportGenepop, Export]
-
+        self.tools = [
+            ClassifiedImport, # import data from SRGD file
+            SelectDataByAttributes, # filter data
+            ExtractRasterByPoints, # extract values at point locations
+            # Export routines; get our data elsewhere
+            ExportGenAlEx, # GenAlEx, Excel analysis tool
+            ExportGenepop, # Genepop, population differentiation statistics
+            ExportSRGD # SRGD without Geodatabase columns; for Shepard interchange
+        ]
 # Tool implementation code
 class ClassifiedImport(object):
     class ToolValidator:
@@ -452,10 +459,10 @@ class ExportGenAlEx(object):
              return validator(parameters).updateMessages()
 
     def execute(self, parameters, messages):
-        from scripts import ExportGenAlEx
+        from scripts import ExportToGenAlEx
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters:  
-        ExportGenAlEx.main(
+        ExportToGenAlEx.main(
             input_features=parameters[0].valueAsText,
             where_clause=parameters[1].valueAsText,
             order_by=parameters[2].valueAsText,
@@ -700,7 +707,7 @@ class SelectDataByAttributes(object):
             zz=parameters[2].valueAsText,
             aa=parameters[3].valueAsText)
 
-class Export(object):
+class ExportSRGD(object):
     def __init__(self):
         self.label = u'Export SRGD File'
         self.description = u'Export SRGD results.'
