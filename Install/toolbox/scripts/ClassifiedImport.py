@@ -28,7 +28,6 @@
 import arcpy
 import os
 import sys
-import binascii
 
 # local imports
 import utils
@@ -134,7 +133,7 @@ def formatDate(input_date):
         # 'location', ArcGIS passes semicolon separated values
         loc_parts = location.split(";")
         # TODO: ArcGIS doesn't preserve order; do we need separate fields for these? or some other approach?
-        if loc_parts[0].lower() in ['x', 'longitude']:
+        if loc_parts[0].lower() in ['x', 'longitude', 'lon']:
             (x, y) = loc_parts
         else:
             (y, x) = loc_parts
