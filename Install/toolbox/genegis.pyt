@@ -321,6 +321,10 @@ class ExtractRasterByPoints(object):
         self.label = u'Extract Raster Values To Points'
         self.description = u'This tool allows extraction of one or more rasters at our sample locations.'
         self.canRunInBackground = False
+        self.cols = {
+            'input_raster': 0,
+            'input_fc': 1
+        }
 
     def getParameterInfo(self):
         # FIXME: Doesn't run if the user hasn't selected a layer in the combobox. Either throw an error before they run the tool, or let them fill it out, but populate it if they've selected a layer.
@@ -328,20 +332,35 @@ class ExtractRasterByPoints(object):
         # Raster Input
         input_raster = arcpy.Parameter()
         input_raster.name = u'Input_Raster'
-        input_raster.displayName = u'Input Raster'
+        input_raster.displayName = u'Input Raster(s)'
         input_raster.parameterType = 'Required'
         input_raster.direction = 'Input'
         input_raster.datatype = u'Raster Dataset'
         input_raster.multiValue = True
-       
-        return [input_raster]
+
+        selected_layer = None
+        # check if we have a layer selected from the combo box 
+        if config.selected_layer is not None:
+            selected_layer = config.selected_layer.dataSource
+        elif config.settings.fc_path != '':
+            selected_layer = config.settings.fc_path 
+ 
+        # Output Feature Class
+        input_fc = arcpy.Parameter()
+        input_fc.name = u'Input_Feature_Class'
+        input_fc.displayName = u'Feature Class (will add columns for extracted raster results)'
+        input_fc.direction = 'Input'
+        input_fc.parameterType = 'Required'
+        input_fc.datatype = u'DEFeatureClass'
+        input_fc.value = selected_layer
+
+        return [input_raster, input_fc]
 
     def isLicensed(self):
         return True
 
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
-
         if validator:
              return validator(parameters).updateParameters()
 
@@ -357,8 +376,8 @@ class ExtractRasterByPoints(object):
         # user defined parameters
         ExtractRasterValuesToPoints.main(
             input_raster=parameters[0].valueAsText,
-            selected_layer=config.selected_layer.dataSource)      
-   
+            selected_layer=parameters[1].valueAsText)
+
 
 class ExportGenAlEx(object):
     class ToolValidator:
