@@ -28,7 +28,6 @@
 import arcpy
 import os
 import sys
-import binascii
 
 # local imports
 import utils
@@ -39,17 +38,19 @@ def main(input_raster=None, selected_layer=None, output_ft=None,
 
         utils.msg("Executing ExtractRasterValuesToPoints.")   
         arcpy.CheckOutExtension("Spatial")
-        utils.msg("Checking out Spatial Analyst Extension.")
-        arcpy.sa.ExtractMultiValuesToPoints(selected_layer, input_raster, "NONE")
+            
+        # create a value table, prefix all output rasters with 'R_'
+        rasters = input_raster.split(";")
+        value_table = []
+        for raster in rasters:
+            # default name is just the label, prepend 'R_'
+            (label, input_ext) = os.path.splitext(os.path.basename(raster))
+            label = "R_{0}".format(label)
+            value_table.append([raster, label])
+        utils.msg("generated value table: %s" % value_table)
+        utils.msg("Running ExtractMultiValuesToPoints...")
+        arcpy.sa.ExtractMultiValuesToPoints(selected_layer, value_table, "NONE")
         utils.msg("Values successfully extracted")  
-
-        #arcpy.sa.Sample([input_raster], selected_layer, output_ft, "NEAREST")             
-        #utils.msg(selected_layer)
-        #utils.msg(output_ft)
-        #arcpy.JoinField_management(selected_layer, "OBJECTID", output_ft, "GOA_Encounters_copy", "ETOPO1_clip")
-        #arcpy.JoinField_management (in_data, in_field, join_table, join_field, {fields})
-       
-       
           
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':
