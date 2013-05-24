@@ -409,6 +409,14 @@ class ExportGenAlEx(object):
         self.label = u'Export to GenAlex_CodominantData'
         self.description = u'This tool allows the user to export data to a comma separated text file that follows the required input format for GenAlEx (Peakall and Smouse 2006), a Microsoft Excel Add-In.\r\n\r\nGenAlEx is available from:\r\n\r\nhttp://www.anu.edu.au/BoZo/GenAlEx/\r\n'
         self.canRunInBackground = False
+        self.category = "Export"
+        self.cols = {
+            'input_features': 0,
+            'where_clause' : 1,
+            'order_by' : 2,
+            'output_name': 3
+        }
+
     def getParameterInfo(self):
         # Input_Feature_Class
         input_features = arcpy.Parameter()
@@ -416,43 +424,33 @@ class ExportGenAlEx(object):
         input_features.displayName = u'Input Feature Class'
         input_features.parameterType = 'Required'
         input_features.direction = 'Input'
-        input_features.datatype = u'Feature Layer'
+        input_features.datatype = u'DEFeatureClass'
+
+        selected_layer = None
+        # check if we have a layer selected from the combo box 
+        if config.selected_layer is not None:
+            selected_layer = config.selected_layer.dataSource
+        elif config.settings.fc_path != '':
+            selected_layer = config.settings.fc_path 
+        input_features.value = selected_layer
 
         # Where_Clause
         where_clause = arcpy.Parameter()
         where_clause.name = u'Where_Clause'
         where_clause.displayName = u'Where Clause'
-        where_clause.datatype = u'SQL Expression'
         where_clause.parameterType = 'Optional'
-        where_clause.direction = 'Input'        
-        where_clause.Obtainedfrom= input_features
-
+        where_clause.direction = 'Output'
+        where_clause.datatype = u'SQL Expression'
+        where_clause.parameterDependencies= [input_features.name] 
+        
         # Attribute_Field__to_order_by_population_
         order_by = arcpy.Parameter()
         order_by.name = u'Attribute_Field_to_order_by_population_'
         order_by.displayName = u'Attribute Field (to order by population)'
-        order_by.parameterType = 'Optional'
+        order_by.parameterType = 'Required'
         order_by.direction = 'Input'
         order_by.datatype = u'Field'
-        
-
-        """
-        # Output_File_Location
-        output_location = arcpy.Parameter()
-        output_location.name = u'Output_File_Location'
-        output_location.displayName = u'Output File Location'
-        output_location.parameterType = 'Required'
-        output_location.direction = 'Input'
-        output_location.datatype = u'Folder'
-
-        # Output_File_Name
-        param_5 = arcpy.Parameter()
-        param_5.name = u'Output_File_Name'
-        param_5.displayName = u'Output File Name'
-        param_5.parameterType = 'Required'
-        param_5.direction = 'Input'
-        param_5.datatype = u'String'
-        """
+        order_by.parameterDependencies=[input_features.name]
 
         # Output_File_Location
         output_name = arcpy.Parameter()
@@ -469,6 +467,13 @@ class ExportGenAlEx(object):
 
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
+
+        output_name = parameters[self.cols['output_name']].valueastext
+        if output_name is not None:
+            # make sure the output file name has a txt extension.
+            output_name = utils.add_file_extension(output_name, 'csv')
+            parameters[self.cols['output_name']].value = output_name
+
         if validator:
              return validator(parameters).updateParameters()
 
@@ -517,6 +522,7 @@ class ExportGenepop(object):
         self.label = u'Export to Genepop'
         self.description = u'This tool allows the user to export data to a text file that follows the required input format for Genepop (Raymond and Rousset 1995; Rousset 2008).  For more information see: \r\n\r\nhttp://genepop.curtin.edu.au/\r\n'
         self.canRunInBackground = False
+        self.category = "Export"
         self.cols = {
             'input_features': 0,
             'where_clause': 1,
@@ -566,10 +572,9 @@ class ExportGenepop(object):
 
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
-
-        output_name = parameters[self.cols['output_name']].valueAsText
+        output_name = parameters[self.cols['output_name']].valueastext
         if output_name is not None:
-            # make sure the output file name has a TXT extension.
+            # make sure the output file name has a txt extension.
             output_name = utils.add_file_extension(output_name, 'txt')
             parameters[self.cols['output_name']].value = output_name
 
@@ -731,6 +736,7 @@ class ExportSRGD(object):
         self.label = u'Export SRGD File'
         self.description = u'Export SRGD results.'
         self.canRunInBackground = False
+        self.category = "Export"
         self.cols = {
             'input_feature': 0,
             'output_csv': 1
