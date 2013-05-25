@@ -54,6 +54,7 @@ class ClassifiedImport(object):
         self.label = u'Import Data'
         self.description = u'This tool allows the user to covert an input file (a text file or Excel spreadsheet formated with the SRGD specifications) to a feature class within a file geodatabase.'
         self.canRunInBackground = False
+        self.category = "Import"
         # perform some dynamic list filtering, in the case that we have a
         # table input selected.
         self.cols = {
@@ -280,6 +281,7 @@ class ExtractRasterByPoints(object):
         self.label = u'Extract Raster Values To Points'
         self.description = u'This tool allows extraction of one or more rasters at our sample locations.'
         self.canRunInBackground = False
+        self.category = "Analysis"
         self.cols = {
             'input_raster': 0,
             'input_fc': 1
@@ -425,7 +427,7 @@ class ExportGenepop(object):
         input_features.parameterType = 'Required'
         input_features.direction = 'Input'
         input_features.datatype = 'Feature Layer'
-        
+
         # Where_Clause
         where_clause = arcpy.Parameter()
         where_clause.name = u'Where_Clause'
@@ -484,6 +486,7 @@ class SelectDataByAttributes(object):
     def __init__(self):
         self.label = u'Select Data By Attributes'
         self.canRunInBackground = False
+        self.category = "Analysis"
 
     def getParameterInfo(self):
         # Input_Feature_Class
