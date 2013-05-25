@@ -29,7 +29,7 @@ class ImportData(object):
 
 
 class ExportGenAlEx(object):
-    """Implementation for genegis_export_genalex_codominant.button (Button)"""
+    """Implementation for genegis_export_genalex.button (Button)"""
     def __init__(self):
         self.enabled = True
         self.checked = False
@@ -54,7 +54,7 @@ class ExportKML(object):
         utils.toolDialog("Conversion Tools", "LayerToKML")
 
 class ExportSRGD(object):
-    """Implementation for genegis_export_kml.button (Button)"""
+    """Implementation for genegis_export_srgd.button (Button)"""
     def __init__(self):
         self.enabled = True
         self.checked = False
