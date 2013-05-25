@@ -29,12 +29,20 @@ class ImportData(object):
 
 
 class ExportGenAlEx(object):
-    """Implementation for genegis_export_genalex_codominant.button (Button)"""
+    """Implementation for genegis_export_genalex.button (Button)"""
     def __init__(self):
         self.enabled = True
         self.checked = False
     def onClick(self):
         utils.toolDialog(genegis_toolbox, "ExportGenAlEx")
+
+class ExportGenepop(object):
+    """Implementation for genegis_export_genepop.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        utils.toolDialog(genegis_toolbox, "ExportGenepop")
 
 class ExportKML(object):
     """Implementation for genegis_export_kml.button (Button)"""
@@ -46,7 +54,7 @@ class ExportKML(object):
         utils.toolDialog("Conversion Tools", "LayerToKML")
 
 class ExportSRGD(object):
-    """Implementation for genegis_export_kml.button (Button)"""
+    """Implementation for genegis_export_srgd.button (Button)"""
     def __init__(self):
         self.enabled = True
         self.checked = False

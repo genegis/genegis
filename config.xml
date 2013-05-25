@@ -43,6 +43,17 @@
         </Button>
 
         <Button
+          caption="Export to Genepop"
+          category="geneGIS"
+          class="ExportGenepop"
+          id="genegis_export_genepop.button"
+          image=""
+          message="Export data to Genepe. Can convert the entire dataset, or a comparison of populations based on a selection."
+          tip="">
+          <Help heading="" />
+        </Button>
+
+        <Button
           caption="Export to KML"
           category="geneGIS"
           class="ExportKML"
@@ -64,14 +75,14 @@
           <Help heading="" />
       </Button>
 
- 
+
         <!-- Summarization tools -->
         <Button
           caption="Extract Raster Values"
           category="geneGIS"
           class="ExtractValuesToPoints"
           id="genegis_extract_values_to_points.button"
-          image="Images/genegis_extract_raster_values.png"
+          image="Images\genegis_extract_raster_values.png"
           message=""
           tip="">
           <Help heading="" />
@@ -83,7 +94,7 @@
           category="geneGIS"
           class="SummarizeEncounters"
           id="genegis_summarize.tool"
-          image="Images/genegis_area_limited_icon.png"
+          image="Images\genegis_area_limited_icon.png"
           message=""
           tip="Statistics on a single selection of encounters."
           showCaption="true">
@@ -97,7 +108,7 @@
           category="geneGIS"
           class="CompareEncounters"
           id="genegis_compare.tool"
-          image="Images/genegis_area_limited_inverted_icon.png"
+          image="Images\genegis_area_limited_inverted_icon.png"
           message=""
           tip="Compare between two sets of encounters.">
           <Help
@@ -117,7 +128,7 @@
           </Items>
         </ToolPalette>
 
-        <ComboBox 
+        <ComboBox
           caption="Layer:"
           category="geneGIS"
           class="LayerCombo"
@@ -134,7 +145,7 @@
       </Commands>
 
       <Extensions>
-        <Extension 
+        <Extension
           autoLoad="true"
           name="geneGIS"
           showInExtensionDialog="true"
@@ -176,8 +187,9 @@
           separator="false">
           <Items>
             <Button refID="genegis_export_genalex.button" />
-            <Button refID="genegis_export_kml.button" /> 
-            <Button refID="genegis_export_srgd.button" /> 
+            <Button refID="genegis_export_genepop.button" />
+            <Button refID="genegis_export_kml.button" />
+            <Button refID="genegis_export_srgd.button" />
           </Items>
         </Menu>
         <Menu

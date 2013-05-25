@@ -36,7 +36,6 @@ This script was developed and tested on ArcGIS 10.1 and Python 2.7.
 import arcpy
 import os
 import sys
-import binascii
 
 # local imports
 import utils
@@ -47,8 +46,18 @@ def main(input_raster=None, selected_layer=None, output_ft=None,
 
         utils.msg("Executing ExtractRasterValuesToPoints.")   
         arcpy.CheckOutExtension("Spatial")
-        utils.msg("Checking out Spatial Analyst Extension.")
-        arcpy.sa.ExtractMultiValuesToPoints(selected_layer, input_raster, "NONE")
+            
+        # create a value table, prefix all output rasters with 'R_'
+        rasters = input_raster.split(";")
+        value_table = []
+        for raster in rasters:
+            # default name is just the label, prepend 'R_'
+            (label, input_ext) = os.path.splitext(os.path.basename(raster))
+            label = "R_{0}".format(label)
+            value_table.append([raster, label])
+        utils.msg("generated value table: %s" % value_table)
+        utils.msg("Running ExtractMultiValuesToPoints...")
+        arcpy.sa.ExtractMultiValuesToPoints(selected_layer, value_table, "NONE")
         utils.msg("Values successfully extracted")  
           
 # when executing as a standalone script get parameters from sys
