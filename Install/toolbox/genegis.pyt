@@ -26,11 +26,11 @@ from scripts import utils
 # take 6+ sec longer.
 def selected_layer():
     selected_layer = None
-    # check if we have a layer selected from the combo box 
+    # check if we have a layer selected from the combo box
     if config.selected_layer is not None:
         selected_layer = config.selected_layer.dataSource
     elif config.settings.fc_path != '':
-        selected_layer = config.settings.fc_path 
+        selected_layer = config.settings.fc_path
     return selected_layer
 
 class Toolbox(object):
@@ -49,36 +49,12 @@ class Toolbox(object):
 
 # Tool implementation code
 class ClassifiedImport(object):
-    class ToolValidator:
-      """Class for validating a tool's parameter values and controlling
-      the behavior of the tool's dialog."""
-    
-      def __init__(self, parameters):
-        """Setup arcpy and the list of tool parameters."""
-        import arcpy
-        self.params = parameters
-    
-      def initializeParameters(self):
-        """Refine the properties of a tool's parameters.  This method is
-        called when the tool is opened."""
-        return
-    
-      def updateParameters(self):
-        """Modify the values and properties of parameters before internal
-        validation is performed.  This method is called whenever a parmater
-        has been changed."""
-        return
-    
-      def updateMessages(self):
-        """Modify the messages created by internal validation for each tool
-        parameter.  This method is called after internal validation."""
-        return
-    
+
     def __init__(self):
         self.label = u'Import Data'
         self.description = u'This tool allows the user to covert an input file (a text file or Excel spreadsheet formated with the SRGD specifications) to a feature class within a file geodatabase.'
         self.canRunInBackground = False
-        # perform some dynamic list filtering, in the case that we have a 
+        # perform some dynamic list filtering, in the case that we have a
         # table input selected.
         self.cols = {
             'input_csv': 0,
@@ -169,15 +145,16 @@ class ClassifiedImport(object):
         other.direction = 'Input'
         other.multiValue = True
         other.filter.list = ['Region', 'Date_Time']
-        
-        return [input_csv, sr, output_loc, output_gdb, output_fc, genetic, identification, loc, other]
+
+        return [input_csv, sr, output_loc, output_gdb, output_fc, \
+                genetic, identification, loc, other]
 
     def isLicensed(self):
         return True
 
     def updateDynamicFilters(self, filter_param, update_param, unused_values):
         result = []
-        # ValueTable object; 
+        # ValueTable object;
         # http://help.arcgis.com/en/arcgisdesktop/10.0/help/000v/000v000000q1000000.htm
         filter_val = filter_param.value
         if filter_val is not None:
@@ -186,13 +163,11 @@ class ClassifiedImport(object):
             for param in unused_values:
                 if param not in filter_values:
                     result.append(param)
-            
+
             update_param.filter.list = result
         return result
 
     def updateParameters(self, parameters):
-        validator = getattr(self, 'ToolValidator', None)
-
         dynamic_cols = ['Genetic', 'Identification', 'Location', 'Other']
         unused_values = []
 
@@ -233,12 +208,12 @@ class ClassifiedImport(object):
             # any remaining attributes should be included under 'Other'
             results['Other'] = unused_values
 
-            # update the lists provided to the user 
+            # update the lists provided to the user
             for (group, vals) in results.items():
                 parameters[self.cols[group]].filter.list = vals
                 parameters[self.cols[group]].value = vals
 
-            #f.write("Unused values remaining: %s\n" % unused_values) 
+            #f.write("Unused values remaining: %s\n" % unused_values)
 
         if output_loc is not None and input_table_name is not None and output_gdb is not None:
             # derive the output feature class name if these two parameters are set
@@ -253,15 +228,13 @@ class ClassifiedImport(object):
             #f.write("Running with: {0} {1} {2}\n\n".format(update_label,
             #    filter_label, ",".join(unused_values)))
             unused_values = self.updateDynamicFilters(
-                    parameters[filter_label], 
-                    parameters[update_label], 
+                    parameters[filter_label],
+                    parameters[update_label],
                     unused_values)
         """
-        if validator:
-             return validator(parameters).updateParameters()
+        return
 
     def updateMessages(self, parameters):
-        validator = getattr(self, 'ToolValidator', None)
         input_table_name = parameters[self.cols['input_csv']].valueAsText
         if input_table_name is not None:
             # read the original data
@@ -269,7 +242,7 @@ class ClassifiedImport(object):
             # read the validated header
             (header, data, dialect) = utils.validated_table_results(input_table_name)
 
-            # check if we've modified the header. 
+            # check if we've modified the header.
             if orig_header != header:
                 modified_columns = []
                 # find which columns have been changed
@@ -281,9 +254,7 @@ class ClassifiedImport(object):
                 msg = "Headers were modified based on ArcGIS field name restrictions:\n" \
                       + "\n".join(modified_result)
                 parameters[0].setWarningMessage(msg)
-         
-        if validator:
-             return validator(parameters).updateMessages()
+        return
 
     def execute(self, parameters, messages):
         from scripts import ClassifiedImport
@@ -305,31 +276,6 @@ class ClassifiedImport(object):
         return
 
 class ExtractRasterByPoints(object):
-    class ToolValidator:
-      """Class for validating a tool's parameter values and controlling
-      the behavior of the tool's dialog."""
-    
-      def __init__(self, parameters):
-        """Setup arcpy and the list of tool parameters."""
-        import arcpy
-        self.params = parameters
-    
-      def initializeParameters(self):
-        """Refine the properties of a tool's parameters.  This method is
-        called when the tool is opened."""
-        return
-    
-      def updateParameters(self):
-        """Modify the values and properties of parameters before internal
-        validation is performed.  This method is called whenever a parmater
-        has been changed."""
-        return
-    
-      def updateMessages(self):
-        """Modify the messages created by internal validation for each tool
-        parameter.  This method is called after internal validation."""
-        return
-    
     def __init__(self):
         self.label = u'Extract Raster Values To Points'
         self.description = u'This tool allows extraction of one or more rasters at our sample locations.'
@@ -366,17 +312,13 @@ class ExtractRasterByPoints(object):
         return True
 
     def updateParameters(self, parameters):
-        validator = getattr(self, 'ToolValidator', None)
-        if validator:
-             return validator(parameters).updateParameters()
+        return
 
     def updateMessages(self, parameters):
-        validator = getattr(self, 'ToolValidator', None)
-        if validator:
-             return validator(parameters).updateMessages()
+        return
 
     def execute(self, parameters, messages):
-        from scripts import ExtractRasterValuesToPoints       
+        from scripts import ExtractRasterValuesToPoints
 
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters
@@ -386,31 +328,7 @@ class ExtractRasterByPoints(object):
 
 
 class ExportGenAlEx(object):
-    class ToolValidator:
-      """Class for validating a tool's parameter values and controlling
-      the behavior of the tool's dialog."""
-    
-      def __init__(self, parameters):
-        """Setup arcpy and the list of tool parameters."""
-        import arcpy
-        self.params = parameters
-    
-      def initializeParameters(self):
-        """Refine the properties of a tool's parameters.  This method is
-        called when the tool is opened."""
-        return
-    
-      def updateParameters(self):
-        """Modify the values and properties of parameters before internal
-        validation is performed.  This method is called whenever a parameter
-        has been changed."""
-        return
-    
-      def updateMessages(self):
-        """Modify the messages created by internal validation for each tool
-        parameter.  This method is called after internal validation."""
-        return
-    
+
     def __init__(self):
         self.label = u'Export to GenAlex_CodominantData'
         self.description = u'This tool allows the user to export data to a comma separated text file that follows the required input format for GenAlEx (Peakall and Smouse 2006), a Microsoft Excel Add-In.\r\n\r\nGenAlEx is available from:\r\n\r\nhttp://www.anu.edu.au/BoZo/GenAlEx/\r\n'
@@ -440,8 +358,8 @@ class ExportGenAlEx(object):
         where_clause.parameterType = 'Optional'
         where_clause.direction = 'Output'
         where_clause.datatype = u'SQL Expression'
-        where_clause.parameterDependencies= [input_features.name] 
-        
+        where_clause.parameterDependencies= [input_features.name]
+
         # Attribute_Field__to_order_by_population_
         order_by = arcpy.Parameter()
         order_by.name = u'Attribute_Field_to_order_by_population_'
@@ -465,58 +383,28 @@ class ExportGenAlEx(object):
         return True
 
     def updateParameters(self, parameters):
-        validator = getattr(self, 'ToolValidator', None)
-
         output_name = parameters[self.cols['output_name']].valueastext
         if output_name is not None:
             # make sure the output file name has a txt extension.
             output_name = utils.add_file_extension(output_name, 'csv')
             parameters[self.cols['output_name']].value = output_name
-
-        if validator:
-             return validator(parameters).updateParameters()
+        return
 
     def updateMessages(self, parameters):
-        validator = getattr(self, 'ToolValidator', None)
-        if validator:
-             return validator(parameters).updateMessages()
+        return
 
     def execute(self, parameters, messages):
         from scripts import ExportToGenAlEx
         # if the script is running within ArcGIS as a tool, get the following
-        # user defined parameters:  
+        # user defined parameters:
         ExportToGenAlEx.main(
             input_features=parameters[0].valueAsText,
             where_clause=parameters[1].valueAsText,
             order_by=parameters[2].valueAsText,
             output_name=parameters[3].valueAsText)
-        
+
 class ExportGenepop(object):
-    class ToolValidator:
-      """Class for validating a tool's parameter values and controlling
-      the behavior of the tool's dialog."""
-    
-      def __init__(self, parameters):
-        """Setup arcpy and the list of tool parameters."""
-        import arcpy
-        self.params = parameters
-    
-      def initializeParameters(self):
-        """Refine the properties of a tool's parameters.  This method is
-        called when the tool is opened."""
-        return
-    
-      def updateParameters(self):
-        """Modify the values and properties of parameters before internal
-        validation is performed.  This method is called whenever a parmater
-        has been changed."""
-        return
-    
-      def updateMessages(self):
-        """Modify the messages created by internal validation for each tool
-        parameter.  This method is called after internal validation."""
-        return
-    
+
     def __init__(self):
         self.label = u'Export to Genepop'
         self.description = u'This tool allows the user to export data to a text file that follows the required input format for Genepop (Raymond and Rousset 1995; Rousset 2008).  For more information see: \r\n\r\nhttp://genepop.curtin.edu.au/\r\n'
@@ -545,8 +433,8 @@ class ExportGenepop(object):
         where_clause.parameterType = 'Optional'
         where_clause.direction = 'Output'
         where_clause.datatype = u'SQL Expression'
-        where_clause.parameterDependencies= [input_features.name] 
-        
+        where_clause.parameterDependencies= [input_features.name]
+
         # Attribute_Field__to_order_by_population_
         order_by = arcpy.Parameter()
         order_by.name = u'Attribute_Field_to_order_by_population_'
@@ -570,20 +458,15 @@ class ExportGenepop(object):
         return True
 
     def updateParameters(self, parameters):
-        validator = getattr(self, 'ToolValidator', None)
         output_name = parameters[self.cols['output_name']].valueastext
         if output_name is not None:
             # make sure the output file name has a txt extension.
             output_name = utils.add_file_extension(output_name, 'txt')
             parameters[self.cols['output_name']].value = output_name
-
-        if validator:
-             return validator(parameters).updateParameters()
+        return
 
     def updateMessages(self, parameters):
-        validator = getattr(self, 'ToolValidator', None)
-        if validator:
-             return validator(parameters).updateMessages()
+        return
 
     def execute(self, parameters, messages):
         from scripts import ExportToGenepop
@@ -592,39 +475,16 @@ class ExportGenepop(object):
         # user defined parameters
         ExportToGenepop.main(
             input_features=parameters[0].valueAsText,
-            where_clause=parameters[1].valueAsText, 
+            where_clause=parameters[1].valueAsText,
             order_by=parameters[2].valueAsText,
             output_name=parameters[3].valueAsText)
 
 class SelectDataByAttributes(object):
-    class ToolValidator:
-      """Class for validating a tool's parameter values and controlling
-      the behavior of the tool's dialog."""
-    
-      def __init__(self, parameters):
-        """Setup arcpy and the list of tool parameters."""
-        import arcpy
-        self.params = parameters
-    
-      def initializeParameters(self):
-        """Refine the properties of a tool's parameters.  This method is
-        called when the tool is opened."""
-        return
-    
-      def updateParameters(self):
-        """Modify the values and properties of parameters before internal
-        validation is performed.  This method is called whenever a parameter
-        has been changed."""
-        return
-    
-      def updateMessages(self):
-        """Modify the messages created by internal validation for each tool
-        parameter.  This method is called after internal validation."""
-        return
-    
+
     def __init__(self):
         self.label = u'Select Data By Attributes'
         self.canRunInBackground = False
+
     def getParameterInfo(self):
         # Input_Feature_Class
         param_1 = arcpy.Parameter()
@@ -710,20 +570,20 @@ class SelectDataByAttributes(object):
         param_10.datatype = u'Folder'
 
         return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
+
     def isLicensed(self):
         return True
+
     def updateParameters(self, parameters):
-        validator = getattr(self, 'ToolValidator', None)
-        if validator:
-             return validator(parameters).updateParameters()
+        return
+
     def updateMessages(self, parameters):
-        validator = getattr(self, 'ToolValidator', None)
-        if validator:
-             return validator(parameters).updateMessages()
+        return
+
     def execute(self, parameters, messages):
-        from scripts import SelectByAttributes 
+        from scripts import SelectByAttributes
         # if the script is running within ArcGIS as a tool, get the following
-        # user defined parameters:  
+        # user defined parameters:
         SelectByAttributes.main(
             xx=parameters[0].valueAsText,
             yy=parameters[1].valueAsText,
@@ -763,25 +623,19 @@ class ExportSRGD(object):
         return True
 
     def updateParameters(self, parameters):
-        validator = getattr(self, 'ToolValidator', None)
-
         output_csv = parameters[self.cols['output_csv']].valueAsText
         if output_csv is not None:
             # make sure the output file name has a CSV extension.
             output_csv = utils.add_file_extension(output_csv, 'csv')
             parameters[self.cols['output_csv']].value = output_csv
-
-        if validator:
-             return validator(parameters).updateParameters()
+        return
 
     def updateMessages(self, parameters):
-        validator = getattr(self, 'ToolValidator', None)
-        if validator:
-             return validator(parameters).updateMessages()
+        return
 
     def execute(self, parameters, messages):
         input_feature = parameters[0].valueAsText
-        output_csv = parameters[1].valueAsText 
+        output_csv = parameters[1].valueAsText
         arcpy.env.addOutputsToMap  = False
         # run export on this feature class.
         messages.addMessage("Running export...")
