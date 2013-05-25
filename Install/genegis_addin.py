@@ -36,6 +36,14 @@ class ExportGenAlEx(object):
     def onClick(self):
         utils.toolDialog(genegis_toolbox, "ExportGenAlEx")
 
+class ExportGenepop(object):
+    """Implementation for genegis_export_genepop.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        utils.toolDialog(genegis_toolbox, "ExportGenepop")
+
 class ExportKML(object):
     """Implementation for genegis_export_kml.button (Button)"""
     def __init__(self):
