@@ -21,6 +21,18 @@ import config
 # import utilities & config from our scripts as well
 from scripts import utils
 
+# NOTE: setting the output to a geodatabase feature class is really expensive;
+# the two uses of this call in the initialization code make opening the toolbox
+# take 6+ sec longer.
+def selected_layer():
+    selected_layer = None
+    # check if we have a layer selected from the combo box 
+    if config.selected_layer is not None:
+        selected_layer = config.selected_layer.dataSource
+    elif config.settings.fc_path != '':
+        selected_layer = config.settings.fc_path 
+    return selected_layer
+
 class Toolbox(object):
     def __init__(self):
         self.label = u'geneGIS_Jan_2013'
@@ -34,6 +46,7 @@ class Toolbox(object):
             ExportGenepop, # Genepop, population differentiation statistics
             ExportSRGD # SRGD without Geodatabase columns; for Shepard interchange
         ]
+
 # Tool implementation code
 class ClassifiedImport(object):
     class ToolValidator:
@@ -338,13 +351,6 @@ class ExtractRasterByPoints(object):
         input_raster.datatype = u'Raster Dataset'
         input_raster.multiValue = True
 
-        selected_layer = None
-        # check if we have a layer selected from the combo box 
-        if config.selected_layer is not None:
-            selected_layer = config.selected_layer.dataSource
-        elif config.settings.fc_path != '':
-            selected_layer = config.settings.fc_path 
- 
         # Output Feature Class
         input_fc = arcpy.Parameter()
         input_fc.name = u'Input_Feature_Class'
@@ -352,7 +358,7 @@ class ExtractRasterByPoints(object):
         input_fc.direction = 'Input'
         input_fc.parameterType = 'Required'
         input_fc.datatype = u'DEFeatureClass'
-        input_fc.value = selected_layer
+        input_fc.value = selected_layer()
 
         return [input_raster, input_fc]
 
@@ -425,14 +431,7 @@ class ExportGenAlEx(object):
         input_features.parameterType = 'Required'
         input_features.direction = 'Input'
         input_features.datatype = u'DEFeatureClass'
-
-        selected_layer = None
-        # check if we have a layer selected from the combo box 
-        if config.selected_layer is not None:
-            selected_layer = config.selected_layer.dataSource
-        elif config.settings.fc_path != '':
-            selected_layer = config.settings.fc_path 
-        input_features.value = selected_layer
+        input_features.value = selected_layer()
 
         # Where_Clause
         where_clause = arcpy.Parameter()
