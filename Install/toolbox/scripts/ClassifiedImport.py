@@ -12,7 +12,7 @@
 # simple flat file format to a Feature Class viewable in ArcGIS 10.  
 #
 # Required Inputs: Spatially referenced genetic data formatted according to 
-# the SRDG.csv file format. This data can be for indentifed individuals or 
+# the SRGD.csv file format. This data can be for indentifed individuals or 
 # for genetic samples.
 #
 # Optional Inputs: 
