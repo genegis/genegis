@@ -439,7 +439,7 @@ class ExportGenepop(object):
 
         # Attribute_Field__to_order_by_population_
         order_by = arcpy.Parameter()
-        order_by.name = u'Attribute_Field_to_order_by_population_'
+        order_by.name = u'Population Field'
         order_by.displayName = u'Population Field'
         order_by.parameterType = 'Required'
         order_by.direction = 'Input'
