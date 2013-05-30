@@ -1,6 +1,7 @@
 import arcpy
 import os
 import ConfigParser
+from collections import OrderedDict
 
 class AttrDict(dict):
     def __init__(self, *args, **kwargs):
@@ -85,6 +86,23 @@ group_expressions = [
     ('Location', 'latitude', None),
     ('Other', '^date_time$', 'Text')
 ]
+
+# distance units options: CENTIMETERS | DECIMALDEGREES | DECIMETERS | FEET | INCHES | KILOMETERS | METERS | MILES | MILLIMETERS | NAUTICALMILES | POINTS | UNKNOWN | YARDS
+distance_units = OrderedDict([
+    # metric units first, largest to smallest
+    # label            abbr  Esri name     conversion factor (to m)
+    ('Kilometers',    ('km', 'kilometers', 0.001)),
+    ('Meters',        ('m',  'meters', 1)),
+    ('Decimeter',     ('dm', 'decimeter', 10)),
+    ('Centimeters',   ('cm', 'cenimeters', 100)),
+    ('Millimeters',   ('mm', 'millimeters', 1000)),
+    # the crown's units
+    ('Nautical miles', ('nm', 'nauticalmiles', 0.000539957)),
+    ('Miles',         ('mi', 'miles', 0.000621371)),
+    ('Yards',         ('yd', 'yards', 1.09361)),
+    ('Feet',          ('ft', 'feet', 3.28084)),
+    ('Inches',        ('in', 'inches', 39.3701))
+])
 
 # XXX Settings below imported from toolbox/scripts/config.py
 

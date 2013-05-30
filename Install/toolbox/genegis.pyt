@@ -46,7 +46,10 @@ class Toolbox(object):
         self.tools = [
             ClassifiedImport, # import data from SRGD file
             SelectDataByAttributes, # filter data
+            # Geographic Analysis
             ExtractRasterByPoints, # extract values at point locations
+            DistanceMatrix,
+            ShortestDistancePaths,
             # Export routines; get our data elsewhere
             ExportGenAlEx, # GenAlEx, Excel analysis tool
             ExportGenepop, # Genepop, population differentiation statistics
@@ -333,6 +336,138 @@ class ExtractRasterByPoints(object):
         ExtractRasterValuesToPoints.main(
             input_raster=parameters[0].valueAsText,
             selected_layer=parameters[1].valueAsText)
+
+class ShortestDistancePaths(object):
+    def __init__(self):
+        self.label = u'Geographic Distance Paths'
+        self.description = u'Calculate the pairwise shortest distance paths between all observations'
+        self.canRunInBackground = False
+        self.category = "Analysis"
+        self.cols = {
+            'input_fc': 0,
+            'output_fc': 1,
+            'closest': 2
+        }
+
+    def getParameterInfo(self):
+
+        # Input Feature Class
+        input_fc = arcpy.Parameter()
+        input_fc.name = u'Input_Feature_Class'
+        input_fc.displayName = u'Feature Class' 
+        input_fc.direction = 'Input'
+        input_fc.parameterType = 'Required'
+        input_fc.datatype = u'GPFeatureLayer'
+        input_fc.value = selected_layer()
+
+        # Output Feature Class
+        output_fc = arcpy.Parameter()
+        output_fc.name = u'Output_Feature_Class'
+        output_fc.displayName = u'Output Feature Class'
+        output_fc.direction = 'Output'
+        output_fc.parameterType = 'Required'
+        output_fc.datatype = u'GPFeatureLayer'
+
+        # limit to the closest observation
+        closest = arcpy.Parameter()
+        closest.name = 'Closest_Count'
+        closest.displayName = 'Find only closest feature'
+        closest.direction = 'Input'
+        closest.parameterType = 'Optional'
+        closest.datatype = 'GPBoolean'
+
+        return [input_fc, output_fc, closest]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        return
+
+    def updateMessages(self, parameters):
+        return
+
+    def execute(self, parameters, messages):
+        from scripts import ShortestDistancePaths
+
+        ShortestDistancePaths.main(
+            input_fc=parameters[0].valueAsText,
+            output_fc=parameters[1].valueAsText,
+            closest=parameters[2].valueAsText)
+
+class DistanceMatrix(object):
+    def __init__(self):
+        self.label = u'Geographic Distance Matrix'
+        self.description = u'Calculate the geographic distance matrix between all locations'
+        self.canRunInBackground = False
+        self.category = "Analysis"
+        self.cols = {
+            'input_fc': 0,
+            'dist_units' : 1,
+            'output_matrix': 2
+        }
+        self.display_units = config.distance_units.keys()
+ 
+    def getParameterInfo(self):
+        # Input Feature Class
+        input_fc = arcpy.Parameter()
+        input_fc.name = u'Input_Feature_Class'
+        input_fc.displayName = u'Feature Class' 
+        input_fc.direction = 'Input'
+        input_fc.parameterType = 'Required'
+        input_fc.datatype = u'GPFeatureLayer'
+        input_fc.value = selected_layer()
+
+        # Matrix Type
+        matrix_type = arcpy.Parameter()
+        matrix_type.name = 'Matrix_Type'
+        matrix_type.displayName = 'Matrix Type'
+        matrix_type.direction = 'Input'
+        matrix_type.parameterType = 'Required'
+        matrix_type.datatype = 'String'
+        matrix_type.filter.list = ['Pairwise', 'Square']
+        matrix_type.value = 'Pairwise'
+
+        # Matrix units
+        dist_unit = arcpy.Parameter()
+        dist_unit.name = 'Distance_Units'
+        dist_unit.displayName = 'Distance Units'
+        dist_unit.direction = 'Input'
+        dist_unit.parameterType = 'Required'
+        dist_unit.datatype = 'String'
+        dist_unit.filter.list = self.display_units
+        dist_unit.value = self.display_units[0]
+
+        # Output Matrix
+        output_matrix= arcpy.Parameter()
+        output_matrix.name = u'Output_Matrix'
+        output_matrix.displayName = u'Output Matrix'
+        output_matrix.direction = 'Output'
+        output_matrix.parameterType = 'Required'
+        output_matrix.datatype = 'File'
+
+        return [input_fc, dist_unit, output_matrix]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        output_matrix = parameters[self.cols['output_matrix']].valueastext
+        if output_matrix is not None:
+            output_matrix = utils.add_file_extension(output_matrix, 'csv')
+            parameters[self.cols['output_matrix']].value = output_matrix
+        return
+
+    def updateMessages(self, parameters):
+        return
+
+    def execute(self, parameters, messages):
+        from scripts import DistanceMatrix 
+
+        DistanceMatrix.main(
+            input_fc=parameters[0].valueAsText,
+            dist_unit=parameters[1].valueAsText,
+            output_matrix=parameters[2].valueAsText)
 
 
 class ExportGenAlEx(object):
