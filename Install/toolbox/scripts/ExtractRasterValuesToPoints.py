@@ -1,29 +1,37 @@
-# ---------------------------------------------------------------------------
-# ExtractRasterValuesToPoints.py
-#
-# Created by: Dori Dick
-#             College of Earth, Ocean and Atmospheric Sciences
-#             Oregon State Univeristy
-# 
-# Created on: 3 March 2012
-# Last modified: 9 September 2012
-# 
-# Description: This script converts spatially reference genetic data from a 
-# simple flat file format to a Feature Class viewable in ArcGIS 10.  
-#
-# Required Inputs: Spatially referenced genetic data formatted according to 
-# the SRDG.csv file format. This data can be for indentifed individuals or 
-# for genetic samples.
-#
-# Optional Inputs: 
-#   - If known, a spatial reference for the point data (recommended)
-#
-# Script Outputs: 
-#   - a new File Geodatabase
-#   - a new feature class located within the File Geodatabase
-#
-# This script was developed and tested on ArcGIS 10.1 and Python 2.7.
-# ---------------------------------------------------------------------------
+''' 
+ExtractRasterValuesToPoints.py
+
+Created by: 
+Dori Dick
+College of Earth, Ocean, and Atmospheric Sciences
+Oregon State Univeristy
+ 
+Created on: 3 March 2012
+Last modified: 12 May 2013
+ 
+Description: 
+This script extracts raster values from one or more raster layers based on 
+an input point feature class.  The extracted values are added to the input 
+feature class via a new attribute field.  Each new attribute field is named 
+after the respective raster layer.
+
+Raster values are based on the cell center, no interpolation of nearby cell occurs.
+
+Caution: 
+This script modifies the input data
+
+Required Inputs:
+One or more raster layers
+
+Script Outputs: 
+The addition of one or more new attribute fields containing extracted values from 
+the raster layer(s) to the input feature class.
+ 
+NOTE:
+This script requires the input feature layer to be selected on the geneGIS toolbar.
+
+This script was developed and tested on ArcGIS 10.1 and Python 2.7.
+'''
 
 import arcpy
 import os
