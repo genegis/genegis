@@ -136,27 +136,38 @@ def main(input_features=None, where_clause=None, order_by=None,
     for (key, cols) in loci.items():
         loci_labels += key
         loci_labels += ","*len(cols)
-
-    output_file.write("{0},{1},{2},{3},{4}\n".format(config.settings.id_field, order_by, loci_labels, config.settings.x_coord, config.settings.y_coord))
+        
+    # get the spatial reference of our input, determine the type
+    desc = arcpy.Describe(input_features)
+    sr = desc.spatialReference
+    if sr.type == 'Projected':
+        loc_a = config.settings.x_coord
+        loc_b = config.settings.y_coord
+    if sr.type == 'Geographic':
+        # geographic data expected to be (lat, lon)
+        loc_a = config.settings.y_coord
+        loc_b = config.settings.x_coord
+    
+    output_file.write("{0},{1},{2},{3},{4}\n".format(config.settings.id_field, order_by, loci_labels, loc_a, loc_b))
 
     utils.msg("Header info written to text file")
 
     # Note the WhereClause: Because the SPLASH data has both photo-id and genetic records, but GenAlEx only uses genetic data, the 
     # WhereClause is used to ensure only those records with genetic data are copied to the text file. 
-    selected_columns = loci_columns + [config.settings.x_coord, config.settings.y_coord, config.settings.id_field, order_by]
+    selected_columns = loci_columns + [loc_a, loc_b, config.settings.id_field, order_by]
     rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause, "", "", sql_clause)
     for row in rows:
         pop = row[-1] # last column is 'order_by', or key column
         id_field = row[-2] # as set on import
-        y = row[-3]
-        x = row[-4]
+        loc_a_val = row[-3]
+        loc_b_val = row[-4]
         result_row = [id_field, pop]
 
         for (key, cols) in loci.items():
             for col in cols:
                 col_pos = selected_columns.index(col)
                 result_row.append(row[col_pos])
-        result_row = result_row + ["", x, y]
+        result_row = result_row + ["", loc_a_val, loc_b_val]
         output_file.write(",".join([str(s) for s in result_row]) + "\n")
 
     utils.msg("Exported results saved to %s." % output_name)

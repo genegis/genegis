@@ -491,7 +491,7 @@ class ExportGenAlEx(object):
         input_features.displayName = u'Input Feature Class'
         input_features.parameterType = 'Required'
         input_features.direction = 'Input'
-        input_features.datatype = u'DEFeatureClass'
+        input_features.datatype = u'GPFeatureLayer'
         input_features.value = selected_layer()
 
         # Where_Clause
