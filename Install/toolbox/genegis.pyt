@@ -26,11 +26,17 @@ from scripts import utils
 # take 6+ sec longer.
 def selected_layer():
     selected_layer = None
-    # check if we have a layer selected from the combo box
-    if config.selected_layer is not None:
-        selected_layer = config.selected_layer.dataSource
-    elif config.settings.fc_path != '':
-        selected_layer = config.settings.fc_path
+    current_layers = addin_utils.currentLayers()
+    # just keep the layer list?
+    if len(current_layers) > 0:
+        # FIXME: do something better here.
+        selected_layer = None
+    else:
+        # check if we have a layer selected from the combo box
+        if config.selected_layer is not None:
+            selected_layer = config.selected_layer.dataSource
+        elif config.settings.fc_path != '':
+            selected_layer = config.settings.fc_path
     return selected_layer
 
 class Toolbox(object):
