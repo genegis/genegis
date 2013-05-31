@@ -9,6 +9,7 @@
 import arcpy
 import os
 import sys
+import ctypes
 from collections import OrderedDict
 
 # local imports
@@ -30,6 +31,43 @@ def main(input_fc=None, dist_unit=None, output_matrix=None, mode=config.settings
         utils.msg("Output units: {0}".format(dist_unit))
         (unit_abbr, unit_name, unit_factor) = config.distance_units[dist_unit]
 
+    geodesic_cpp_fn = load_geodesic_dll()
+    if geodesic_cpp_fn is not None:
+        # TODO: handle units in the CPP version.
+        utils.msg("Loaded high-performance geodesic calculations, running…")
+        returncode = geodesic_cpp_fn(input_fc, output_matrix)
+        if returncode == -1:
+            utils.msg("Cannot open the output file.")
+        elif returncode == -2:
+            utils.msg("Cannot open the input file.")
+        elif returncode == -3:
+            utils.msg("The input matrix is too large! consider subsetting your results.")
+        elif returncode == 0:
+            utils.msg("Distance matrix calculations complete.")
+        else:
+            utils.msg("Unknown failure occured in high-performance geodesic module.")
+    else:
+        run_geodesic_gp(input_fc, unit_factor, output_matrix)
+
+    utils.msg("Created distance matrix successfully: {0}".format(output_matrix))
+
+def load_geodesic_dll():
+    fn = None
+    dll_path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "lib", "geodesic.dll"))
+    utils.msg(dll_path)
+    if os.path.exists(dll_path):
+        try:
+            loaded_dll = ctypes.cdll.LoadLibrary(dll_path)
+        #except WindowsError :
+        except Exception as e:
+            utils.msg("Failed to load high-speed geodesic library.")
+            return None
+        fn = loaded_dll.CalculatePairwiseGeodesicDistances
+        fn.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p]
+        fn.restype = ctypes.c_int
+    return fn                
+
+def run_geodesic_gp(input_fc, unit_factor, output_matrix):
     input_fc_mem = 'in_memory/input_fc'
     try:
         utils.msg("Copying features into memory…")
@@ -77,15 +115,15 @@ def main(input_fc=None, dist_unit=None, output_matrix=None, mode=config.settings
                 if p1.equals(p2):
                     dist = 0
                 else:
-                    # TODO: Each Polyline initialization must pay the COM object gods, and ends up
-                    # making this much more expensive than AO C++ or even comtypes calls, evalaute rewriting.
+                    # : Each Polyline initialization must pay the COM object gods, and ends up
+                    # making this much more expensive than AO C++ or even comtypes calls.
                     line = arcpy.Polyline(arcpy.Array([p1, p2]), sr)
                     # distance, always returned in meters, scale by our expected result units.
                     dist = line.getLength("GEODESIC") * unit_factor
                     # if the units aren't meters, convert as needed
                     
             distance_matrix[fid][to_fid] = dist
-    print "Distance matrix calculations complete."
+    utils.msg("Distance matrix calculations complete.")
 
     # FIXME: generate it as a CSV file, then do TableToTable to pull it back in if requested.
 
@@ -99,10 +137,10 @@ def main(input_fc=None, dist_unit=None, output_matrix=None, mode=config.settings
             for (fid, row) in distance_matrix.items():
                 csv.write("{0},{1}\n".format(fid, ",".join([str(s) for s in row.values()])))
 
-        utils.msg("Created distance matrix successfully: {0}".format(output_matrix))
     except Exception as e:
         utils.msg("Error creating distance matrix.", mtype='error', exception=e)
         sys.exit()
+
 
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':
