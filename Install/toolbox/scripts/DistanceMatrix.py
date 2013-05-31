@@ -111,6 +111,7 @@ if __name__=='__main__':
     # TODO: change these to be test-based.
     defaults_tuple = (
         ('input_fc', ""),
+        ('dist_unit', 'Kilometers'),
         ('output_matrix', "TestFC"),
     )
 
