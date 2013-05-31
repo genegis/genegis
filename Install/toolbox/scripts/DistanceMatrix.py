@@ -31,8 +31,11 @@ def main(input_fc=None, dist_unit=None, output_matrix=None, mode=config.settings
         utils.msg("Output units: {0}".format(dist_unit))
         (unit_abbr, unit_name, unit_factor) = config.distance_units[dist_unit]
 
+    # yes, all this mucking about is necessary to get a row count
+    row_count = int(arcpy.GetCount_management(input_fc_mem).getOutput(0))
+ 
     geodesic_cpp_fn = load_geodesic_dll()
-    if geodesic_cpp_fn is not None:
+    if geodesic_cpp_fn is not None and row_count > 50:
         # TODO: handle units in the CPP version.
         utils.msg("Loaded high-performance geodesic calculations, running…")
         returncode = geodesic_cpp_fn(input_fc, output_matrix)
@@ -83,8 +86,6 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix):
         utils.msg("This tools only works with geographic or projected data.", mtype='error')
         sys.exit()
 
-    # yes, all this mucking about is necessary to get a row count
-    row_count = int(arcpy.GetCount_management(input_fc_mem).getOutput(0))
     output_fc_mem = 'in_memory/output_fc'
 
     utils.msg("Finding all input points…")
