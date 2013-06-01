@@ -50,9 +50,12 @@ class Toolbox(object):
             ExtractRasterByPoints, # extract values at point locations
             DistanceMatrix,
             ShortestDistancePaths,
+            # Genetic Analysis
+            SpagediFst,
             # Export routines; get our data elsewhere
             ExportGenAlEx, # GenAlEx, Excel analysis tool
             ExportGenepop, # Genepop, population differentiation statistics
+            ExportSpagedi, # SPAGeDi, fancy genetic statistics package
             ExportSRGD # SRGD without Geodatabase columns; for Shepard interchange
         ]
 
@@ -418,16 +421,6 @@ class DistanceMatrix(object):
         input_fc.datatype = u'GPFeatureLayer'
         input_fc.value = selected_layer()
 
-        # Matrix Type
-        matrix_type = arcpy.Parameter()
-        matrix_type.name = 'Matrix_Type'
-        matrix_type.displayName = 'Matrix Type'
-        matrix_type.direction = 'Input'
-        matrix_type.parameterType = 'Required'
-        matrix_type.datatype = 'String'
-        matrix_type.filter.list = ['Pairwise', 'Square']
-        matrix_type.value = 'Pairwise'
-
         # Matrix units
         dist_unit = arcpy.Parameter()
         dist_unit.name = 'Distance_Units'
@@ -438,6 +431,17 @@ class DistanceMatrix(object):
         dist_unit.filter.list = self.display_units
         dist_unit.value = self.display_units[0]
 
+        # Matrix Type
+        matrix_type = arcpy.Parameter()
+        matrix_type.name = 'Matrix_Type'
+        matrix_type.displayName = 'Matrix Type'
+        matrix_type.direction = 'Input'
+        matrix_type.parameterType = 'Required'
+        matrix_type.datatype = 'String'
+        #matrix_type.filter.list = ['Pairwise', 'Square']
+        matrix_type.filter.list = ['Square', 'Square (SPAGeDi formatted)']
+        matrix_type.value = 'Square'
+        
         # Output Matrix
         output_matrix= arcpy.Parameter()
         output_matrix.name = u'Output_Matrix'
@@ -446,7 +450,7 @@ class DistanceMatrix(object):
         output_matrix.parameterType = 'Required'
         output_matrix.datatype = 'File'
 
-        return [input_fc, dist_unit, output_matrix]
+        return [input_fc, dist_unit, matrix_type, output_matrix]
 
     def isLicensed(self):
         return True
@@ -467,8 +471,135 @@ class DistanceMatrix(object):
         DistanceMatrix.main(
             input_fc=parameters[0].valueAsText,
             dist_unit=parameters[1].valueAsText,
-            output_matrix=parameters[2].valueAsText)
+            matrix_type=parameters[2].valueAsText,
+            output_matrix=parameters[3].valueAsText)
 
+""" Genetic Analysis """
+
+class SpagediFst(object):
+    def __init__(self):
+        self.label = u'Genetic Analysis - F_st'
+        self.description = u'Calculate F_st using Jacknifing'
+        self.canRunInBackground = False
+        self.category = "Analysis"
+        self.cols = {
+            'input_fc': 0,
+            'order_by': 1,
+            'analysis_type': 2,
+            'output_file': 3
+        }
+
+    def getParameterInfo(self):
+
+        # Input Feature Class
+        input_fc = arcpy.Parameter()
+        input_fc.name = u'Input_Feature_Class'
+        input_fc.displayName = u'Feature Class' 
+        input_fc.direction = 'Input'
+        input_fc.parameterType = 'Required'
+        input_fc.datatype = u'GPFeatureLayer'
+
+        # Attribute_Field__to_order_by_population_
+        order_by = arcpy.Parameter()
+        order_by.name = u'Population Field'
+        order_by.displayName = u'Population Field'
+        order_by.parameterType = 'Required'
+        order_by.direction = 'Input'
+        order_by.datatype = u'Field'
+        order_by.parameterDependencies=[input_fc.name]
+        
+        # Analysis Type
+        analysis_type = arcpy.Parameter()
+        analysis_type.name = 'Analysis_Type'
+        analysis_type.displayName = 'Analysis Type'
+        analysis_type.direction = 'Input'
+        analysis_type.parameterType = 'Required'
+        analysis_type.datatype = 'String'
+        analysis_type.filter.list = ['Jacknifing']
+        analysis_type.value = 'Jacknifing'
+ 
+        # Output File
+        output_file = arcpy.Parameter()
+        output_file.name = u'Output_File'
+        output_file.displayName = u'Output Results File'
+        output_file.direction = 'Output'
+        output_file.parameterType = 'Required'
+        output_file.datatype = u'File'
+
+        return [input_fc, order_by, analysis_type, output_file]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        output_name = parameters[self.cols['output_file']].valueastext
+        if output_name is not None:
+            # make sure the output file name has a txt extension.
+            output_name = utils.add_file_extension(output_name, 'txt')
+            parameters[self.cols['output_file']].value = output_name
+        return
+
+    def updateMessages(self, parameters):
+        return
+
+    def execute(self, parameters, messages):
+        from scripts import ExportToSPAGeDi 
+        # TODO: from scripts import RunSpagediModel
+
+        results = parameters[3].valueAsText
+
+        # temporary SPAGEDI output file
+        spagedi_file_path = os.path.join(config.config_dir, "spagedi_data.txt")
+
+        utils.msg("writing spagedi-formatted results...")
+
+        # compute our spagedi file first
+        ExportToSPAGeDi.main(
+            input_features=parameters[0].valueAsText,
+            where_clause="",
+            order_by=parameters[1].valueAsText,
+            output_name=spagedi_file_path)
+
+        utils.msg("writing out spagedi commands...")
+        # now, generate an input file for SPAGeDi
+        spagedi_commands = os.path.join(config.config_dir, "spagedi_commands.txt")
+        with open(spagedi_commands, 'w') as command_file:
+            file_string = """{spagedi_file_path}
+{results}
+
+2
+1
+4
+
+
+
+""".format(spagedi_file_path=spagedi_file_path, results=results)
+            command_file.write(file_string)
+
+        # now, fire up SPAGeDi
+        spagedi_msg = """Now running SPAGeDi 1.4a (build 11-01-2013)
+   - a program for Spatial Pattern Analysis of Genetic Diversity
+               Written by Olivier Hardy & Xavier Vekemans
+               Contributions by Reed Cartwright"""
+        utils.msg(spagedi_msg)
+        time.sleep(2)
+
+        spagedi_executable_path = os.path.abspath( \
+                os.path.join(os.path.abspath(os.path.dirname(__file__)), \
+                "lib", config.spagedi_executable))
+
+        cmd = "{spagedi_exe} < {spagedi_commands}".format(
+                spagedi_exe=spagedi_executable_path, 
+                spagedi_commands=spagedi_commands)
+        utils.msg("trying to run %s" % cmd)
+
+        res = os.system(cmd)
+
+        utils.msg("trying to open resulting file %s" % results)
+        os.startfile(results)
+        utils.msg("all done!")
+
+""" Export data """
 
 class ExportGenAlEx(object):
 
@@ -621,6 +752,83 @@ class ExportGenepop(object):
             where_clause=parameters[1].valueAsText,
             order_by=parameters[2].valueAsText,
             output_name=parameters[3].valueAsText)
+
+class ExportSpagedi(object):
+
+    def __init__(self):
+        self.label = u'Export to SPAGeDi'
+        self.description = u'This tool allows the user to export data to a text file that follows the required input format for SPAGeDi (Hardy and Vekemans).'
+        self.canRunInBackground = False
+        self.category = "Export"
+        self.cols = {
+            'input_features': 0,
+            'where_clause': 1,
+            'order_by': 2,
+            'output_name': 3
+        }
+
+    def getParameterInfo(self):
+        # Input_Feature_Class
+        input_features = arcpy.Parameter()
+        input_features.name = u'Input_Feature_Class'
+        input_features.displayName = u'Input Feature Class'
+        input_features.parameterType = 'Required'
+        input_features.direction = 'Input'
+        input_features.datatype = 'Feature Layer'
+
+        # Where_Clause
+        where_clause = arcpy.Parameter()
+        where_clause.name = u'Where_Clause'
+        where_clause.displayName = u'Where Clause'
+        where_clause.parameterType = 'Optional'
+        where_clause.direction = 'Output'
+        where_clause.datatype = u'SQL Expression'
+        where_clause.parameterDependencies= [input_features.name]
+
+        # Attribute_Field__to_order_by_population_
+        order_by = arcpy.Parameter()
+        order_by.name = u'Population Field'
+        order_by.displayName = u'Population Field'
+        order_by.parameterType = 'Required'
+        order_by.direction = 'Input'
+        order_by.datatype = u'Field'
+        order_by.parameterDependencies=[input_features.name]
+
+        # Output_File_Location
+        output_name = arcpy.Parameter()
+        output_name.name = u'Output_File'
+        output_name.displayName = u'Output File'
+        output_name.parameterType = 'Required'
+        output_name.direction = 'Output'
+        output_name.datatype = u'File'
+
+        return [input_features, where_clause, order_by, output_name]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        output_name = parameters[self.cols['output_name']].valueastext
+        if output_name is not None:
+            # make sure the output file name has a txt extension.
+            output_name = utils.add_file_extension(output_name, 'txt')
+            parameters[self.cols['output_name']].value = output_name
+        return
+
+    def updateMessages(self, parameters):
+        return
+
+    def execute(self, parameters, messages):
+        from scripts import ExportToSPAGeDi
+
+        # if the script is running within ArcGIS as a tool, get the following
+        # user defined parameters
+        ExportToSPAGeDi.main(
+            input_features=parameters[0].valueAsText,
+            where_clause=parameters[1].valueAsText,
+            order_by=parameters[2].valueAsText,
+            output_name=parameters[3].valueAsText)
+
 
 class SelectDataByAttributes(object):
 
