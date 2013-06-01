@@ -39,10 +39,14 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, output_matrix=None, mo
         is_spagedi = False
 
     # yes, all this mucking about is necessary to get a row count
-    row_count = int(arcpy.GetCount_management(input_fc_mem).getOutput(0))
+    row_count = int(arcpy.GetCount_management(input_fc).getOutput(0))
  
     geodesic_cpp_fn = load_geodesic_dll()
     if geodesic_cpp_fn is not None and row_count > 50:
+        if is_spagedi:
+            utils.msg("Unable to compute SPAGeDi compatible matrix for large datasets,  to be fixed.")
+            sys.exit()
+
         # TODO: handle units in the CPP version.
         utils.msg("Loaded high-performance geodesic calculations, running…")
         returncode = geodesic_cpp_fn(input_fc, output_matrix)
@@ -57,18 +61,16 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, output_matrix=None, mo
         else:
             utils.msg("Unknown failure occured in high-performance geodesic module.")
     else:
-        run_geodesic_gp(input_fc, unit_factor, output_matrix)
+        run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
 
     utils.msg("Created distance matrix successfully: {0}".format(output_matrix))
 
 def load_geodesic_dll():
     fn = None
     dll_path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "lib", "geodesic.dll"))
-    utils.msg(dll_path)
     if os.path.exists(dll_path):
         try:
             loaded_dll = ctypes.cdll.LoadLibrary(dll_path)
-        #except WindowsError :
         except Exception as e:
             utils.msg("Failed to load high-speed geodesic library.")
             return None
@@ -77,7 +79,7 @@ def load_geodesic_dll():
         fn.restype = ctypes.c_int
     return fn                
 
-def run_geodesic_gp(input_fc, unit_factor, output_matrix):
+def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi):
     input_fc_mem = 'in_memory/input_fc'
     try:
         utils.msg("Copying features into memory…")
@@ -123,12 +125,11 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix):
                 if p1.equals(p2):
                     dist = 0
                 else:
-                    # : Each Polyline initialization must pay the COM object gods, and ends up
+                    # Each Polyline initialization must pay the COM object gods, and ends up
                     # making this much more expensive than AO C++ or even comtypes calls.
                     line = arcpy.Polyline(arcpy.Array([p1, p2]), sr)
                     # distance, always returned in meters, scale by our expected result units.
                     dist = line.getLength("GEODESIC") * unit_factor
-                    # if the units aren't meters, convert as needed
                     
             distance_matrix[fid][to_fid] = dist
     utils.msg("Distance matrix calculations complete.")
@@ -149,9 +150,9 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix):
 
         with open(output_matrix, 'w') as csv:
             # initialize with our header row 
-            output_rows = [[first_header_cell] + [str(s) for s in distance_matrix.keys()])]
+            output_rows = [[first_header_cell] + [str(s) for s in distance_matrix.keys()]]
             for (fid, row) in distance_matrix.items():
-                output_rows.append([fid] + [str(s) for s in row.values()])
+                output_rows.append([str(fid)] + [str(s) for s in row.values()])
             for row in output_rows:
                 csv.write("{0}\n".format(sep.join(row)))
             if is_spagedi:

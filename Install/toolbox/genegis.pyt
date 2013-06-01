@@ -407,7 +407,8 @@ class DistanceMatrix(object):
         self.cols = {
             'input_fc': 0,
             'dist_units' : 1,
-            'output_matrix': 2
+            'matrix_type': 2,
+            'output_matrix': 3
         }
         self.display_units = config.distance_units.keys()
  
