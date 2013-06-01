@@ -16,8 +16,8 @@ from collections import OrderedDict
 import utils
 import config
 
-def main(input_fc=None, dist_unit=None, output_matrix=None, mode=config.settings.mode):
-    
+def main(input_fc=None, dist_unit=None, matrix_type=None, output_matrix=None, mode=config.settings.mode):
+   
     # does the input fc exist?
     if not arcpy.Exists(input_fc):
         utils.msg("Input, %s, doesn't exist.", mtype='error')
@@ -30,6 +30,13 @@ def main(input_fc=None, dist_unit=None, output_matrix=None, mode=config.settings
     else:
         utils.msg("Output units: {0}".format(dist_unit))
         (unit_abbr, unit_name, unit_factor) = config.distance_units[dist_unit]
+
+    if matrix_type == 'Square':
+        is_spagedi = False
+    elif matrix_type == 'Square (SPAGeDi formatted)':
+        is_spagedi = True
+    else:
+        is_spagedi = False
 
     # yes, all this mucking about is necessary to get a row count
     row_count = int(arcpy.GetCount_management(input_fc_mem).getOutput(0))
@@ -132,11 +139,23 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix):
     try:
         # copy the final result back to disk.
         utils.msg("Writing results to disk…")
-    
+        # The specifics of the SPAGeDi matrix format are described in section 3.7 of the manual.
+        if is_spagedi:
+            first_header_cell = "M%i" % row_count
+            sep = "\t"
+        else:
+            first_header_cell = ""
+            sep = ","
+
         with open(output_matrix, 'w') as csv:
-            csv.write(",%s\n" % ",".join([str(s) for s in distance_matrix.keys()]))
+            # initialize with our header row 
+            output_rows = [[first_header_cell] + [str(s) for s in distance_matrix.keys()])]
             for (fid, row) in distance_matrix.items():
-                csv.write("{0},{1}\n".format(fid, ",".join([str(s) for s in row.values()])))
+                output_rows.append([fid] + [str(s) for s in row.values()])
+            for row in output_rows:
+                csv.write("{0}\n".format(sep.join(row)))
+            if is_spagedi:
+                csv.write("END\n")
 
     except Exception as e:
         utils.msg("Error creating distance matrix.", mtype='error', exception=e)
@@ -151,6 +170,7 @@ if __name__=='__main__':
     defaults_tuple = (
         ('input_fc', ""),
         ('dist_unit', 'Kilometers'),
+        ('matrix_type', 'Square'),
         ('output_matrix', "TestFC"),
     )
 

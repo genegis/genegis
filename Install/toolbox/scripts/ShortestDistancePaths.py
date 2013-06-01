@@ -73,7 +73,7 @@ def main(input_fc=None, output_fc=None, closest=False, mode=config.settings.mode
         # generates an output table with IN_FID, NEAR_FID, NEAR_X, NEAR_Y [...]
         utils.msg("Creating near table…")
         arcpy.GenerateNearTable_analysis(input_fc_mem, input_fc_mem, near_table, \
-                "", "LOCATION", "NO_ANGLE", "ALL", closest_count)
+                "", "LOCATION", "NO_ANGLE", "ALL")
 
         time.sleep(5)
     except Exception as e:
