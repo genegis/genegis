@@ -27,6 +27,11 @@ def create(config_path):
         with open(config_path, 'wb') as config_file:
             cfg.write(config_file)
 
+def load(config_path, app_name):
+    cfg = ConfigParser.SafeConfigParser()
+    cfg.read(config_path)
+    return AttrDict(cfg._sections[app_name])
+
 app_name = 'geneGIS'
 # make a configuration directory if needed
 config_dir = os.path.join(os.environ['APPDATA'], app_name)
@@ -50,11 +55,9 @@ config_vars = {
 if not os.path.exists(config_path):
     create(config_path)
 
-cfg = ConfigParser.SafeConfigParser()
-cfg.read(config_path)
 # push out the settings into an attributed object, can pull things 
 # back with 'settings.var_name'.
-settings = AttrDict(cfg._sections[app_name])
+settings = load(config_path, app_name)
 
 # XXX Settings in original file; reduce to core settings where possible.
 
@@ -70,6 +73,8 @@ all_layers = None
 # default spatialReference id (WGS 84), updated when a layer
 # is selected from the combobox.
 sr = arcpy.SpatialReference(int(settings.srid))
+
+spagedi_executable = "SPAGeDi-1.4.exe"
 
 # map search strings to variable groups, include 'protected'
 # column to explicitly define type for these columns

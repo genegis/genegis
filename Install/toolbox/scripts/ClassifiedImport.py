@@ -91,6 +91,13 @@ def main(input_table=None, sr=None, output_loc=None,
         # write out our filtered table to ArcGIS
         arcpy.TableToTable_conversion(data_table, gdb_path, validated_label)
 
+        if file_type == 'Text':
+            # Delete the temporary table with validated names;
+            # temp file is stored in the same spot as the original.
+            temp_dir = os.path.dirname(input_table)
+            temp_path = os.path.join(temp_dir, data_table)
+            os.remove(temp_path)
+ 
     except Exception as e:
         utils.msg("Error converting table %s to GDB" % input_table, mtype='error', exception=e)
         sys.exit()
@@ -189,19 +196,18 @@ def formatDate(input_date):
         for (var, val) in var_types.items():
             config.update('%s_columns' % var, val.strip())
 
+        # done updating, reload the config so the settings propagate.
+        utils.add_install_path()
+        reload(config)
+
     except Exception as e:
-        utils.msg("Error creating output configuration file: %s" % config.config_path)
+        msg = "Error creating output configuration file: %s" % config.config_path
+        utils.msg(msg, mtype='error', exception=e)
         sys.exit()
 
     # clean up: remove intermediate steps. 
     try:
         arcpy.Delete_management(temporary_layer)
-        if file_type == 'Text':
-            # Delete the temporary table with validated names;
-            # temp file is stored in the same spot as the original.
-            temp_dir = os.path.dirname(input_table)
-            temp_path = os.path.join(temp_dir, data_table)
-            os.remove(temp_path)
     except Exception as e:
         utils.msg("Unable to delete temporary layer", mtype='error', exception=e)
         sys.exit()
