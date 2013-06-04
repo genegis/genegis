@@ -318,7 +318,7 @@ class ExtractRasterByPoints(object):
         input_fc.direction = 'Input'
         input_fc.parameterType = 'Required'
         input_fc.datatype = u'DEFeatureClass'
-        input_fc.value = selected_layer()
+        #input_fc.value = selected_layer()
 
         return [input_raster, input_fc]
 
@@ -361,7 +361,7 @@ class ShortestDistancePaths(object):
         input_fc.direction = 'Input'
         input_fc.parameterType = 'Required'
         input_fc.datatype = u'GPFeatureLayer'
-        input_fc.value = selected_layer()
+        #input_fc.value = selected_layer()
 
         # Output Feature Class
         output_fc = arcpy.Parameter()
@@ -420,7 +420,7 @@ class DistanceMatrix(object):
         input_fc.direction = 'Input'
         input_fc.parameterType = 'Required'
         input_fc.datatype = u'GPFeatureLayer'
-        input_fc.value = selected_layer()
+        #input_fc.value = selected_layer()
 
         # Matrix units
         dist_unit = arcpy.Parameter()
@@ -624,7 +624,7 @@ class ExportGenAlEx(object):
         input_features.parameterType = 'Required'
         input_features.direction = 'Input'
         input_features.datatype = u'GPFeatureLayer'
-        input_features.value = selected_layer()
+        #input_features.value = selected_layer()
 
         # Where_Clause
         where_clause = arcpy.Parameter()
