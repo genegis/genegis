@@ -117,7 +117,8 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
         for (to_fid, to_point) in points.items():
             if to_fid == fid:
                 dist = 0
-            elif distance_matrix.has_key(to_fid):
+            elif distance_matrix.has_key(to_fid) and \
+                    distance_matrix[to_fid][fid] is not None:
                 # here, modeling a symmetrical matrix
                 dist = distance_matrix[to_fid][fid]
             else:
@@ -125,10 +126,12 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
                 if p1.equals(p2):
                     dist = 0
                 else:
-                    # Each Polyline initialization must pay the COM object gods, and ends up
-                    # making this much more expensive than AO C++ or even comtypes calls.
+                    # Each Polyline initialization must pay the COM object 
+                    # gods, and ends up making this much more expensive than 
+                    # AO C++ or even comtypes calls.
                     line = arcpy.Polyline(arcpy.Array([p1, p2]), sr)
-                    # distance, always returned in meters, scale by our expected result units.
+                    # distance, always returned in meters, scale by our 
+                    # expected result units.
                     dist = line.getLength("GEODESIC") * unit_factor
                     
             distance_matrix[fid][to_fid] = dist
