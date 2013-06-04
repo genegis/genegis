@@ -213,3 +213,9 @@ def add_file_extension(input_name, expected_ext):
     if input_ext.lower() != ext:
         name_with_ext = "{label}.{ext}".format(label = label, ext=ext)
     return os.path.join(os.path.dirname(input_name), name_with_ext)
+
+def xstr(s):
+    # replace None values with empty strings
+    if s is None:
+        return ''
+    return str(s)

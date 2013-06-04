@@ -152,7 +152,7 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
             # initialize with our header row 
             output_rows = [[first_header_cell] + [str(s) for s in distance_matrix.keys()]]
             for (fid, row) in distance_matrix.items():
-                output_rows.append([str(fid)] + [str(s) for s in row.values()])
+                output_rows.append([str(fid)] + [utils.xstr(s) for s in row.values()])
             for row in output_rows:
                 csv.write("{0}\n".format(sep.join(row)))
             if is_spagedi:

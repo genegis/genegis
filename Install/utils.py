@@ -196,7 +196,7 @@ def writeToSRGD(fc, output_path):
                         formatted_row[date_pos] = formatDate(date_value)
                     except Exception as e:                    
                         arcpy.AddError(e)
-                output_file.write(",".join([str(r) for r in formatted_row]) + "\n")
+                output_file.write(",".join([xstr(r) for r in formatted_row]) + "\n")
                
 def formatDate(input_date):
     """
@@ -210,3 +210,8 @@ def formatDate(input_date):
     format_date = input_date.strftime("%Y-%m-%d %H:%M:%S"). replace(" ", "T")      
     return format_date
 
+def xstr(s):
+    # replace None values with empty strings
+    if s is None:
+        return ''
+    return str(s)

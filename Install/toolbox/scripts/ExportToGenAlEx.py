@@ -125,7 +125,7 @@ def main(input_features=None, where_clause=None, order_by=None,
         else:
             pops[pop] = 1
 
-    pop_counts = ",".join([str(p) for p in pops.values()])
+    pop_counts = ",".join([utils.xstr(p) for p in pops.values()])
     # Creating the GenAlEx header information required for the text file. 
     output_file.write("{0},{1},{2},{3}\n".format(len(loci.keys()),row_count,len(pops.keys()),pop_counts))
    
@@ -168,7 +168,7 @@ def main(input_features=None, where_clause=None, order_by=None,
                 col_pos = selected_columns.index(col)
                 result_row.append(row[col_pos])
         result_row = result_row + ["", loc_a_val, loc_b_val]
-        output_file.write(",".join([str(s) for s in result_row]) + "\n")
+        output_file.write(",".join([utils.xstr(s) for s in result_row]) + "\n")
 
     utils.msg("Exported results saved to %s." % output_name)
     time.sleep(4)
@@ -182,7 +182,7 @@ if __name__ == 'main':
     defaults_tuple = (
         ('input_features', 
         "C:\\geneGIS\\WorkingFolder\\test_20March.gdb\\SPLASH_Whales"),
-        ('where_clause', "Individual_ID" + "<>'" + str("")+"'"),
+        ('where_clause', "Individual_ID <> ''"),
         ('order_by', 'Area'),
         ('output_location',  "C:\\geneGIS\\WorkingFolder\\GenAlEx_Codominant_Export")
     )

@@ -199,7 +199,7 @@ def main(input_features=None, where_clause=None, order_by=None,
         with open(output_name, 'w') as output_file:
             for raw_row in output_rows:
                 # convert all data to strings
-                row = [str(s) for s in raw_row]
+                row = [utils.xstr(s) for s in raw_row]
                 output_file.write("{0}\n".format(sep.join(row)))
 
             # after the last line of invidivual data the word END is required.
