@@ -945,8 +945,8 @@ class SelectDataByAttributes(object):
 
 class ExportSRGD(object):
     def __init__(self):
-        self.label = u'Export SRGD File'
-        self.description = u'Export SRGD results.'
+        self.label = u'Export to SRGD'
+        self.description = u'Export SRGD results (formatted CSV).'
         self.canRunInBackground = False
         self.category = "Export"
         self.cols = {
