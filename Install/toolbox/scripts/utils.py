@@ -34,8 +34,12 @@ def parameters_from_args(defaults_tuple=None, sys_args=None):
 def msg(output_msg, mtype='message', exception=None):
     if mtype == 'error':
         arcpy_messages = arcpy.GetMessages()
-        tb = sys.exc_info()[2]
-        tbinfo = traceback.format_tb(tb)[0]
+        try:
+            tb = sys.exc_info()[2]
+            tbinfo = traceback.format_tb(tb)[0]
+        except:
+            tbinfo = "No traceback reported."
+
         if config.settings.mode == 'script':
             if exception:
                 # print the raw exception
@@ -219,3 +223,25 @@ def xstr(s):
     if s is None:
         return ''
     return str(s)
+
+def currentLayers():
+    # find layers in current map document
+    layers = []
+    # inspect the layer list, find the first point layer
+    mxd = arcpy.mapping.MapDocument("current")
+    # get a list of all layers, store it
+    config.all_layers = arcpy.mapping.ListLayers(mxd)
+
+    # iterate over our layers, find those which are candidates for analysis
+    if config.all_layers is not None:
+        for layer in config.all_layers:
+            try:
+                # FIXME: check performance on this. if expensive, do something cheaper
+                desc = arcpy.Describe(layer)
+                if desc.datasetType in config.allowed_formats and \
+                    desc.shapeType in config.allowed_types:
+                    layers.append(layer)
+            except:
+                # silently skip layers which don't support describe (e.g. AGOL).
+                continue
+    return layers

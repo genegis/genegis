@@ -42,24 +42,41 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, output_matrix=None, mo
     row_count = int(arcpy.GetCount_management(input_fc).getOutput(0))
  
     geodesic_cpp_fn = load_geodesic_dll()
-    if geodesic_cpp_fn is not None and row_count > 50:
+    if geodesic_cpp_fn is not None and row_count > 200:
         if is_spagedi:
-            utils.msg("Unable to compute SPAGeDi compatible matrix for large datasets,  to be fixed.")
+            utils.msg("Unable to compute SPAGeDi compatible matrix for large datasets, to be fixed.")
             sys.exit()
 
-        # TODO: handle units in the CPP version.
+        # To run this, we need the full path to the input, not just the short one handed to us.
+        layers = utils.currentLayers()
+        input_fc_fullpath = None
+        for layer in layers:
+            utils.msg("found layer: {0}".format(layer.name))
+            if layer.name == input_fc:
+                input_fc_fullpath = layer.dataSource
+        if input_fc_fullpath is None:
+            utils.msg("Unable to get the true path for {0}".format(input_fc), mtype='error')
+            sys.exit()
+
+        # TODO: handle units in the C++ version.
+        # TODO: handle SPAGeDi output in the C++ version.
         utils.msg("Loaded high-performance geodesic calculations, running…")
-        returncode = geodesic_cpp_fn(input_fc, output_matrix)
+        returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix)
         if returncode == -1:
-            utils.msg("Cannot open the output file.")
+            utils.msg("Cannot open the output file.", mtype='error')
         elif returncode == -2:
-            utils.msg("Cannot open the input file.")
+            utils.msg("Cannot open the input file.", mtype='error')
         elif returncode == -3:
-            utils.msg("The input matrix is too large! consider subsetting your results.")
+            utils.msg("The input matrix is too large! consider subsetting your results.", mtype='error')
+        elif returncode == -3:
+            utils.msg("This tool requires point features as input.", mtype='error')
         elif returncode == 0:
             utils.msg("Distance matrix calculations complete.")
         else:
-            utils.msg("Unknown failure occured in high-performance geodesic module.")
+            utils.msg("Unknown failure occured in high-performance geodesic module.", mtype='error')
+        
+        if returncode != 0:
+            sys.exit()
     else:
         run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
 
