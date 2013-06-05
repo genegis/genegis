@@ -679,6 +679,8 @@ class ExportGenAlEx(object):
             order_by=parameters[2].valueAsText,
             output_name=parameters[3].valueAsText)
 
+    arcpy.env.addOutputsToMap  = False
+
 class ExportGenepop(object):
 
     def __init__(self):
@@ -754,7 +756,9 @@ class ExportGenepop(object):
             where_clause=parameters[1].valueAsText,
             order_by=parameters[2].valueAsText,
             output_name=parameters[3].valueAsText)
-
+            
+    arcpy.env.addOutputsToMap  = False
+    
 class ExportSpagedi(object):
 
     def __init__(self):
