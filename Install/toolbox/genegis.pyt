@@ -50,6 +50,7 @@ class Toolbox(object):
             ExtractRasterByPoints, # extract values at point locations
             DistanceMatrix,
             ShortestDistancePaths,
+            MakeIndividualPaths,
             # Genetic Analysis
             SpagediFst,
             # Export routines; get our data elsewhere
@@ -357,7 +358,7 @@ class ShortestDistancePaths(object):
         # Input Feature Class
         input_fc = arcpy.Parameter()
         input_fc.name = u'Input_Feature_Class'
-        input_fc.displayName = u'Feature Class' 
+        input_fc.displayName = u'Feature Class'
         input_fc.direction = 'Input'
         input_fc.parameterType = 'Required'
         input_fc.datatype = u'GPFeatureLayer'
@@ -411,12 +412,12 @@ class DistanceMatrix(object):
             'output_matrix': 3
         }
         self.display_units = config.distance_units.keys()
- 
+
     def getParameterInfo(self):
         # Input Feature Class
         input_fc = arcpy.Parameter()
         input_fc.name = u'Input_Feature_Class'
-        input_fc.displayName = u'Feature Class' 
+        input_fc.displayName = u'Feature Class'
         input_fc.direction = 'Input'
         input_fc.parameterType = 'Required'
         input_fc.datatype = u'GPFeatureLayer'
@@ -442,7 +443,7 @@ class DistanceMatrix(object):
         #matrix_type.filter.list = ['Pairwise', 'Square']
         matrix_type.filter.list = ['Square', 'Square (SPAGeDi formatted)']
         matrix_type.value = 'Square'
-        
+
         # Output Matrix
         output_matrix= arcpy.Parameter()
         output_matrix.name = u'Output_Matrix'
@@ -467,7 +468,7 @@ class DistanceMatrix(object):
         return
 
     def execute(self, parameters, messages):
-        from scripts import DistanceMatrix 
+        from scripts import DistanceMatrix
 
         DistanceMatrix.main(
             input_fc=parameters[0].valueAsText,
@@ -495,7 +496,7 @@ class SpagediFst(object):
         # Input Feature Class
         input_fc = arcpy.Parameter()
         input_fc.name = u'Input_Feature_Class'
-        input_fc.displayName = u'Feature Class' 
+        input_fc.displayName = u'Feature Class'
         input_fc.direction = 'Input'
         input_fc.parameterType = 'Required'
         input_fc.datatype = u'GPFeatureLayer'
@@ -508,7 +509,7 @@ class SpagediFst(object):
         order_by.direction = 'Input'
         order_by.datatype = u'Field'
         order_by.parameterDependencies=[input_fc.name]
-        
+
         # Analysis Type
         analysis_type = arcpy.Parameter()
         analysis_type.name = 'Analysis_Type'
@@ -518,7 +519,7 @@ class SpagediFst(object):
         analysis_type.datatype = 'String'
         analysis_type.filter.list = ['Jacknifing']
         analysis_type.value = 'Jacknifing'
- 
+
         # Output File
         output_file = arcpy.Parameter()
         output_file.name = u'Output_File'
@@ -544,7 +545,7 @@ class SpagediFst(object):
         return
 
     def execute(self, parameters, messages):
-        from scripts import ExportToSPAGeDi 
+        from scripts import ExportToSPAGeDi
         # TODO: from scripts import RunSpagediModel
 
         results = parameters[3].valueAsText
@@ -590,7 +591,7 @@ class SpagediFst(object):
                 "lib", config.spagedi_executable))
 
         cmd = "{spagedi_exe} < {spagedi_commands}".format(
-                spagedi_exe=spagedi_executable_path, 
+                spagedi_exe=spagedi_executable_path,
                 spagedi_commands=spagedi_commands)
         utils.msg("trying to run %s" % cmd)
 
@@ -995,3 +996,61 @@ class ExportSRGD(object):
         addin_utils.writeToSRGD(input_feature, output_csv)
         messages.addMessage("Exported results saved to %s." % output_csv)
         time.sleep(4)
+
+class MakeIndividualPaths(object):
+    def __init__(self):
+        self.label = u'Individual Paths'
+        self.description = u'Connect all Encounters for each Individual'
+        self.canRunInBackground = False
+        self.category = "Analysis"
+        self.cols = {
+            'selected_pts': 0,
+            'source_fc': 1,
+            'output_name': 2
+        }
+
+    def getParameterInfo(self):
+
+        # Input Features
+        selected_pts = arcpy.Parameter()
+        selected_pts.name = u'Selected_Feature_Class'
+        selected_pts.displayName = u'Selected Feature Class'
+        selected_pts.direction = 'Input'
+        selected_pts.parameterType = 'Required'
+        selected_pts.datatype = u'GPFeatureLayer'
+        #selected_pts.value = selected_layer()
+
+        # Data source
+        source_fc = arcpy.Parameter()
+        source_fc.name = u'Origin_Feature_Class'
+        source_fc.displayName = u'Origin Feature Class'
+        source_fc.direction = 'Input'
+        source_fc.parameterType = 'Required'
+        source_fc.datatype = u'GPFeatureLayer'
+
+        # Output feature name
+        output_name = arcpy.Parameter()
+        output_name.name = 'Output_Feature_Class'
+        output_name.displayName = u''
+        output_name.direction = 'Output'
+        output_name.parameterType = 'Required'
+        output_name.datatype = u'GPFeatureLayer'
+
+        return [selected_pts, source_fc, output_name]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        return
+
+    def updateMessages(self, parameters):
+        return
+
+    def execute(self, parameters, messages):
+        from scripts import IndividualPaths
+
+        IndividualPaths.main(
+            selected_pts=parameters[0].valueAsText,
+            source_fc=parameters[1].valueAsText,
+            output_name=parameters[2].valueAsText)
