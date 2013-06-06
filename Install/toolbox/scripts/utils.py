@@ -210,6 +210,15 @@ def protect_columns(input_table_name=None, protected_columns={}):
 
     return schema_path
 
+def set_file_extension(param, ext):
+    # make sure the output file name has the correct extension.
+    param_input = param.valueAsText 
+    if param_input is not None:
+        param_output = add_file_extension(param_input, ext)
+    else:
+        param_output = param_input 
+    return param_output
+ 
 def add_file_extension(input_name, expected_ext):
     name_with_ext = input_name
     ext = expected_ext.lower()

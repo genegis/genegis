@@ -458,10 +458,8 @@ class DistanceMatrix(object):
         return True
 
     def updateParameters(self, parameters):
-        output_matrix = parameters[self.cols['output_matrix']].valueastext
-        if output_matrix is not None:
-            output_matrix = utils.add_file_extension(output_matrix, 'csv')
-            parameters[self.cols['output_matrix']].value = output_matrix
+        output_matrix = parameters[self.cols['output_matrix']]
+        output_matrix.value = utils.set_file_extension(output_matrix, 'csv')
         return
 
     def updateMessages(self, parameters):
@@ -534,11 +532,8 @@ class SpagediFst(object):
         return True
 
     def updateParameters(self, parameters):
-        output_name = parameters[self.cols['output_file']].valueastext
-        if output_name is not None:
-            # make sure the output file name has a txt extension.
-            output_name = utils.add_file_extension(output_name, 'txt')
-            parameters[self.cols['output_file']].value = output_name
+        output_file = parameters[self.cols['output_file']]
+        output_file.value = utils.set_file_extension(output_file, 'txt')
         return
 
     def updateMessages(self, parameters):
@@ -659,11 +654,8 @@ class ExportGenAlEx(object):
         return True
 
     def updateParameters(self, parameters):
-        output_name = parameters[self.cols['output_name']].valueastext
-        if output_name is not None:
-            # make sure the output file name has a txt extension.
-            output_name = utils.add_file_extension(output_name, 'csv')
-            parameters[self.cols['output_name']].value = output_name
+        output_name = parameters[self.cols['output_name']]
+        output_name.value = utils.set_file_extension(output_name, 'csv')
         return
 
     def updateMessages(self, parameters):
@@ -736,11 +728,8 @@ class ExportGenepop(object):
         return True
 
     def updateParameters(self, parameters):
-        output_name = parameters[self.cols['output_name']].valueastext
-        if output_name is not None:
-            # make sure the output file name has a txt extension.
-            output_name = utils.add_file_extension(output_name, 'txt')
-            parameters[self.cols['output_name']].value = output_name
+        output_name = parameters[self.cols['output_name']]
+        output_name.value = utils.set_file_extension(output_name, 'txt')
         return
 
     def updateMessages(self, parameters):
@@ -814,11 +803,8 @@ class ExportSpagedi(object):
         return True
 
     def updateParameters(self, parameters):
-        output_name = parameters[self.cols['output_name']].valueastext
-        if output_name is not None:
-            # make sure the output file name has a txt extension.
-            output_name = utils.add_file_extension(output_name, 'txt')
-            parameters[self.cols['output_name']].value = output_name
+        output_name = parameters[self.cols['output_name']]
+        output_name.value = utils.set_file_extension(output_name, 'txt')
         return
 
     def updateMessages(self, parameters):
@@ -981,11 +967,10 @@ class ExportSRGD(object):
         return True
 
     def updateParameters(self, parameters):
-        output_csv = parameters[self.cols['output_csv']].valueAsText
-        if output_csv is not None:
-            # make sure the output file name has a CSV extension.
-            output_csv = utils.add_file_extension(output_csv, 'csv')
-            parameters[self.cols['output_csv']].value = output_csv
+
+        output_csv = parameters[self.cols['output_csv']]
+        # make sure the output file name has a CSV extension.
+        output_csv.value = utils.set_file_extension(output_csv, 'csv')
         return
 
     def updateMessages(self, parameters):
