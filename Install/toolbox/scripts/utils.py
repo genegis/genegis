@@ -5,6 +5,7 @@ import sys
 import re
 import os
 import binascii
+import itertools
 import traceback
 
 import arcpy
@@ -18,6 +19,44 @@ def add_install_path():
 
 add_install_path() # pull config from parent project
 import config
+
+class Loci(object):
+    """ A basic class to store the Loci attributes we commonly use."""
+    def __init__(self, input_features):
+        self.fields = self.loci_fields(input_features)
+        self.count = self.loci_count()
+        self.columns = self.loci_columns()
+        self.names = self.loci_names()
+
+    def loci_fields(self, input_features):
+        # map loci fields to values
+        loci = collections.OrderedDict()
+        # optional: use this to also filter if the genetic columns are up to date
+        genetic_columns = config.settings.genetic_columns.split(";")
+        loci_expr = '^l_(.*)_[0-9]+'
+        for field in [f.name for f in arcpy.ListFields(input_features)]:
+            match = re.match(loci_expr, field, re.IGNORECASE)
+            if match:
+                name = match.groups()[0]
+                if loci.has_key(name):
+                    loci[name].append(field)
+                else:
+                    loci[name] = [field] 
+        return loci
+
+    def loci_count(self):
+        # distinct loci count
+        loci = self.fields
+        return len(loci.keys())
+
+    def loci_columns(self):
+        # all column names containing loci      
+        loci = self.fields
+        return list(itertools.chain(*loci.values())) 
+
+    def loci_names(self):
+        loci = self.fields
+        return loci.keys()
 
 def parameters_from_args(defaults_tuple=None, sys_args=None):
     """Provided a set of tuples for default values, return a list of mapped

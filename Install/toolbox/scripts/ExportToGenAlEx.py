@@ -77,21 +77,9 @@ def main(input_features=None, where_clause=None, order_by=None,
     utils.msg("Output file open and ready for data input")
             
     # Find our Loci columns. 
-    loci = OrderedDict() 
-    loci_columns = []
-    genetic_columns = config.settings.genetic_columns.split(";")
-    loci_expr = '^l_(.*)_[0-9]+'
-    for field in [f.name for f in arcpy.ListFields(input_features)]:
-        match = re.match(loci_expr, field, re.IGNORECASE)
-        if match:
-            name = match.groups()[0]
-            if loci.has_key(name):
-                loci[name].append(field)
-            else:
-                loci[name] = [field] 
-            loci_columns.append(field)
+    loci = utils.Loci(input_features)
+    utils.msg("loci set: {0}".format(",".join(loci.names)))
 
-    utils.msg("loci set: {0}".format(",".join(loci.keys())))
     """
     header row contains (in order): 
      - number of loci
@@ -127,13 +115,13 @@ def main(input_features=None, where_clause=None, order_by=None,
 
     pop_counts = ",".join([utils.xstr(p) for p in pops.values()])
     # Creating the GenAlEx header information required for the text file. 
-    output_file.write("{0},{1},{2},{3}\n".format(len(loci.keys()),row_count,len(pops.keys()),pop_counts))
+    output_file.write("{0},{1},{2},{3}\n".format(loci.count,row_count,len(pops.keys()),pop_counts))
    
     # optional title, then a list of each population
     output_file.write(",,,{0}\n".format(",".join(pops.keys())))
 
     loci_labels = ""
-    for (key, cols) in loci.items():
+    for (key, cols) in loci.fields.items():
         loci_labels += key
         loci_labels += ","*len(cols)
         
@@ -154,7 +142,9 @@ def main(input_features=None, where_clause=None, order_by=None,
 
     # Note the WhereClause: Because the SPLASH data has both photo-id and genetic records, but GenAlEx only uses genetic data, the 
     # WhereClause is used to ensure only those records with genetic data are copied to the text file. 
-    selected_columns = loci_columns + [loc_a, loc_b, config.settings.id_field, order_by]
+    selected_columns = loci.columns + [loc_a, loc_b, config.settings.id_field, order_by]
+    utils.msg(selected_columns)
+
     rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause, "", "", sql_clause)
     for row in rows:
         pop = row[-1] # last column is 'order_by', or key column
@@ -162,8 +152,7 @@ def main(input_features=None, where_clause=None, order_by=None,
         loc_a_val = row[-3]
         loc_b_val = row[-4]
         result_row = [id_field, pop]
-
-        for (key, cols) in loci.items():
+        for (key, cols) in loci.fields.items():
             for col in cols:
                 col_pos = selected_columns.index(col)
                 result_row.append(row[col_pos])

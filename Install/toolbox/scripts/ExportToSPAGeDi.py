@@ -29,21 +29,8 @@ def main(input_features=None, where_clause=None, order_by=None,
         sys.exit()
    
     # Find our Loci columns. 
-    loci = OrderedDict() 
-    loci_columns = []
-    genetic_columns = config.settings.genetic_columns.split(";")
-    loci_expr = '^l_(.*)_[0-9]+'
-    for field in [f.name for f in arcpy.ListFields(input_features)]:
-        match = re.match(loci_expr, field, re.IGNORECASE)
-        if match:
-            name = match.groups()[0]
-            if loci.has_key(name):
-                loci[name].append(field)
-            else:
-                loci[name] = [field] 
-            loci_columns.append(field)
-
-    utils.msg("loci set: {0}".format(",".join(loci.keys())))
+    loci = utils.Loci(input_features)
+    utils.msg("loci set: {0}".format(",".join(loci.names)))
 
     # sql clause can be prefix or suffix; set up ORDER BY
     sql_clause = (None, "ORDER BY {0} ASC".format(order_by))
@@ -107,7 +94,7 @@ def main(input_features=None, where_clause=None, order_by=None,
         loc_a = config.settings.x_coord
         loc_b = config.settings.y_coord
    
-    num_loci = len(loci.keys())
+    num_loci = loci.count
 
     # FIXME: loci number of digits, defined in SPAGeDi manual 3.1 as "number 
     # of digits used to code one allele (1 to 3); or set a value =0 (in fact 
@@ -115,7 +102,7 @@ def main(input_features=None, where_clause=None, order_by=None,
     loci_digits = 2 
 
     # get the maximum number of different values per loci
-    max_ploidy = max(map(len, loci.values()))
+    max_ploidy = max(map(len, loci.fields.values()))
 
     # 1st line: set of 6 numbers separated by a tabulation representing: 
     header_row = [
@@ -142,11 +129,11 @@ def main(input_features=None, where_clause=None, order_by=None,
 
     # 3rd line: column labels (<=15 characters).
     base_cols = [config.settings.id_field, order_by, loc_a, loc_b] 
-    labels_row = base_cols + loci.keys()
+    labels_row = base_cols + loci.columns
 
     # where_clause is used to ensure only those records with genetic data 
     # are copied to the output.
-    selected_columns = base_cols + loci_columns
+    selected_columns = base_cols + loci.columns
     rows = arcpy.da.SearchCursor(input_features, selected_columns, \
             where_clause, "", "", sql_clause)
 
@@ -160,7 +147,7 @@ def main(input_features=None, where_clause=None, order_by=None,
 
         data_row = [id_field, pop_field, loc_a_val, loc_b_val]
 
-        for (key, cols) in loci.items():
+        for (key, cols) in loci.fields.items():
             # Loci data can be encoded in a number of formats, the values
             # separated by any non-numeric values (SPAGeDi manual, 3.2.1). 
             # Here, we use spaces.

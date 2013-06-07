@@ -59,26 +59,13 @@ def main(input_features=None, where_clause=None, order_by=None,  output_name=Non
         utils.msg("comment: %s" % comment_line)
 
         # Find our Loci columns. 
-        loci = OrderedDict() 
-        loci_columns = []
-        genetic_columns = config.settings.genetic_columns.split(";")
-        loci_expr = '^l_(.*)_[0-9]+'
-        for field in [f.name for f in arcpy.ListFields(input_features)]:
-            match = re.match(loci_expr, field, re.IGNORECASE)
-            if match:
-                name = match.groups()[0]
-                if loci.has_key(name):
-                    loci[name].append(field)
-                else:
-                    loci[name] = [field] 
-                loci_columns.append(field)
+        loci = utils.Loci(input_features)
+        utils.msg("loci set: {0}".format(",".join(loci.names)))
 
-        output_file.write("\n".join(loci.keys()) + "\n")
-        utils.msg("loci set: {0}".format(",".join(loci.keys())))
         # sql clause can be prefix or suffix; set up ORDER BY
         sql_clause = (None, "ORDER BY {0} ASC".format(order_by))
         # query the input_features in ascending order; filtering as needed
-        selected_columns = loci_columns + [config.settings.id_field, order_by]
+        selected_columns = loci.columns + [config.settings.id_field, order_by]
         rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause, "", "", sql_clause)
         current_group = ""
         for row in rows:
@@ -92,7 +79,7 @@ def main(input_features=None, where_clause=None, order_by=None,  output_name=Non
             result_row = [label]
 
             # GENEPOP only supports haploid and diploid data.
-            for (key, cols) in loci.items():
+            for (key, cols) in loci.fields.items():
                 loci_val = ""
                 for col in cols:
                     col_pos = selected_columns.index(col)
