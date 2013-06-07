@@ -182,7 +182,6 @@ class ClassifiedImport(object):
         return result
 
     def updateParameters(self, parameters):
-        dynamic_cols = ['Genetic', 'Identification', 'Location', 'Other']
         unused_values = []
 
         input_table_name = parameters[self.cols['input_csv']].valueAsText
@@ -191,33 +190,39 @@ class ClassifiedImport(object):
         output_fc = parameters[self.cols['output_fc']].valueAsText
 
         if input_table_name is not None:
-            #f = open('genegis.log', 'w')
             # read the validated header
             (header, data, dialect) = utils.validated_table_results(input_table_name)
             # create a duplicate list; but a copy so we can modify the list as we go
             unused_values = list(header)
 
-            # assign 'known' values based on some inference
-            #f.write("Initial header: %s\n" % header)
-
+            dynamic_cols = ['Genetic', 'Identification', 'Location', 'Other']
             # A little tricky: implement unique result lists for each of
             # our group types.
             results = dict(((group,[]) for group in dynamic_cols))
             for (group, expr, data_type) in config.group_expressions:
-                #f.write("current list of unused values at expr %s [%s]: %s\n" % (expr, group, unused_values))
                 for (i, value) in enumerate(header):
                     if re.search(expr, value, re.IGNORECASE):
-                        #f.write("FOUND: %s in group %s\n" % (value, group))
                         results[group].append(value)
                         unused_values.remove(value)
                         # if a data type is defined for this column,
-                        # record it so we can force a mapping.
+                        # record it so we can force a mapping on import.
                         if data_type is not None:
-                            config.protected_columns[value] = (i + 1, data_type)
-                    #else:
-                    #    f.write("NOT FOUND: %s in group %s\n" % (value, group))
-                # modify the resulting attribute column list
-                #f.write("Applying final filtered list of %s to group %s\n" % (results, group))
+                            if isinstance(data_type, str):
+                                forced_type = data_type
+                            else: 
+                                # if we have multiple values in the data type,
+                                # examine the data to determine which'd be best.
+                                preferred_type = data_type[0]
+                                data_sample = data[0][i]
+                                if preferred_type == 'Integer':
+                                    try:
+                                        int(data_sample)
+                                        forced_type = preferred_type
+                                    except:
+                                        # fall back to the default type
+                                        forced_type = data_type[1]
+
+                            config.protected_columns[value] = (i + 1, forced_type)
 
             # any remaining attributes should be included under 'Other'
             results['Other'] = unused_values
@@ -226,8 +231,6 @@ class ClassifiedImport(object):
             for (group, vals) in results.items():
                 parameters[self.cols[group]].filter.list = vals
                 parameters[self.cols[group]].value = vals
-
-            #f.write("Unused values remaining: %s\n" % unused_values)
 
         if output_loc is not None and input_table_name is not None and output_gdb is not None:
             # derive the output feature class name if these two parameters are set
