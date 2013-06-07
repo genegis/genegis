@@ -16,7 +16,8 @@ from collections import OrderedDict
 import utils
 import config
 
-def main(input_fc=None, dist_unit=None, matrix_type=None, output_matrix=None, mode=config.settings.mode):
+def main(input_fc=None, dist_unit=None, matrix_type=None, \
+        output_matrix=None, mode=config.settings.mode):
    
     # does the input fc exist?
     if not arcpy.Exists(input_fc):
@@ -44,19 +45,14 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, output_matrix=None, mo
     geodesic_cpp_fn = load_geodesic_dll()
     if geodesic_cpp_fn is not None and row_count > 200:
         if is_spagedi:
-            utils.msg("Unable to compute SPAGeDi compatible matrix for large datasets, to be fixed.")
+            utils.msg("Unable to compute SPAGeDi compatible matrix for " + \
+                    "large datasets, to be fixed.")
             sys.exit()
 
-        # To run this, we need the full path to the input, not just the short one handed to us.
-        layers = utils.currentLayers()
-        input_fc_fullpath = None
-        for layer in layers:
-            utils.msg("found layer: {0}".format(layer.name))
-            if layer.name == input_fc:
-                input_fc_fullpath = layer.dataSource
-        if input_fc_fullpath is None:
-            utils.msg("Unable to get the true path for {0}".format(input_fc), mtype='error')
-            sys.exit()
+        desc = arcpy.Describe(input_fc)
+        # To run this, we need the full path to the input, not just the 
+        # short one handed to us.
+        input_fc_fullpath = os.path.join(desc.path, desc.file)
 
         # TODO: handle units in the C++ version.
         # TODO: handle SPAGeDi output in the C++ version.
@@ -67,29 +63,36 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, output_matrix=None, mo
         elif returncode == -2:
             utils.msg("Cannot open the input file.", mtype='error')
         elif returncode == -3:
-            utils.msg("The input matrix is too large! consider subsetting your results.", mtype='error')
+            utils.msg("The input matrix is too large! consider" + \
+                    "subsetting your results.", mtype='error')
         elif returncode == -3:
-            utils.msg("This tool requires point features as input.", mtype='error')
+            utils.msg("This tool requires point features as input.", \
+                    mtype='error')
         elif returncode == 0:
             utils.msg("Distance matrix calculations complete.")
         else:
-            utils.msg("Unknown failure occured in high-performance geodesic module.", mtype='error')
+            utils.msg("Unknown failure occured in high-performance " + \
+                    "geodesic module.", mtype='error')
         
         if returncode != 0:
             sys.exit()
     else:
-        run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
+        run_geodesic_gp(input_fc, unit_factor, output_matrix, \
+                row_count, is_spagedi)
 
     utils.msg("Created distance matrix successfully: {0}".format(output_matrix))
 
 def load_geodesic_dll():
     fn = None
-    dll_path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "lib", "geodesic.dll"))
+    dll_path = os.path.abspath(os.path.join( \
+            os.path.abspath(os.path.dirname(__file__)), "..", \
+            "lib", "geodesic.dll"))
     if os.path.exists(dll_path):
         try:
             loaded_dll = ctypes.cdll.LoadLibrary(dll_path)
         except Exception as e:
-            utils.msg("Failed to load high-speed geodesic library.")
+            msg = "Failed to load high-speed geodesic library."
+            utils.msg(msg, mtype='error', exception=e)
             return None
         fn = loaded_dll.CalculatePairwiseGeodesicDistances
         fn.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p]
@@ -102,17 +105,17 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
         utils.msg("Copying features into memory…")
         arcpy.CopyFeatures_management(input_fc, input_fc_mem)
     except Exception as e:
-        utils.msg("Unable to copy features into memory.", mtype='error', exception=e)
+        msg = "Unable to copy features into memory."
+        utils.msg(msg, mtype='error', exception=e)
         sys.exit()
 
     # get the spatial reference of our input, determine the type
     desc = arcpy.Describe(input_fc_mem)
     sr = desc.spatialReference
     if sr.type not in ['Geographic', 'Projected']:
-        utils.msg("This tools only works with geographic or projected data.", mtype='error')
+        msg = "This tools only works with geographic or projected data."
+        utils.msg(msg, mtype='error')
         sys.exit()
-
-    output_fc_mem = 'in_memory/output_fc'
 
     utils.msg("Finding all input points…")
     distance_matrix = OrderedDict()
@@ -154,13 +157,13 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
             distance_matrix[fid][to_fid] = dist
     utils.msg("Distance matrix calculations complete.")
 
-    # FIXME: generate it as a CSV file, then do TableToTable to pull it back in if requested.
+    # FIXME: generate it as a CSV file, then do TableToTable to pull it back in
 
     # Now compute the lines between these locations.
     try:
         # copy the final result back to disk.
         utils.msg("Writing results to disk…")
-        # The specifics of the SPAGeDi matrix format are described in section 3.7 of the manual.
+        # The SPAGeDi matrix format are described in section 3.7 of the manual.
         if is_spagedi:
             first_header_cell = "M%i" % row_count
             sep = "\t"
@@ -170,9 +173,11 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
 
         with open(output_matrix, 'w') as csv:
             # initialize with our header row 
-            output_rows = [[first_header_cell] + [str(s) for s in distance_matrix.keys()]]
+            output_rows = [[first_header_cell] + \
+                    [str(s) for s in distance_matrix.keys()]]
             for (fid, row) in distance_matrix.items():
-                output_rows.append([str(fid)] + [utils.xstr(s) for s in row.values()])
+                res = [str(fid)] + [utils.xstr(s) for s in row.values()]
+                output_rows.append(res)
             for row in output_rows:
                 csv.write("{0}\n".format(sep.join(row)))
             if is_spagedi:
@@ -184,7 +189,7 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
 
 
 # when executing as a standalone script get parameters from sys
-if __name__=='__main__':
+if __name__ == '__main__':
 
     # Defaults when no configuration is provided
     # TODO: change these to be test-based.
