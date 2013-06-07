@@ -60,22 +60,43 @@ def main(input_features=None, where_clause=None, order_by=None,  output_name=Non
 
         # Find our Loci columns. 
         loci = utils.Loci(input_features)
-        utils.msg("loci set: {0}".format(",".join(loci.names)))
+        utils.msg("Loci set: {0}".format(",".join(loci.names)))
+
+        # pull out Haplotype information
+        haplotypes = utils.Haplotype(input_features)
+      
+        # we have haplotype data, include it
+        if haplotypes.defined:
+            # map haplotypes to a two digit number with leading zero
+            haplo_formatted = [(h[1], "{0:03d}".format(h[0])) for h in haplotypes.indexed]
+            haplo_formatted_label = [" to ".join(h) for h in haplo_formatted] 
+            utils.msg("Haplotype mappings used: {0}".format(", ".join(haplo_formatted_label)))
+            haplo_lookup = dict(haplo_formatted)
+            # if no haplotype is found, leave an empty value
+            haplo_lookup[None] = '000'
 
         # sql clause can be prefix or suffix; set up ORDER BY
         sql_clause = (None, "ORDER BY {0} ASC".format(order_by))
+
         # query the input_features in ascending order; filtering as needed
-        selected_columns = loci.columns + [config.settings.id_field, order_by]
+        selected_columns = [config.settings.id_field, order_by] + loci.columns
+        if haplotypes.defined:
+            selected_columns += [haplotypes.column]
+
         rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause, "", "", sql_clause)
         current_group = ""
-        for (i, row) in enumerate(rows):
-            group = row[-1] # last column is 'order_by', or key column
-            id_field = row[-2] # as set on import
-            label = "{0}-{1},".format(id_field, group).replace(" ", "_")
 
+        for (i, row) in enumerate(rows):
+            id_field = row[0] # as set on import
+            group = row[1] # second column is 'order_by', or key column
+            label = "{0}-{1},".format(id_field, group).replace(" ", "_")
+            
             if i == 0:
                 # write header row
-                header = "{0}{1}\n".format(" " * len(label), ",".join(loci.names))
+                header = "{0}{1}".format(" " * len(label), ",".join(loci.names))
+                if haplotypes.defined:
+                    header += ",{0}".format(haplotypes.column)
+                header += '\n'
                 output_file.write(header)
 
             if group != current_group:
@@ -91,6 +112,9 @@ def main(input_features=None, where_clause=None, order_by=None,  output_name=Non
                     col_pos = selected_columns.index(col)
                     loci_val += normalize(row[col_pos])
                 result_row.append(loci_val)
+            if haplotypes.defined:
+                haplo = row[-1]
+                result_row.append(haplo_lookup[haplo])
             output_file.write(" ".join(result_row) + "\n")
     utils.msg("Exported results saved to %s." % output_name)
     time.sleep(4)
