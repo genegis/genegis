@@ -72,4 +72,4 @@ if __name__=='__main__':
     )
 
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
-    main(*defaults.values(), mode='script')
+    main(mode='script', **defaults)
