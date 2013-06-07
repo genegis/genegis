@@ -58,6 +58,48 @@ class Loci(object):
         loci = self.fields
         return loci.keys()
 
+class Haplotype(object):
+    def __init__(self, input_features):
+        self.column = self.haplotype_column(input_features)
+        self.defined = self.defined()
+        self.counter = self.haplotype_data(input_features)
+        self.names = self.haplotype_names()
+        self.indexed = self.haplotype_indexed()
+
+    def haplotype_column(self, input_features):
+        haplo_col = None
+        haplo_expr = '^haplotype|dlphap$'
+        for field in [f.name for f in arcpy.ListFields(input_features)]:
+            match = re.match(haplo_expr, field, re.IGNORECASE)
+            if match:
+                haplo_col = field
+        return haplo_col
+
+    def defined(self):
+        defined = False
+        if self.column is not None:
+            defined = True
+        return defined
+
+    def haplotype_data(self, input_features):
+        # TODO: this currently just looks up all the data,
+        # better yet we should generate a table on import and keep it updated
+        # when edits are made to the input table.
+        haplo_data = {}
+        if self.defined:
+            res = [r[0] for r in arcpy.da.SearchCursor(input_features, [self.column])]
+            haplo_data = collections.Counter(filter(None, res))
+        return haplo_data
+
+    def haplotype_names(self):
+        return self.counter.keys()
+
+    def haplotype_indexed(self):
+        # map sorted haplotypes to integers; equivalent to Shepherd's approach
+        sorted_cols = sorted(self.names)
+        # 1: A+, 2: E1, ...
+        return itertools.izip(itertools.count(1), sorted_cols)
+
 def parameters_from_args(defaults_tuple=None, sys_args=None):
     """Provided a set of tuples for default values, return a list of mapped
        variables."""
