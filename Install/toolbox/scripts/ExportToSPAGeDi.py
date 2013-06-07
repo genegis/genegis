@@ -140,8 +140,8 @@ def main(input_features=None, where_clause=None, order_by=None,
     data_rows = []
     for row in rows:
         # our two string fields can't contain spaces, based on Autocio.c: 3857 
-        id_field = row[0].replace(" ", "_")
-        pop_field = row[1].replace(" ", "_") # 'order_by', or population 'group by'
+        id_field = str(row[0]).replace(" ", "_")
+        pop_field = str(row[1]).replace(" ", "_") # 'order_by', or population 'group by'
         loc_a_val = row[2]
         loc_b_val = row[3]
 
