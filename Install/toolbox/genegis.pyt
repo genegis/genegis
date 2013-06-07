@@ -54,10 +54,11 @@ class Toolbox(object):
             # Genetic Analysis
             SpagediFst,
             # Export routines; get our data elsewhere
+            ExportAllelesInSpace, # Alleles in Space, spatial/genetic analysis
             ExportGenAlEx, # GenAlEx, Excel analysis tool
             ExportGenepop, # Genepop, population differentiation statistics
             ExportSpagedi, # SPAGeDi, fancy genetic statistics package
-            ExportSRGD # SRGD without Geodatabase columns; for Shepard interchange
+            ExportSRGD # SRGD w/o Geodatabase columns; for Shepard interchange
         ]
 
 # Tool implementation code
@@ -823,6 +824,90 @@ class ExportSpagedi(object):
             where_clause=parameters[1].valueAsText,
             order_by=parameters[2].valueAsText,
             output_name=parameters[3].valueAsText)
+
+class ExportAllelesInSpace(object):
+
+    def __init__(self):
+        self.label = u'Export to Alleles In Space'
+        self.description = u'This tool allows the user to export data to two text files, separate coordinate and genetic files, that follow the required input format for Alleles in Space (Miller)'
+        self.canRunInBackground = False
+        self.category = "Export"
+        self.cols = {
+            'input_features': 0,
+            'id_field': 1,
+            'where_clause': 2,
+            'output_coords': 3,
+            'output_genetics': 4
+        }
+
+    def getParameterInfo(self):
+        # Input_Feature_Class
+        input_features = arcpy.Parameter()
+        input_features.name = u'Input_Feature_Class'
+        input_features.displayName = u'Input Feature Class'
+        input_features.parameterType = 'Required'
+        input_features.direction = 'Input'
+        input_features.datatype = 'Feature Layer'
+
+        # identification field
+        id_field = arcpy.Parameter()
+        id_field.name = u'Sample ID Field'
+        id_field.displayName = u'Sample ID Field'
+        id_field.parameterType = 'Required'
+        id_field.direction = 'Input'
+        id_field.datatype = u'Field'
+        id_field.parameterDependencies=[input_features.name]
+        id_field.value = config.settings.id_field
+
+        # Where_Clause
+        where_clause = arcpy.Parameter()
+        where_clause.name = u'Where_Clause'
+        where_clause.displayName = u'Where Clause'
+        where_clause.parameterType = 'Optional'
+        where_clause.direction = 'Output'
+        where_clause.datatype = u'SQL Expression'
+        where_clause.parameterDependencies= [input_features.name]
+
+        # Output coordinate information
+        output_coords = arcpy.Parameter()
+        output_coords.name = u'Output_Coordinates'
+        output_coords.displayName = u'Output Coordinates File'
+        output_coords.parameterType = 'Required'
+        output_coords.direction = 'Output'
+        output_coords.datatype = u'File'
+
+        # Output genetics information
+        output_genetics= arcpy.Parameter()
+        output_genetics.name = u'Output_Genetics'
+        output_genetics.displayName = u'Output Genetics File'
+        output_genetics.parameterType = 'Required'
+        output_genetics.direction = 'Output'
+        output_genetics.datatype = u'File'
+
+        return [input_features, id_field, where_clause, output_coords, output_genetics]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        output_coords = parameters[self.cols['output_coords']]
+        output_genetics = parameters[self.cols['output_genetics']]
+        output_coords.value = utils.set_file_extension(output_coords, 'txt')
+        output_genetics.value = utils.set_file_extension(output_genetics, 'txt')
+        return
+
+    def updateMessages(self, parameters):
+        return
+
+    def execute(self, parameters, messages):
+        from scripts import ExportToAIS
+
+        ExportToAIS.main(
+            input_features=parameters[0].valueAsText,
+            id_field=parameters[1].valueAsText,
+            where_clause=parameters[2].valueAsText,
+            output_coords=parameters[3].valueAsText,
+            output_genetics=parameters[4].valueAsText)
 
 
 class SelectDataByAttributes(object):
