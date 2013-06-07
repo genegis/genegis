@@ -68,14 +68,20 @@ def main(input_features=None, where_clause=None, order_by=None,  output_name=Non
         selected_columns = loci.columns + [config.settings.id_field, order_by]
         rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause, "", "", sql_clause)
         current_group = ""
-        for row in rows:
+        for (i, row) in enumerate(rows):
             group = row[-1] # last column is 'order_by', or key column
             id_field = row[-2] # as set on import
+            label = "{0}-{1},".format(id_field, group).replace(" ", "_")
+
+            if i == 0:
+                # write header row
+                header = "{0}{1}\n".format(" " * len(label), ",".join(loci.names))
+                output_file.write(header)
+
             if group != current_group:
                 output_file.write("Pop\n")
                 current_group = group
 
-            label = "{0}-{1},".format(id_field, group).replace(" ", "_")
             result_row = [label]
 
             # GENEPOP only supports haploid and diploid data.
