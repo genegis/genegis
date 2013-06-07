@@ -1087,20 +1087,18 @@ class MakeIndividualPaths(object):
         }
 
     def getParameterInfo(self):
-
         # Input Features
         selected_pts = arcpy.Parameter()
         selected_pts.name = u'Selected_Feature_Class'
-        selected_pts.displayName = u'Selected Feature Class'
+        selected_pts.displayName = u'Selected Individuals'
         selected_pts.direction = 'Input'
         selected_pts.parameterType = 'Required'
         selected_pts.datatype = u'GPFeatureLayer'
-        #selected_pts.value = selected_layer()
 
         # Data source
         source_fc = arcpy.Parameter()
-        source_fc.name = u'Origin_Feature_Class'
-        source_fc.displayName = u'Origin Feature Class'
+        source_fc.name = u'Source_Feature_Class'
+        source_fc.displayName = u'Source features (to link with selected individuals)'
         source_fc.direction = 'Input'
         source_fc.parameterType = 'Required'
         source_fc.datatype = u'GPFeatureLayer'
@@ -1108,10 +1106,10 @@ class MakeIndividualPaths(object):
         # Output feature name
         output_name = arcpy.Parameter()
         output_name.name = 'Output_Feature_Class'
-        output_name.displayName = u''
+        output_name.displayName = u'Output Pathsfeatures '
         output_name.direction = 'Output'
         output_name.parameterType = 'Required'
-        output_name.datatype = u'GPFeatureLayer'
+        output_name.datatype = u'String'
 
         return [selected_pts, source_fc, output_name]
 
@@ -1119,6 +1117,15 @@ class MakeIndividualPaths(object):
         return True
 
     def updateParameters(self, parameters):
+        source_fc = parameters[self.cols['source_fc']]
+        output_name = parameters[self.cols['output_name']]
+        if source_fc.altered:
+            if output_name.altered is False:
+                desc = arcpy.Describe(source_fc.value)
+                # path will be set, regardless if this is a layer or a fully specified path
+                source_fc_path = desc.path
+                if source_fc_path is not None: 
+                    output_name.value = os.path.join(source_fc_path, "Paths")
         return
 
     def updateMessages(self, parameters):

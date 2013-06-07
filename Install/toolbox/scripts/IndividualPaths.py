@@ -26,21 +26,23 @@ def main(selected_pts=None, source_fc=None, output_name=None):
     #utils.msg("Getting list of Individuals")
     with arcpy.da.SearchCursor(selected_pts, "Individual_ID") as cur:
         # write cursor to a list
-        all_ids = [row[0] for row in cur]
+        all_ids = [row[0] for row in cur if row[0] is not None]
 
     # eliminate duplicate IDs
     indiv_sort = sorted(set(all_ids))
     #format list for a SQL WHERE clause
     individuals = tuple(indiv_sort)
 
-    # make parameters for a new line feature class
-    out_path = os.path.dirname(source_fc) #'in_memory'
+    out_path = os.path.dirname(output_name)
+    out_name = os.path.basename(output_name)
+
     geometry_type = 'POLYLINE'
     template = ""
     has_m = 'DISABLED'
     has_z = 'DISABLED'
     # create the new FeatureClass
-    layer = arcpy.CreateFeatureclass_management(out_path, output_name,
+     
+    layer = arcpy.CreateFeatureclass_management(out_path, out_name,
             geometry_type, template, has_m, has_z, sr)
     if not arcpy.Exists(layer):
         #utils.msg("Layer not created for some reason?")
@@ -66,12 +68,13 @@ def main(selected_pts=None, source_fc=None, output_name=None):
     ins_cursor = arcpy.da.InsertCursor(layer, f_names)
 
     # open search cursor to find all Encounters for the identified individuals
-    fields = ["OBJECTID", "SHAPE@XY", "Individual_ID", "TimeValue"]
-    sql_where = 'Individual_ID IN ' + str(individuals)
-    sql_order = ('UNIQUE', 'ORDER BY "Individual_ID", "TimeValue"')
+    fields = ["OBJECTID", "SHAPE@XY", "Individual_ID", "Date_Formatted"]
+    #sql_where = 'Individual_ID IN ' + str(individuals)
+    sql_order = (None, 'ORDER BY "Individual_ID", "Date_Formatted"')
+    sql_where = ""
     explode = False
     with arcpy.da.SearchCursor(source_fc, fields, sql_where, sr, explode,
-                                sql_clause = sql_order) as id_cursor:
+                                sql_order) as id_cursor:
         row = id_cursor.next()
         # store first row values
         from_id = row[0]
@@ -91,7 +94,7 @@ def main(selected_pts=None, source_fc=None, output_name=None):
                 # update values for new row
                 to_id = row[0]
                 to_date = row[3]
-                new_date = utils.formatDate(to_date)
+                new_date = to_date
                 #dist, elapsed = utils.calc_distance(segment, from_date, to_date)
                 dist = segment.getLength("GEODESIC")/1000.0
                 delta = to_date - from_date
@@ -105,6 +108,9 @@ def main(selected_pts=None, source_fc=None, output_name=None):
                 from_id = to_id
                 from_date = to_date
             else:
+                # skip unused
+                if row[2] not in individuals:
+                    continue
                 # change of Individual, initiate a new line
                 from_id = row[0]
                 this_point = arcpy.Point(row[1][0],row[1][1])
