@@ -265,6 +265,13 @@ def validate_column_label(column):
     return column
 
 def protect_columns(input_table_name=None, protected_columns={}):
+    """ 
+    Force data typing on columns using schema.ini to store the necessary
+    configuration. This prevents ArcGIS from trying to auto-detect the 
+    data type, which doesn't work for some of our input data, such as
+    haplotypes, which it wants to treat as coordinate values.
+    """
+        
     # input table directory
     input_dir = os.path.dirname(input_table_name)
 
@@ -314,6 +321,7 @@ def xstr(s):
         return ''
     return str(s)
 
+# FIXME: duplicated from Install\utils.py
 def currentLayers():
     # find layers in current map document
     layers = []
