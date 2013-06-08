@@ -1,109 +1,13 @@
-<?xml version="1.0"?>
-<metadata xml:lang="en">
-  <Esri>
-    <CreaDate>20130526</CreaDate>
-    <CreaTime>12494500</CreaTime>
-    <ArcGISFormat>1.0</ArcGISFormat>
-    <SyncOnce>TRUE</SyncOnce>
-    <ModDate>20130608</ModDate>
-    <ModTime>030103</ModTime>
-    <scaleRange>
-      <minScale>150000000</minScale>
-      <maxScale>5000</maxScale>
-    </scaleRange>
-    <ArcGISProfile>ItemDescription</ArcGISProfile>
-  </Esri>
-  <dataIdInfo>
-    <idCitation>
-      <resTitle>Geographic Distance Paths</resTitle>
-    </idCitation>
-    <idAbs>&lt;DIV
-    STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Compute
-    pairwise geodesic arcs which connect all input points. These
-    arcs represent the shortest distance (great circle distance)
-    between the locations. An attribute of the distance is also
-    included as an output column,
-    "Distance_in_km".&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;NOTE:
-    This script is resource intensive, and by default tries to use
-    memory for all of its operations to improve performance. For
-    large datasets (e.g. over 500 points) this script will
-    automatically switch to disk-base operations, which are
-    significantly slower, and in this circumstance the script can
-    take many hours to
-    complete.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</idAbs>
-    <idCredit>Created by the geneGIS team: Dori Dick, Shaun
-    Walbridge, Scott Baker, Dawn Wright</idCredit>
-    <searchKeys>
-      <keyword>analysis</keyword>
-      <keyword>geographic</keyword>
-      <keyword>paths</keyword>
-    </searchKeys>
-    <resConst>
-      <Consts>
-        <useLimit>&lt;DIV
-        STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This
-        script tool was developed to work with ArcGIS 10.1 and
-        Python 2.7 installed during ArcGIS
-        installation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</useLimit>
-      </Consts>
-    </resConst>
-  </dataIdInfo>
-  <distInfo>
-    <distributor>
-      <distorFormat>
-        <formatName>ArcToolbox Tool</formatName>
-      </distorFormat>
-    </distributor>
-  </distInfo>
-  <tool name="ShortestDistancePaths"
-  displayname="Geographic Distance Paths" toolboxalias="" xmlns="">
-    <parameters>
-      <param name="Input_Feature_Class" displayname="Feature Class"
-      type="Required" direction="Input" datatype="Feature Layer"
-      expression="Input_Feature_Class">
-        <dialogReference>&lt;DIV
+<metadata xml:lang="en"><Esri><CreaDate>20130526</CreaDate><CreaTime>12494500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce><scaleRange><minScale>150000000</minScale><maxScale>5000</maxScale></scaleRange><ArcGISProfile>ItemDescription</ArcGISProfile></Esri><dataIdInfo><idCitation><resTitle>Geographic Distance Paths</resTitle></idCitation><idAbs>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Compute pairwise geodesic arcs which connect all input points. These arcs represent the shortest distance (great circle distance) between the locations. An attribute of the distance is also included as an output column, "Distance_in_km".&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;NOTE: This script is resource intensive, and by default tries to use memory for all of its operations to improve performance. For large datasets (e.g. over 500 points) this script will automatically switch to disk-base operations, which are significantly slower, and in this circumstance the script can take many hours to complete.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</idAbs><idCredit>Created by the geneGIS team: Dori Dick, Shaun Walbridge, Scott Baker, Dawn Wright</idCredit><searchKeys><keyword>analysis</keyword><keyword>geographic</keyword><keyword>paths</keyword></searchKeys><resConst><Consts><useLimit>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This script tool was developed to work with ArcGIS 10.1 and Python 2.7 installed during ArcGIS installation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</useLimit></Consts></resConst></dataIdInfo><distInfo><distributor><distorFormat><formatName>ArcToolbox Tool</formatName></distorFormat></distributor></distInfo><tool displayname="Geographic Distance Paths" name="ShortestDistancePaths" toolboxalias=""><parameters><param datatype="Feature Layer" direction="Input" displayname="Feature Class" expression="Input_Feature_Class" name="Input_Feature_Class" type="Required"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;A
         feature class, containing the point features for creating
         paths
-        between.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-      <param name="Output_Feature_Class"
-      displayname="Output Feature Class" type="Required"
-      direction="Output" datatype="Feature Layer"
-      expression="Output_Feature_Class">
-        <dialogReference>&lt;DIV
+        between.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param><param datatype="Feature Layer" direction="Output" displayname="Output Feature Class" expression="Output_Feature_Class" name="Output_Feature_Class" type="Required"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;The
         result will contain densified geodesic arcs which
         accurately represent the geodesic path between each pair of
-        points.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-      <param name="Closest_Count"
-      displayname="Find only closest feature" type="Optional"
-      direction="Input" datatype="Boolean"
-      expression="{Closest_Count}">
-        <dialogReference>&lt;DIV
+        points.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param><param datatype="Boolean" direction="Input" displayname="Find only closest feature" expression="{Closest_Count}" name="Closest_Count" type="Optional"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Set
         this option if you only want to draw lines between each
         point and its one closest
-        neighbor.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-    </parameters>
-    <summary>&lt;DIV
-    STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Compute
-    pairwise geodesic arcs which connect all input points. These
-    arcs represent the shortest distance (great circle distance)
-    between the locations. An attribute of the distance is also
-    included as an output column,
-    "Distance_in_km".&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;NOTE:
-    This script is resource intensive, and by default tries to use
-    memory for all of its operations to improve performance. For
-    large datasets (e.g. over 500 points) this script will
-    automatically switch to disk-base operations, which are
-    significantly slower, and in this circumstance the script can
-    take many hours to
-    complete.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</summary>
-  </tool>
-  <mdHrLv>
-    <ScopeCd value="005" />
-  </mdHrLv>
-</metadata>
+        neighbor.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param></parameters><summary>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Compute pairwise geodesic arcs which connect all input points. These arcs represent the shortest distance (great circle distance) between the locations. An attribute of the distance is also included as an output column, "Distance_in_km".&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;NOTE: This script is resource intensive, and by default tries to use memory for all of its operations to improve performance. For large datasets (e.g. over 500 points) this script will automatically switch to disk-base operations, which are significantly slower, and in this circumstance the script can take many hours to complete.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</summary></tool><mdHrLv><ScopeCd value="005" /></mdHrLv></metadata>

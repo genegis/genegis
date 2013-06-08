@@ -1,100 +1,4 @@
-<?xml version="1.0"?>
-<metadata xml:lang="en">
-  <Esri>
-    <CreaDate>20120913</CreaDate>
-    <CreaTime>14440400</CreaTime>
-    <ArcGISFormat>1.0</ArcGISFormat>
-    <SyncOnce>TRUE</SyncOnce>
-    <ModDate>20130608</ModDate>
-    <ModTime>030103</ModTime>
-    <scaleRange>
-      <minScale>150000000</minScale>
-      <maxScale>5000</maxScale>
-    </scaleRange>
-    <ArcGISProfile>ItemDescription</ArcGISProfile>
-  </Esri>
-  <dataIdInfo>
-    <idCitation>
-      <resTitle>Import Data</resTitle>
-    </idCitation>
-    <searchKeys>
-      <keyword>import spatially explicit genetic data</keyword>
-      <keyword>creates file geodatabase</keyword>
-      <keyword>creates feature class</keyword>
-    </searchKeys>
-    <idAbs>&lt;DIV
-    STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This
-    script tool: (1) creates a File Geodatabase if one does not
-    exist, (2) imports spatially referenced genetic data from a
-    simple flat file format (SRGD.csv) to a new Feature Class
-    located in the File Geodatabase, and (3) creates a copy of the
-    input data in a table located in the File
-    Geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
-    STYLE="font-weight:bold;"&gt;Required
-    Inputs:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Spatially
-    referenced genetic data formatted according to the SRGD.csv
-    file format. Data can be for identified individuals or for
-    genetic samples.
-    &lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;Data will be
-    automatically sorted into the categories Genetic,
-    Identification, Location and Other. The user should look to
-    make sure the appropriate fields are categorized correctly. If
-    changes are needed, the user can un-check and/or re-check data
-    fields where
-    appropriate.&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
-    /&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;NOTE: The SRGD.csv format
-    includes the &lt;/SPAN&gt;&lt;SPAN
-    STYLE="font-style:italic;"&gt;minimum
-    &lt;/SPAN&gt;&lt;SPAN&gt;data requirements for basic
-    &lt;/SPAN&gt;&lt;SPAN STYLE="font-style:italic;"&gt;geneGIS
-    &lt;/SPAN&gt;&lt;SPAN&gt;functionality. Additional data can be
-    included.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P&gt;&lt;SPAN
-    STYLE="font-weight:bold;"&gt;Optional
-    Inputs:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;If
-    known, a spatial reference for the point data
-    (recommended).&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
-    /&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;NOTE: The default spatial
-    reference is Geographic WGS
-    1984.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P&gt;&lt;SPAN
-    STYLE="font-weight:bold;"&gt;Outputs:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A
-    new file geodatabase (if one does not already
-    exist).&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A
-    new feature class located within the file
-    geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A
-    copy of the data in a table located within the file
-    geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P
-    /&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</idAbs>
-    <idCredit>Created by the geneGIS team: Dori Dick, Shaun
-    Walbridge, Scott Baker, Dawn Wright</idCredit>
-    <resConst>
-      <Consts>
-        <useLimit>&lt;DIV
-        STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This
-        script tool was developed to work with ArcGIS 10.1 and
-        Python 2.7 installed during ArcGIS
-        installation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</useLimit>
-      </Consts>
-    </resConst>
-    <dataExt>
-      <geoEle xmlns="">
-        <GeoBndBox esriExtentType="search" />
-      </geoEle>
-    </dataExt>
-  </dataIdInfo>
-  <distInfo>
-    <distributor>
-      <distorFormat>
-        <formatName>ArcToolbox Tool</formatName>
-      </distorFormat>
-    </distributor>
-  </distInfo>
-  <tool name="ClassifiedImport" displayname="Import Data"
-  toolboxalias="" xmlns="">
-    <parameters>
-      <param name="SRGD_Input_File" displayname="SRGD Input File"
-      type="Required" direction="Input" datatype="File"
-      expression="SRGD_Input_File">
-        <dialogReference>&lt;DIV
+<metadata xml:lang="en"><Esri><CreaDate>20120913</CreaDate><CreaTime>14440400</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce><scaleRange><minScale>150000000</minScale><maxScale>5000</maxScale></scaleRange><ArcGISProfile>ItemDescription</ArcGISProfile></Esri><dataIdInfo><idCitation><resTitle>Import Data</resTitle></idCitation><searchKeys><keyword>import spatially explicit genetic data</keyword><keyword>creates file geodatabase</keyword><keyword>creates feature class</keyword></searchKeys><idAbs>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This script tool: (1) creates a File Geodatabase if one does not exist, (2) imports spatially referenced genetic data from a simple flat file format (SRGD.csv) to a new Feature Class located in the File Geodatabase, and (3) creates a copy of the input data in a table located in the File Geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN STYLE="font-weight:bold;"&gt;Required Inputs:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Spatially referenced genetic data formatted according to the SRGD.csv file format. Data can be for identified individuals or for genetic samples. &lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;Data will be automatically sorted into the categories Genetic, Identification, Location and Other. The user should look to make sure the appropriate fields are categorized correctly. If changes are needed, the user can un-check and/or re-check data fields where appropriate.&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN /&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;NOTE: The SRGD.csv format includes the &lt;/SPAN&gt;&lt;SPAN STYLE="font-style:italic;"&gt;minimum &lt;/SPAN&gt;&lt;SPAN&gt;data requirements for basic &lt;/SPAN&gt;&lt;SPAN STYLE="font-style:italic;"&gt;geneGIS &lt;/SPAN&gt;&lt;SPAN&gt;functionality. Additional data can be included.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P&gt;&lt;SPAN STYLE="font-weight:bold;"&gt;Optional Inputs:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;If known, a spatial reference for the point data (recommended).&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN /&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;NOTE: The default spatial reference is Geographic WGS 1984.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P&gt;&lt;SPAN STYLE="font-weight:bold;"&gt;Outputs:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A new file geodatabase (if one does not already exist).&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A new feature class located within the file geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A copy of the data in a table located within the file geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P /&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</idAbs><idCredit>Created by the geneGIS team: Dori Dick, Shaun Walbridge, Scott Baker, Dawn Wright</idCredit><resConst><Consts><useLimit>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This script tool was developed to work with ArcGIS 10.1 and Python 2.7 installed during ArcGIS installation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</useLimit></Consts></resConst><dataExt><geoEle><GeoBndBox esriExtentType="search" /></geoEle></dataExt></dataIdInfo><distInfo><distributor><distorFormat><formatName>ArcToolbox Tool</formatName></distorFormat></distributor></distInfo><tool displayname="Import Data" name="ClassifiedImport" toolboxalias=""><parameters><param datatype="File" direction="Input" displayname="SRGD Input File" expression="SRGD_Input_File" name="SRGD_Input_File" type="Required"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;The
         following data fields for the SRGD input file MUST be
         formatted as
@@ -195,42 +99,19 @@
         &lt;/SPAN&gt;&lt;/SPAN&gt;&lt;SPAN&gt;functionality.&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
         /&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P&gt;&lt;SPAN&gt;Additional
         fields can be included as
-        needed.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-      <param name="Spatial_Reference"
-      displayname="Spatial Reference" type="Optional"
-      direction="Input" datatype="Spatial Reference"
-      expression="{Spatial_Reference}">
-        <dialogReference>&lt;DIV
+        needed.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param><param datatype="Spatial Reference" direction="Input" displayname="Spatial Reference" expression="{Spatial_Reference}" name="Spatial_Reference" type="Optional"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;The
         default spatial reference is Geographic WGS 1984.
         &lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;If data were
         collected with another spatial format, specify it here.
-        &lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-      <param name="File_Geodatabase_Location"
-      displayname="File Geodatabase Location" type="Required"
-      direction="Input" datatype="Folder"
-      expression="File_Geodatabase_Location">
-        <dialogReference>&lt;DIV
+        &lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param><param datatype="Folder" direction="Input" displayname="File Geodatabase Location" expression="File_Geodatabase_Location" name="File_Geodatabase_Location" type="Required"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;The
         location where the new file geodatabase will be placed or
         the location of an already existing file
-        geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-      <param name="File_Geodatabase_Name"
-      displayname="File Geodatabase Name" type="Required"
-      direction="Input" datatype="String"
-      expression="File_Geodatabase_Name">
-        <dialogReference>&lt;DIV
+        geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param><param datatype="String" direction="Input" displayname="File Geodatabase Name" expression="File_Geodatabase_Name" name="File_Geodatabase_Name" type="Required"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;The
         name of the new or already existing file
-        geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-      <param name="Genetic_Columns" displayname="Genetic Columns"
-      type="Required" direction="Input" datatype="Multiple Value"
-      expression="Sex | Haplotype | L_locus1 | L_locus2">
-        <dialogReference>&lt;DIV
+        geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param><param datatype="Multiple Value" direction="Input" displayname="Genetic Columns" expression="Sex | Haplotype | L_locus1 | L_locus2" name="Genetic_Columns" type="Required"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This
         section should include any relevant genetic data (Sex,
         Haplotype, Loci) within the dataset being imported. The
@@ -240,89 +121,19 @@
         ArcGIS does not allow more than one field with the same
         name. Upon import into AcGIS, the name for each locus will
         be appended as follows: L_YourLocusName_1,
-        L_YourLocusName_2.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-      <param name="Identification_Columns"
-      displayname="Identification Columns" type="Required"
-      direction="Input" datatype="Multiple Value"
-      expression="Sample_ID | Individual_ID">
-        <dialogReference>&lt;DIV
+        L_YourLocusName_2.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param><param datatype="Multiple Value" direction="Input" displayname="Identification Columns" expression="Sample_ID | Individual_ID" name="Identification_Columns" type="Required"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This
         section should include any relevant indentification data
         (Sample_ID, Individual_ID) within the dataset being
         imported. The user should ensure all appropriate fields are
         checked and/or
-        un-checked.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-      <param name="Location_Columns" displayname="Location Columns"
-      type="Required" direction="Input" datatype="Multiple Value"
-      expression="Latitude | Longitude">
-        <dialogReference>&lt;DIV
+        un-checked.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param><param datatype="Multiple Value" direction="Input" displayname="Location Columns" expression="Latitude | Longitude" name="Location_Columns" type="Required"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This
         section should include the latitude and longitude data for
         the dataset being imported or X and Y columns for projected
-        data.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-      <param name="Other_Columns" displayname="Other Columns"
-      type="Optional" direction="Input" datatype="Multiple Value"
-      expression="{Region | Date_Time}">
-        <dialogReference>&lt;DIV
+        data.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param><param datatype="Multiple Value" direction="Input" displayname="Other Columns" expression="{Region | Date_Time}" name="Other_Columns" type="Optional"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This
         section can include any other relevant data that the user
         wants to include in the import by either checking and/or
         un-checking appropriate
-        fields.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-    </parameters>
-    <summary>&lt;DIV
-    STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This
-    script tool: (1) creates a File Geodatabase if one does not
-    exist, (2) imports spatially referenced genetic data from a
-    simple flat file format (SRGD.csv) to a new Feature Class
-    located in the File Geodatabase, and (3) creates a copy of the
-    input data in a table located in the File
-    Geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
-    STYLE="font-weight:bold;"&gt;Required
-    Inputs:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Spatially
-    referenced genetic data formatted according to the SRGD.csv
-    file format. Data can be for identified individuals or for
-    genetic samples.
-    &lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;Data will be
-    automatically sorted into the categories Genetic,
-    Identification, Location and Other. The user should look to
-    make sure the appropriate fields are categorized correctly. If
-    changes are needed, the user can un-check and/or re-check data
-    fields where
-    appropriate.&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
-    /&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;NOTE: The SRGD.csv format
-    includes the &lt;/SPAN&gt;&lt;SPAN
-    STYLE="font-style:italic;"&gt;minimum
-    &lt;/SPAN&gt;&lt;SPAN&gt;data requirements for basic
-    &lt;/SPAN&gt;&lt;SPAN STYLE="font-style:italic;"&gt;geneGIS
-    &lt;/SPAN&gt;&lt;SPAN&gt;functionality. Additional data can be
-    included.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P&gt;&lt;SPAN
-    STYLE="font-weight:bold;"&gt;Optional
-    Inputs:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;If
-    known, a spatial reference for the point data
-    (recommended).&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
-    /&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;NOTE: The default spatial
-    reference is Geographic WGS
-    1984.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P&gt;&lt;SPAN
-    STYLE="font-weight:bold;"&gt;Outputs:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A
-    new file geodatabase (if one does not already
-    exist).&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A
-    new feature class located within the file
-    geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A
-    copy of the data in a table located within the file
-    geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P
-    /&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</summary>
-    <usage>&lt;DIV
-    STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This
-    script tool can be used to import spatially referenced genetic
-    data into a feature class that is viewable in
-    ArcGIS.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</usage>
-  </tool>
-  <mdHrLv>
-    <ScopeCd value="005" />
-  </mdHrLv>
-</metadata>
+        fields.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param></parameters><summary>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This script tool: (1) creates a File Geodatabase if one does not exist, (2) imports spatially referenced genetic data from a simple flat file format (SRGD.csv) to a new Feature Class located in the File Geodatabase, and (3) creates a copy of the input data in a table located in the File Geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN STYLE="font-weight:bold;"&gt;Required Inputs:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Spatially referenced genetic data formatted according to the SRGD.csv file format. Data can be for identified individuals or for genetic samples. &lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;Data will be automatically sorted into the categories Genetic, Identification, Location and Other. The user should look to make sure the appropriate fields are categorized correctly. If changes are needed, the user can un-check and/or re-check data fields where appropriate.&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN /&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;NOTE: The SRGD.csv format includes the &lt;/SPAN&gt;&lt;SPAN STYLE="font-style:italic;"&gt;minimum &lt;/SPAN&gt;&lt;SPAN&gt;data requirements for basic &lt;/SPAN&gt;&lt;SPAN STYLE="font-style:italic;"&gt;geneGIS &lt;/SPAN&gt;&lt;SPAN&gt;functionality. Additional data can be included.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P&gt;&lt;SPAN STYLE="font-weight:bold;"&gt;Optional Inputs:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;If known, a spatial reference for the point data (recommended).&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN /&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN&gt;NOTE: The default spatial reference is Geographic WGS 1984.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P&gt;&lt;SPAN STYLE="font-weight:bold;"&gt;Outputs:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A new file geodatabase (if one does not already exist).&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A new feature class located within the file geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A copy of the data in a table located within the file geodatabase.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P /&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</summary><usage>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This script tool can be used to import spatially referenced genetic data into a feature class that is viewable in ArcGIS.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</usage></tool><mdHrLv><ScopeCd value="005" /></mdHrLv></metadata>

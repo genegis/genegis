@@ -6,6 +6,9 @@ import re
 import sys
 import time
 
+import xml.etree.cElementTree as et
+import glob
+
 import arcpy
 
 # enable local imports; allow importing both this directory and one above
@@ -38,6 +41,25 @@ def selected_layer():
         elif config.settings.fc_path != '':
             selected_layer = config.settings.fc_path
     return selected_layer
+
+# get rid of problematical tags for revision control.
+def metadata(update=True):
+    if not update:
+        try:
+            pyt_xmls = glob.glob(os.path.join(local_path, "*.pyt.xml"))
+            for xml_path in pyt_xmls:
+                tree = et.parse(xml_path)
+                esri = tree.find('Esri')
+                mod_date = esri.find('ModDate')
+                mod_time = esri.find('ModTime')
+                if mod_date is not None:
+                    esri.remove(mod_date)
+                if mod_time is not None:
+                    esri.remove(mod_time)
+                tree.write(xml_path)
+        except Exception as e:
+            pass
+
 
 class Toolbox(object):
     def __init__(self):
@@ -82,6 +104,9 @@ class ClassifiedImport(object):
             'Location': 7,
             'Other': 8
         }
+        # one of the tools needs to have the metadata deletion call included in it. If it's done elsewhere
+        # in the script, the script state isn't correct and the ModTime and ModDate fields will remain.
+        metadata(update=False)
 
     def getParameterInfo(self):
         # SRGD_Input_File

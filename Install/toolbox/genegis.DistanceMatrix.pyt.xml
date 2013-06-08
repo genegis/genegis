@@ -1,92 +1,15 @@
-<?xml version="1.0"?>
-<metadata xml:lang="en">
-  <Esri>
-    <CreaDate>20130526</CreaDate>
-    <CreaTime>12494300</CreaTime>
-    <ArcGISFormat>1.0</ArcGISFormat>
-    <SyncOnce>TRUE</SyncOnce>
-    <ModDate>20130608</ModDate>
-    <ModTime>030103</ModTime>
-    <scaleRange>
-      <minScale>150000000</minScale>
-      <maxScale>5000</maxScale>
-    </scaleRange>
-    <ArcGISProfile>ItemDescription</ArcGISProfile>
-  </Esri>
-  <dataIdInfo>
-    <idCitation>
-      <resTitle>Geographic Distance Matrix</resTitle>
-    </idCitation>
-    <idAbs>&lt;DIV
-    STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Computes
-    a full pairwise distance matrix between all input locations.
-    Calculations are performed using &lt;/SPAN&gt;&lt;A
-    href="http://en.wikipedia.org/wiki/Vincenty's_formulae"&gt;&lt;SPAN&gt;Vincenty's
-    formulae&lt;/SPAN&gt;&lt;/A&gt;&lt;SPAN&gt;, accurate to within
-    0.5mm.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</idAbs>
-    <idCredit>Created by the geneGIS team: Dori Dick, Shaun
-    Walbridge, Scott Baker, Dawn Wright</idCredit>
-    <searchKeys>
-      <keyword>analysis</keyword>
-      <keyword>geodesic</keyword>
-      <keyword>matrix</keyword>
-      <keyword>distance</keyword>
-    </searchKeys>
-  </dataIdInfo>
-  <distInfo>
-    <distributor>
-      <distorFormat>
-        <formatName>ArcToolbox Tool</formatName>
-      </distorFormat>
-    </distributor>
-  </distInfo>
-  <tool name="DistanceMatrix"
-  displayname="Geographic Distance Matrix" toolboxalias=""
-  xmlns="">
-    <parameters>
-      <param name="Input_Feature_Class" displayname="Feature Class"
-      type="Required" direction="Input" datatype="Feature Layer"
-      expression="Input_Feature_Class">
-        <dialogReference>&lt;DIV
+<metadata xml:lang="en"><Esri><CreaDate>20130526</CreaDate><CreaTime>12494300</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce><scaleRange><minScale>150000000</minScale><maxScale>5000</maxScale></scaleRange><ArcGISProfile>ItemDescription</ArcGISProfile></Esri><dataIdInfo><idCitation><resTitle>Geographic Distance Matrix</resTitle></idCitation><idAbs>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Computes a full pairwise distance matrix between all input locations. Calculations are performed using &lt;/SPAN&gt;&lt;A href="http://en.wikipedia.org/wiki/Vincenty's_formulae"&gt;&lt;SPAN&gt;Vincenty's formulae&lt;/SPAN&gt;&lt;/A&gt;&lt;SPAN&gt;, accurate to within 0.5mm.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</idAbs><idCredit>Created by the geneGIS team: Dori Dick, Shaun Walbridge, Scott Baker, Dawn Wright</idCredit><searchKeys><keyword>analysis</keyword><keyword>geodesic</keyword><keyword>matrix</keyword><keyword>distance</keyword></searchKeys></dataIdInfo><distInfo><distributor><distorFormat><formatName>ArcToolbox Tool</formatName></distorFormat></distributor></distInfo><tool displayname="Geographic Distance Matrix" name="DistanceMatrix" toolboxalias=""><parameters><param datatype="Feature Layer" direction="Input" displayname="Feature Class" expression="Input_Feature_Class" name="Input_Feature_Class" type="Required"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Input
         points to be used for distance
-        calculations.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-      <param name="Distance_Units" displayname="Distance Units"
-      type="Required" direction="Input" datatype="String"
-      expression="Kilometers | Meters | Decimeter | Centimeters | Millimeters | Nautical miles | Miles | Yards | Feet | Inches">
-
-        <dialogReference>&lt;DIV
+        calculations.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param><param datatype="String" direction="Input" displayname="Distance Units" expression="Kilometers | Meters | Decimeter | Centimeters | Millimeters | Nautical miles | Miles | Yards | Feet | Inches" name="Distance_Units" type="Required"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Preferred
         units for the distance matrix. Calculations are performed
         internally in meters, but can be converted as needed via
         this
-        parameter.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-      <param name="Matrix_Type" displayname="Matrix Type"
-      type="Required" direction="Input" datatype="String"
-      expression="Square | Square (SPAGeDi formatted)" />
-      <param name="Output_Matrix" displayname="Output Matrix"
-      type="Required" direction="Output" datatype="File"
-      expression="Output_Matrix">
-        <dialogReference>&lt;DIV
+        parameter.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param><param datatype="String" direction="Input" displayname="Matrix Type" expression="Square | Square (SPAGeDi formatted)" name="Matrix_Type" type="Required" /><param datatype="File" direction="Output" displayname="Output Matrix" expression="Output_Matrix" name="Output_Matrix" type="Required"><dialogReference>&lt;DIV
         STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;The
         resulting distance matrix, output as a comma separated
         value (CSV) file. The first row and column both contain the
         identifiers of the input dataset, which are defined by the
         OBJECT_ID field within the input data layer by
-        default.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
-      </param>
-    </parameters>
-    <summary>&lt;DIV
-    STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Computes
-    a full pairwise distance matrix between all input locations.
-    Calculations are performed using &lt;/SPAN&gt;&lt;A
-    href="http://en.wikipedia.org/wiki/Vincenty's_formulae"&gt;&lt;SPAN&gt;Vincenty's
-    formulae&lt;/SPAN&gt;&lt;/A&gt;&lt;SPAN&gt;, accurate to within
-    0.5mm.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</summary>
-  </tool>
-  <mdHrLv>
-    <ScopeCd value="005"></ScopeCd>
-  </mdHrLv>
-</metadata>
+        default.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param></parameters><summary>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Computes a full pairwise distance matrix between all input locations. Calculations are performed using &lt;/SPAN&gt;&lt;A href="http://en.wikipedia.org/wiki/Vincenty's_formulae"&gt;&lt;SPAN&gt;Vincenty's formulae&lt;/SPAN&gt;&lt;/A&gt;&lt;SPAN&gt;, accurate to within 0.5mm.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</summary></tool><mdHrLv><ScopeCd value="005" /></mdHrLv></metadata>
