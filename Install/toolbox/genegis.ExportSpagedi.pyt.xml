@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <metadata xml:lang="en">
   <Esri>
-    <CreaDate>20130507</CreaDate>
-    <CreaTime>19371200</CreaTime>
+    <CreaDate>20130603</CreaDate>
+    <CreaTime>19263900</CreaTime>
     <ArcGISFormat>1.0</ArcGISFormat>
     <SyncOnce>TRUE</SyncOnce>
-    <ModDate>20130507</ModDate>
-    <ModTime>193712</ModTime>
+    <ModDate>20130608</ModDate>
+    <ModTime>030104</ModTime>
   </Esri>
   <dataIdInfo>
     <idCitation>
-      <resTitle>Export to Genepop</resTitle>
+      <resTitle>Export to SPAGeDi</resTitle>
     </idCitation>
   </dataIdInfo>
   <distInfo>
@@ -20,7 +20,7 @@
       </distorFormat>
     </distributor>
   </distInfo>
-  <tool name="exportToGenepop" displayname="Export to Genepop"
+  <tool name="ExportSpagedi" displayname="Export to SPAGeDi"
   toolboxalias="">
     <parameters>
       <param name="Input_Feature_Class"
@@ -28,12 +28,11 @@
       direction="Input" datatype="Feature Layer"
       expression="Input_Feature_Class" />
       <param name="Where_Clause" displayname="Where Clause"
-      type="Optional" direction="Input" datatype="SQL Expression"
+      type="Optional" direction="Output" datatype="SQL Expression"
       expression="{Where_Clause}" />
-      <param name="Attribute_Field_to_order_by_population_"
-      displayname="Attribute Field (to order by population)"
+      <param name="Population Field" displayname="Population Field"
       type="Required" direction="Input" datatype="Field"
-      expression="Attribute_Field_to_order_by_population_" />
+      expression="Population Field" />
       <param name="Output_File" displayname="Output File"
       type="Required" direction="Output" datatype="File"
       expression="Output_File" />

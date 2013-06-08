@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata xml:lang="en">
+  <Esri>
+    <CreaDate>20130603</CreaDate>
+    <CreaTime>19263800</CreaTime>
+    <ArcGISFormat>1.0</ArcGISFormat>
+    <SyncOnce>TRUE</SyncOnce>
+    <ModDate>20130608</ModDate>
+    <ModTime>030103</ModTime>
+  </Esri>
+  <dataIdInfo>
+    <idCitation>
+      <resTitle>Genetic Analysis - F_st</resTitle>
+    </idCitation>
+  </dataIdInfo>
+  <distInfo>
+    <distributor>
+      <distorFormat>
+        <formatName>ArcToolbox Tool</formatName>
+      </distorFormat>
+    </distributor>
+  </distInfo>
+  <tool name="SpagediFst" displayname="Genetic Analysis - F_st"
+  toolboxalias="">
+    <parameters>
+      <param name="Input_Feature_Class" displayname="Feature Class"
+      type="Required" direction="Input" datatype="Feature Layer"
+      expression="Input_Feature_Class" />
+      <param name="Population Field" displayname="Population Field"
+      type="Required" direction="Input" datatype="Field"
+      expression="Population Field" />
+      <param name="Analysis_Type" displayname="Analysis Type"
+      type="Required" direction="Input" datatype="String"
+      expression="Jacknifing" />
+      <param name="Output_File" displayname="Output Results File"
+      type="Required" direction="Output" datatype="File"
+      expression="Output_File" />
+    </parameters>
+  </tool>
+</metadata>

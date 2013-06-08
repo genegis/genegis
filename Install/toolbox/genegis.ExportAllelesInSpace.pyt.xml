@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata xml:lang="en">
+  <Esri>
+    <CreaDate>20130606</CreaDate>
+    <CreaTime>01551500</CreaTime>
+    <ArcGISFormat>1.0</ArcGISFormat>
+    <SyncOnce>FALSE</SyncOnce>
+    <ModDate>20130608</ModDate>
+    <ModTime>030103</ModTime>
+  </Esri>
+  <dataIdInfo>
+    <idCitation>
+      <resTitle>Export to Alleles In Space</resTitle>
+    </idCitation>
+  </dataIdInfo>
+  <distInfo>
+    <distributor>
+      <distorFormat>
+        <formatName>ArcToolbox Tool</formatName>
+      </distorFormat>
+    </distributor>
+  </distInfo>
+  <tool name="ExportAllelesInSpace"
+  displayname="Export to Alleles In Space" toolboxalias="">
+    <parameters>
+      <param name="Input_Feature_Class"
+      displayname="Input Feature Class" type="Required"
+      direction="Input" datatype="Feature Layer"
+      expression="Input_Feature_Class" />
+      <param name="Sample ID Field" displayname="Sample ID Field"
+      type="Required" direction="Input" datatype="Field"
+      expression="Sample ID Field" />
+      <param name="Where_Clause" displayname="Where Clause"
+      type="Optional" direction="Output" datatype="SQL Expression"
+      expression="{Where_Clause}" />
+      <param name="Output_Coordinates"
+      displayname="Output Coordinates File" type="Required"
+      direction="Output" datatype="File"
+      expression="Output_Coordinates" />
+      <param name="Output_Genetics"
+      displayname="Output Genetics File" type="Required"
+      direction="Output" datatype="File"
+      expression="Output_Genetics" />
+    </parameters>
+  </tool>
+</metadata>

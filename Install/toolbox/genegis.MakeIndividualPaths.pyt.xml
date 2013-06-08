@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata xml:lang="en">
+  <Esri>
+    <CreaDate>20130605</CreaDate>
+    <CreaTime>17094200</CreaTime>
+    <ArcGISFormat>1.0</ArcGISFormat>
+    <SyncOnce>TRUE</SyncOnce>
+    <ModDate>20130608</ModDate>
+    <ModTime>030103</ModTime>
+  </Esri>
+  <dataIdInfo>
+    <idCitation>
+      <resTitle>Individual Paths</resTitle>
+    </idCitation>
+  </dataIdInfo>
+  <distInfo>
+    <distributor>
+      <distorFormat>
+        <formatName>ArcToolbox Tool</formatName>
+      </distorFormat>
+    </distributor>
+  </distInfo>
+  <tool name="MakeIndividualPaths" displayname="Individual Paths"
+  toolboxalias="">
+    <parameters>
+      <param name="Selected_Feature_Class"
+      displayname="Selected Individuals" type="Required"
+      direction="Input" datatype="Feature Layer"
+      expression="Selected_Feature_Class" />
+      <param name="Source_Feature_Class"
+      displayname="Source features (to link with selected individuals)"
+      type="Required" direction="Input" datatype="Feature Layer"
+      expression="Source_Feature_Class" />
+      <param name="Output_Feature_Class"
+      displayname="Output Pathsfeatures" type="Required"
+      direction="Output" datatype="String"
+      expression="Output_Feature_Class" />
+    </parameters>
+  </tool>
+</metadata>
