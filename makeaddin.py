@@ -14,6 +14,9 @@ backup_patterns = {
     'TODO_PATTERN': re.compile('todo.txt')
 }
 
+skip_base = ['Install\\toolbox\\arcobjects']
+skip_paths = [os.path.join(current_path, s) for s in skip_base]
+
 def looks_like_a_backup(filename):
     is_backup = False
     for name, pattern in backup_patterns.items():
@@ -27,6 +30,14 @@ for filename in ('config.xml', 'README.md', 'makeaddin.py'):
 dirs_to_add = ['Images', 'Install']
 for directory in dirs_to_add:
     for (path, dirs, files) in os.walk(os.path.join(current_path, directory)):
+        skip = False
+        for skip_path in skip_paths:
+            if path.find(skip_path) != -1:
+                skip = True
+        if skip:
+            # skip this directory
+            continue
+
         archive_path = os.path.relpath(path, current_path)
         found_file = False
         for file in (f for f in files if not looks_like_a_backup(f)):
