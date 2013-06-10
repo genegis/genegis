@@ -141,7 +141,7 @@ def extentPolygon(extent, source_layer=None):
 def selectIndividuals(output_feature, display=False):
     res = {}
     fields = [f.name for f in arcpy.ListFields(output_feature)]
-    if config.id_field in fields:
+    if config.settings.id_field in fields:
         cur = arcpy.da.SearchCursor(output_feature, (config.id_field))
         individuals = [row[0] for row in cur]
         unique_individuals = set(individuals)
