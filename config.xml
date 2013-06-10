@@ -73,8 +73,51 @@
           message="Export data to a SRGD formatted table (CSV). Useful for uploading data to Shepard Project sites."
           tip="">
           <Help heading="" />
-      </Button>
+        </Button>
 
+        <!-- Genetics Analysis tools-->
+        <Button
+          caption="Calculate F-statistics"
+          category="geneGIS"
+          class="calculateFst"
+          id="genegis_calculate_fst.button"
+          image=""
+          message=""
+          tip="">
+          <Help heading="" />
+        </Button>
+
+        <!-- Geographic Analysis tools-->
+        <Button
+          caption="Compute Distance Matrix"
+          category="geneGIS"
+          class="computeDistanceMatrix"
+          id="genegis_distance_matrix.button"
+          image=""
+          message=""
+          tip="">
+          <Help heading="" />
+        </Button>
+        <Button
+          caption="Compute Distance Paths"
+          category="geneGIS"
+          class="computeDistancePaths"
+          id="genegis_distance_paths.button"
+          image=""
+          message=""
+          tip="">
+          <Help heading="" />
+        </Button>
+        <Button
+          caption="Individual Paths"
+          category="geneGIS"
+          class="individualPaths"
+          id="genegis_individual_paths.button"
+          image=""
+          message=""
+          tip="">
+          <Help heading="" />
+        </Button>
 
         <!-- Summarization tools -->
         <Button
@@ -164,7 +207,8 @@
           id="genegis_addin.toolbar"
           showInitially="true">
           <Items>
-            <Menu refID="genegis_addin.menu" />
+            <Menu refID="genegis_addin.data_menu" />
+            <Menu refID="genegis_addin.analysis_menu" />
             <ComboBox refID="genegis_layer_combo.combobox" />
             <!-- disable
             <Menu refID="genegis_encounters.menu" />
@@ -195,7 +239,7 @@
         <Menu
           caption="Manage Data"
           category="geneGIS"
-          id="genegis_addin.menu"
+          id="genegis_addin.data_menu"
           isRootMenu="false"
           isShortcutMenu="false"
           separator="false">
@@ -204,6 +248,45 @@
             <Menu refID="genegis_addin.menu_export" />
           </Items>
         </Menu>
+        <Menu
+          caption="Genetics"
+          category="geneGIS"
+          id="genegis_addin.menu_genetics"
+          isRootMenu="false"
+          isShortcutMenu="false"
+          separator="false">
+          <Items>
+            <Button refID="genegis_calculate_fst.button" />
+          </Items>
+        </Menu>
+        <Menu
+          caption="Geographic"
+          category="geneGIS"
+          id="genegis_addin.menu_geographic"
+          isRootMenu="false"
+          isShortcutMenu="false"
+          separator="false">
+          <Items>
+            <Button refID="genegis_distance_matrix.button" />
+            <Button refID="genegis_distance_paths.button" />
+            <Button refID="genegis_individual_paths.button" />
+            <Button refID="genegis_extract_values_to_points.button" />
+          </Items>
+        </Menu>
+ 
+        <Menu
+          caption="Analysis"
+          category="geneGIS"
+          id="genegis_addin.analysis_menu"
+          isRootMenu="false"
+          isShortcutMenu="false"
+          separator="false">
+          <Items>
+            <Menu refID="genegis_addin.menu_genetics" />
+            <Menu refID="genegis_addin.menu_geographic" />
+          </Items>
+        </Menu>
+ 
         <!-- disable this additional menu for the time-being.
         <Menu
           caption="Select"

@@ -74,6 +74,42 @@ class ExportSRGD(object):
             #f.write("got output_path = `%s`\n" % output_path)
             utils.writeToSRGD(fc, output_path)
 
+# genetic analysis tools
+#
+class calculateFst(object):
+    """Implementation for genegis_calculate_fst.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        utils.toolDialog(genegis_toolbox, "SpagediFst")
+
+# geographic analysis tools
+#
+class computeDistanceMatrix(object):
+    """Implementation for genegis_calculate_fst.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        utils.toolDialog(genegis_toolbox, "DistanceMatrix")
+
+class computeDistancePaths(object):
+    """Implementation for genegis_calculate_fst.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        utils.toolDialog(genegis_toolbox, "ShortestDistancePaths")
+
+class individualPaths(object):
+    """Implementation for genegis_calculate_fst.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        utils.toolDialog(genegis_toolbox, "MakeIndividualPaths")
+ 
 # summarization tools
 #
 
