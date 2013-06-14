@@ -131,6 +131,31 @@
           <Help heading="" />
         </Button>
 
+        <!-- Help -->
+        <Button
+          caption="geneGIS homepage"
+          category="geneGIS"
+          class="helpWebsiteHome"
+          id="genegis_website_home.button"
+          image=""
+          message="Visit the geneGIS website for updates."
+          tip="">
+          <Help heading="" />
+        </Button>
+
+        <Button
+          caption="geneGIS documentation"
+          category="geneGIS"
+          class="helpWebsiteDocs"
+          id="genegis_website_docs.button"
+          image=""
+          message="Online documentation for geneGIS."
+          tip="">
+          <Help heading="" />
+        </Button>
+
+
+
         <!-- Summarization tools -->
         <Button
           caption="Extract Raster Values"
@@ -219,8 +244,7 @@
           id="genegis_addin.toolbar"
           showInitially="true">
           <Items>
-            <Menu refID="genegis_addin.data_menu" />
-            <Menu refID="genegis_addin.analysis_menu" />
+            <Menu refID="genegis_addin.main_menu" />
             <ComboBox refID="genegis_layer_combo.combobox" />
             <!-- disable
             <Menu refID="genegis_encounters.menu" />
@@ -234,6 +258,22 @@
       </Toolbars>
 
       <Menus>
+        <Menu
+          caption="geneGIS"
+          category="geneGIS"
+          id="genegis_addin.main_menu"
+          isRootMenu="true"
+          isShortcutMenu="false"
+          separator="false">
+          <Items>
+            <Button refID="genegis_import.button" />
+            <Menu refID="genegis_addin.menu_export" />
+            <Menu refID="genegis_addin.menu_genetics" />
+            <Menu refID="genegis_addin.menu_geographic" />
+            <Menu refID="genegis_addin.menu_help" />
+          </Items>
+        </Menu>
+ 
         <Menu
           caption="Export"
           category="geneGIS"
@@ -260,10 +300,11 @@
           <Items>
             <Button refID="genegis_import.button" />
             <Menu refID="genegis_addin.menu_export" />
-          </Items>
+         </Items>
         </Menu>
+        -->
         <Menu
-          caption="Genetics"
+          caption="Genetic Analysis"
           category="geneGIS"
           id="genegis_addin.menu_genetics"
           isRootMenu="false"
@@ -274,7 +315,7 @@
           </Items>
         </Menu>
         <Menu
-          caption="Geographic"
+          caption="Geographic Analysis"
           category="geneGIS"
           id="genegis_addin.menu_geographic"
           isRootMenu="false"
@@ -287,7 +328,20 @@
             <Button refID="genegis_extract_values_to_points.button" />
           </Items>
         </Menu>
- 
+         <Menu
+          caption="Help"
+          category="geneGIS"
+          id="genegis_addin.menu_help"
+          isRootMenu="false"
+          isShortcutMenu="false"
+          separator="false">
+          <Items>
+            <Button refID="genegis_website_home.button" />
+            <Button refID="genegis_website_docs.button" />
+          </Items>
+        </Menu>
+        
+        <!-- 
         <Menu
           caption="Analysis"
           category="geneGIS"
@@ -300,7 +354,7 @@
             <Menu refID="genegis_addin.menu_geographic" />
           </Items>
         </Menu>
- 
+         --> 
         <!-- disable this additional menu for the time-being.
         <Menu
           caption="Select"

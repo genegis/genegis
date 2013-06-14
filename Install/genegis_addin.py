@@ -1,5 +1,7 @@
 import os
 import sys
+import webbrowser
+from threading import Thread
 
 import arcpy
 import pythonaddins
@@ -116,7 +118,35 @@ class individualPaths(object):
         self.checked = False
     def onClick(self):
         utils.toolDialog(genegis_toolbox, "MakeIndividualPaths")
- 
+# help
+#
+
+def OpenBrowserURL(target_url):
+    webbrowser.open(target_url,new=2)
+
+class helpWebsiteHome(object):
+    """Implementation for genegis_website_home.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        target_url = "http://genegis.org"
+        t = Thread(target=OpenBrowserURL, args=[target_url])
+        t.start()
+        t.join()
+
+class helpWebsiteDocs(object):
+    """Implementation for genegis_website_home.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        target_url = "http://genegis.org/documentation.html"
+        t = Thread(target=OpenBrowserURL, args=[target_url])
+        t.start()
+        t.join()
+
+
 # summarization tools
 #
 
