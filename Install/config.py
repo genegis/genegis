@@ -109,11 +109,6 @@ distance_units = OrderedDict([
     ('Inches',        ('in', 'inches', 39.3701))
 ])
 
-# XXX Settings below imported from toolbox/scripts/config.py
-
-# same thing, as string; used by geoprocessing tools.
-DEFAULT_SR = sr.exportToString()
-
 primary_results = None
 
 # hack: share state on which columns should be protected against data manipulation

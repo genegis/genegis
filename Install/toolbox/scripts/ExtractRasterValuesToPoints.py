@@ -68,7 +68,7 @@ if __name__=='__main__':
     defaults_tuple = (
         ('input_table',
         "C:\\geneGIS\\WorkingFolder\\SRGD_Photo_GeneSPLASH_CentAM_CA_OR_Feb12_v3.csv"),
-        ('sr', DEFAULT_SR),
+        ('sr', config.sr.exportToString()),
     )
 
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)

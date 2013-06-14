@@ -45,7 +45,7 @@ def main(input_table=None, sr=None, output_loc=None,
     # check if we received a value spatial reference -- if not, use WGS84.
     if sr in ('', None):
         # default spatial reference can be redefined.
-        sr = config.DEFAULT_SR
+        sr = config.sr
 
     try:
         # only try to create this GDB if it doesn't already exist.
@@ -224,7 +224,7 @@ if __name__=='__main__':
     defaults_tuple = (
         ('input_table',
         "C:\\geneGIS\\WorkingFolder\\SRGD_Photo_GeneSPLASH_CentAM_CA_OR_Feb12_v3.csv"),
-        ('sr', config.DEFAULT_SR),
+        ('sr', config.sr.exportToString()),
         ('output_loc', "C:\\geneGIS\\WorkingFolder"),
         ('output_gdb', "PG_SPLASH_Subset2"),
         ('output_fc', "TestFC"),
