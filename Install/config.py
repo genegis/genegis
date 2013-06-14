@@ -35,10 +35,12 @@ def load(config_path, app_name):
 app_name = 'geneGIS'
 # make a configuration directory if needed
 config_dir = os.path.join(os.environ['APPDATA'], app_name)
-config_path = os.path.join(config_dir, "%s.cfg" % app_name)
+config_path = os.path.join(config_dir, "{}.cfg".format(app_name))
+log_path = os.path.join(config_dir, "{}.log".format(app_name))
 
 config_vars = {
-    'fc_path': None, # path to the imported feature class
+    'fc_path': None, # path to the imported feature class,
+    'haplotype_path': None,
     'identification_columns': None,
     'genetic_columns': None, 
     'location_columns': None, 
