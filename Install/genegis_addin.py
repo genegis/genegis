@@ -27,6 +27,13 @@ class ImportData(object):
     def onClick(self):
         utils.toolDialog(genegis_toolbox, "ClassifiedImport")
 
+class ExportAIS(object):
+    """Implementation for genegis_export_ais.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        utils.toolDialog(genegis_toolbox, "ExportAllelesInSpace")
 
 class ExportGenAlEx(object):
     """Implementation for genegis_export_genalex.button (Button)"""

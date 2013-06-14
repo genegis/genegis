@@ -30,7 +30,19 @@
           <Help heading="" />
       </Button>
 
-        <!-- Export -->
+      <!-- Export -->
+        <Button
+          caption="Export to Alleles in Space"
+          category="geneGIS"
+          class="ExportAIS"
+          id="genegis_export_ais.button"
+          image=""
+          message="Export data to Alleles in Space. Can convert the entire dataset, or a comparison of populations based on a selection."
+          tip="">
+          <Help heading="" />
+        </Button>
+
+
         <Button
           caption="Export to GenAlEx"
           category="geneGIS"
@@ -230,12 +242,14 @@
           isShortcutMenu="false"
           separator="false">
           <Items>
+            <Button refID="genegis_export_ais.button" />
             <Button refID="genegis_export_genalex.button" />
             <Button refID="genegis_export_genepop.button" />
             <Button refID="genegis_export_kml.button" />
             <Button refID="genegis_export_srgd.button" />
           </Items>
         </Menu>
+        <!--
         <Menu
           caption="Manage Data"
           category="geneGIS"
