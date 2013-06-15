@@ -220,7 +220,52 @@ class CompareEncounters(object):
         # now, get the results from the summarize encounters tool
         # XXX: ss = SummarizeEncounters()
         # XXX: ss.onRectangle() # doesn't work; won't get the geom
-         
+
+        # NOW: ADD THESE SELECTION RESULTS BACK TO THE TABLE
+        """
+        fields = arcpy.ListFields(layer.dataSource)
+
+        try:
+            field_name = 'Selected_Populations'
+            if field_name not in fields:
+                with open(config.log_path, 'a') as f:
+                    f.write("trying to add %s to %s\n" % (field_name, layer.dataSource))
+               
+                arcpy.AddField_management(layer.dataSource, field_name, 'SHORT')
+            #utils.msg("Added a formatted date field: {field_name}.".format(field_name=field_name))
+            with open(config.log_path, 'a') as f:
+                f.write("trying to add %s to %s\n" % (field_name, layer.dataSource))
+           
+            if config.primary_results is None:
+                pythonaddins.MessageBox("please make first selection before running this tool", "requires primary selection")
+                return None
+
+            first_pop = config.primary_results['indiv_stats']['unique']
+            second_pop = res2['unique']
+            #pythonaddins.MessageBox("got %i in pop1, %i in pop2" % (len(first_pop), len(second_pop)), "pop compare")
+            with arcpy.da.UpdateCursor(layer, [config.settings.id_field, field_name]) as cur:
+                for row in cur:
+                    indiv = row[0]
+                    if indiv in first_pop and indiv in second_pop:
+                        pop = 3
+                    elif indiv in second_pop:
+                        pop = 2
+                    elif indiv in first_pop:
+                        pop = 1
+                    else:
+                        pop = None
+                    row[1] = pop
+                    cur.updateRow(row)
+                        
+        except Exception as e:
+            msg = "Error adding Selected_Populations column."
+            title = "Compare Encounters: Selecting Populations"
+            with open(config.log_path, 'a') as f:
+                f.write("generated Exception: %s\n" % e)
+
+            pythonaddins.MessageBox(msg, title)
+            return None
+        """
         if self.display:
             if config.primary_results is not None:
                 res = config.primary_results['indiv_stats']
@@ -280,6 +325,6 @@ class geneGISExtension(object):
 
     def itemAdded(self, new_item):
         lc = LayerCombo()
-        val = util.loadDefaultLayer()
+        val = utils.loadDefaultLayer()
         lc.value = val
         lc.refresh()
