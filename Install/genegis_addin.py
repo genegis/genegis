@@ -217,11 +217,8 @@ class CompareEncounters(object):
 
         res2 = utils.selectIndividuals(output_feature, False)
 
-        # now, get the results from the summarize encounters tool
-        # XXX: ss = SummarizeEncounters()
-        # XXX: ss.onRectangle() # doesn't work; won't get the geom
-
-        # NOW: ADD THESE SELECTION RESULTS BACK TO THE TABLE
+        # XXX now, get the results from the summarize encounters tool,
+        # and add these selection results back to the table
         """
         fields = arcpy.ListFields(layer.dataSource)
 
