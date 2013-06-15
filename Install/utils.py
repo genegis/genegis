@@ -142,7 +142,7 @@ def selectIndividuals(output_feature, display=False):
     res = {}
     fields = [f.name for f in arcpy.ListFields(output_feature)]
     if config.settings.id_field in fields:
-        cur = arcpy.da.SearchCursor(output_feature, (config.id_field))
+        cur = arcpy.da.SearchCursor(output_feature, (config.settings.id_field))
         individuals = [row[0] for row in cur]
         unique_individuals = set(individuals)
         res = {'indiv' : individuals, 'unique' : unique_individuals}
