@@ -3,12 +3,12 @@
 <!-- project properties -->
   <Name>geneGIS</Name>
   <AddInID>{80845348-ba29-47c5-af34-e224df7c633b}</AddInID>
-  <Description>geographic context for genetic data</Description>
-  <Version>0.1</Version>
+  <Description>Geographic context for genetic data</Description>
+  <Version>0.2</Version>
   <Image>Images\splash-movement-cropped.png</Image>
   <Author>geneGIS team</Author>
   <Company>OSU, Esri</Company>
-  <Date>09/08/2012</Date>
+  <Date>06/15/2013</Date>
 
 <Targets>
   <Target name="Desktop" version="10.1" />
@@ -41,7 +41,6 @@
           tip="">
           <Help heading="" />
         </Button>
-
 
         <Button
           caption="Export to GenAlEx"
@@ -154,8 +153,6 @@
           <Help heading="" />
         </Button>
 
-
-
         <!-- Summarization tools -->
         <Button
           caption="Extract Raster Values"
@@ -167,7 +164,6 @@
           tip="">
           <Help heading="" />
         </Button>
-
 
         <Tool
           caption="Summarize Encounters"
@@ -340,7 +336,7 @@
             <Button refID="genegis_website_docs.button" />
           </Items>
         </Menu>
-        
+
         <!-- 
         <Menu
           caption="Analysis"
@@ -355,20 +351,6 @@
           </Items>
         </Menu>
          --> 
-        <!-- disable this additional menu for the time-being.
-        <Menu
-          caption="Select"
-          category="geneGIS"
-          id="genegis_encounters.menu"
-          isRootMenu="false"
-          isShortcutMenu="false"
-          separator="false">
-          <Items>
-            <Tool refID="genegis_addin.tool" />
-            <Tool refID="genegis_addin.tool_1" />
-          </Items>
-        </Menu>
-        -->
        </Menus>
 
     </ArcMap>
