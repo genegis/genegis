@@ -5,6 +5,15 @@ A Python Add-in and ArcGIS toolbox for manipulating individual-based genetic rec
 
 [http://genegis.org](http://genegis.org)
 
+
+Installation
+------------
+
+Use the [install page](http://genegis.org/install.html) to get a packaged release.
+
+To get the latest source, clone this repository, and run `makeaddin.py` to create an
+installable genegis.esriaddin file.
+
 Tools
 -----
 
