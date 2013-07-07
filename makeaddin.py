@@ -24,7 +24,7 @@ def looks_like_a_backup(filename):
             is_backup = True
     return is_backup
 
-zip_file = zipfile.ZipFile(out_zip_name, 'w')
+zip_file = zipfile.ZipFile(out_zip_name, 'w', zipfile.ZIP_DEFLATED)
 for filename in ('config.xml', 'README.md', 'makeaddin.py'):
     zip_file.write(os.path.join(current_path, filename), filename)
 dirs_to_add = ['Images', 'Install']
