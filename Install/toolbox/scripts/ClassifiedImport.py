@@ -36,7 +36,7 @@ import config
 def main(input_table=None, sr=None, output_loc=None,
     output_gdb=None, output_fc=None, genetic=None,
     identification=None, location=None, other=None,
-    mode=config.settings.mode, protected_map=None):
+    mode=config.settings.mode, protected_map=config.protected_columns):
 
     # First, create a geodatabase for all our future results.
     # TODO: can we generate this from a single value?
@@ -231,9 +231,7 @@ if __name__=='__main__':
         ('genetic', None),
         ('identification', None),
         ('location', None),
-        ('other', None),
-        ('protected_map', None)
+        ('other', None)
     )
-
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(mode='script', **defaults)
