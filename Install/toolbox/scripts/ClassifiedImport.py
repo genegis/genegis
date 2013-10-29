@@ -84,8 +84,8 @@ def main(input_table=None, sr=None, output_loc=None,
         
         # generate table name based on input name
         (label, ext) = os.path.splitext(os.path.basename(input_table))
-        
-        # Validate label will produce a valid table name
+      
+        # Validate label will produce a valid table name from our input file
         validated_label = arcpy.ValidateTableName(label)
 
         # write out our filtered table to ArcGIS
@@ -102,7 +102,7 @@ def main(input_table=None, sr=None, output_loc=None,
         utils.msg("Error converting table %s to GDB" % input_table, mtype='error', exception=e)
         sys.exit()
 
-    input_csv = os.path.join(gdb_path, label)
+    input_csv = os.path.join(gdb_path, validated_label)
     utils.msg("Table successfully imported: \n %s" % input_csv)
     fields = [f.name.lower() for f in arcpy.ListFields(input_csv)] 
 
@@ -139,6 +139,7 @@ def formatDate(input_date):
           
         # 'location', ArcGIS passes semicolon separated values
         loc_parts = location.split(";")
+
         # TODO: ArcGIS doesn't preserve order; do we need separate fields for these? or some other approach?
         if loc_parts[0].lower() in ['x', 'longitude', 'lon']:
             (x, y) = loc_parts
