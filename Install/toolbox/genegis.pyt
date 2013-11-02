@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import csv
 import os
 import re
 import sys
