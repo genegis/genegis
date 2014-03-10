@@ -46,11 +46,12 @@ config_vars = {
     'location_columns': None, 
     'other_columns': None, 
     'id_field': 'Individual_ID', # id field, records are unique on this identifier. 
-    'mode': 'toolbox', # default mode for tools. Expect tools to be run from a 
-                      # Python toolbox, not the command-line by default.
-    'srid':  4326 # the default spatial reference for data which is geographic,
+    'srid':  4326, # the default spatial reference for data which is geographic,
                    # but otherwise unspecified. The vast majority of data 
                    # is WGS84 (SRID 4326), use it.
+    'mode': 'toolbox', # default mode for tools. Expect tools to be run from a 
+                      # Python toolbox, not the command-line by default.
+    'log_level': 'error' 
 }
 
 # initialize a basic configuration file.

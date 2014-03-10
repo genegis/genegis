@@ -36,8 +36,10 @@ import config
 def main(input_table=None, sr=None, output_loc=None,
     output_gdb=None, output_fc=None, genetic=None,
     identification=None, location=None, other=None,
-    mode=config.settings.mode, protected_map=config.protected_columns):
+    mode='toolbox', protected_map=config.protected_columns):
 
+    # set mode based on how script is called.
+    config.settings.mode = mode
     # First, create a geodatabase for all our future results.
     # TODO: can we generate this from a single value?
     gdb_path = os.path.abspath(os.path.join(output_loc, output_gdb + '.gdb'))
@@ -174,6 +176,8 @@ def formatDate(input_date):
         utils.msg("Error copying features to a feature class", mtype='error', exception=e)
         sys.exit()
 
+    utils.msg("Feature Class successfully created, your SRGD file has been imported!")
+
     # Because we can't pass around objects between this process and the calling
     # addin environment, dump out the settings to our shared configuration file.
     try:
@@ -215,7 +219,6 @@ def formatDate(input_date):
 
     # reset adding of outputs.
     arcpy.env.addOutputsToMap = add_outputs_default
-    utils.msg("Feature Class successfully created, your SRGD file has been imported!")
 
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':
