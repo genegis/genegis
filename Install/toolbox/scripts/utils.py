@@ -180,8 +180,10 @@ def parse_table(input_file):
                 dialect = sniffer.sniff(sample)
                 # reset reading
                 input_table.seek(0)
-            
-                table = csv.reader(input_table, dialect)
+                # for reading, rely on dialect parsing to correctly dermine 
+                # the input file's traits (e.g. proper quoting).
+                table = csv.reader(input_table, dialect=dialect)
+
                 # pull off the first line of the CSV
                 header = table.next()
                 data = []
@@ -222,7 +224,7 @@ def validate_table(input_file):
     temp_csv = os.path.join(temp_dir, tmp_fn)
 
     with open(temp_csv, 'wb') as output_file:
-        writer = csv.writer(output_file, dialect=dialect)
+        writer = csv.writer(output_file, dialect=dialect, quotechar='"', quoting=csv.QUOTE_ALL)
         writer.writerow(validated_header)
         for row in data:
             writer.writerow(row)
