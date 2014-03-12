@@ -292,11 +292,12 @@ def protect_columns(input_table_name=None, protected_columns={}):
     with open(schema_path, mode) as schema_file:
         header = "[{table_name}]\n".format(table_name=table_name)
         schema_file.write(header)
-        for (value, res_dict) in protected_columns.items():
-            (idx, data_type) = res_dict
-            col_label = "Col{idx}={value} {data_type}\n".format(
-                idx=idx, value=value, data_type=data_type)
-            schema_file.write(col_label)
+        if protected_columns:
+            for (value, res_dict) in protected_columns.items():
+                (idx, data_type) = res_dict
+                col_label = "Col{idx}={value} {data_type}\n".format(
+                    idx=idx, value=value, data_type=data_type)
+                schema_file.write(col_label)
 
     return schema_path
 
