@@ -74,6 +74,60 @@ class TestClassifiedImport(unittest.TestCase):
         arcpy.Delete_management(gdb_path)
         self.assertFalse(os.path.exists(gdb_path))
 
+class TestDistanceMatrix(unittest.TestCase):
+
+    def setUp(self):
+        dataloc = os.path.join(os.getcwd(), 'data', 'shapefiles')
+        self.output = os.path.join(os.getcwd(), 'TestFC')
+
+        # Test input shapefile (uploaded to Github)
+        # Todo: replace hard coded file names with something that
+        # is extensible and/or non-awful
+        inputfile = os.path.join(dataloc, 'lterBounds.shp')
+        self.inputpoints = os.path.join(dataloc, 'lterBounds_points.shp')
+        if arcpy.Exists(inputfile):
+            if not arcpy.Exists(self.inputpoints):
+                arcpy.FeatureToPoint_management(inputfile, self.inputpoints)
+
+    def testDistanceMatrixAvailable(self, method=DistanceMatrix):
+        self.assertTrue('main' in vars(method))
+
+    def testDistanceMatrixRun(self, method=DistanceMatrix):
+        # clean up from any past runs
+        arcpy.Delete_management(self.output)
+        
+        method.main(input_fc=self.inputpoints, dist_unit='Kilometers',
+                    matrix_type='Square', output_matrix='TestFC',
+                    mode='script')
+
+        # Some sanity checks for the distance matrix:
+        # - It must exist
+        # - The first row must contain point indices 1, 2, 3, ...
+        # - The first entry in each row should contain its point index
+        # - The diagonal entries should all be 0
+        # - All entries should be positive
+        # - There should be the same number of rows and columns
+        self.assertTrue(arcpy.Exists(self.output))
+        with open(self.output, 'rU') as outfile:
+            for i, line in enumerate(outfile):
+                row = line.strip().split(',')
+                if i == 0:
+                    self.assertListEqual(map(int, row[1:]), range(1, len(row)))
+                else:
+                    row = map(float, row)
+                    self.assertEqual(i, row[0])
+                    self.assertEqual(0, row[i])
+                    self.assertTrue(all([j >= 0 for j in row]))
+            self.assertEqual(i+1, len(row))
+
+    def testToolboxImport(self):
+        self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
+        self.assertTrue('DistanceMatrix' in vars(self.toolbox))
+
+    def testCleanup(self):
+        # clean up
+        arcpy.Delete_management(self.output)
+
 class TestQuotedMultilineInput(unittest.TestCase):
     
     def setUp(self):

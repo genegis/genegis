@@ -171,7 +171,6 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
             first_header_cell = ""
             sep = ","
 
-        import pdb; pdb.set_trace()
         with open(output_matrix, 'w') as csv:
             # initialize with our header row 
             output_rows = [[first_header_cell] + \
@@ -200,12 +199,11 @@ if __name__ == '__main__':
         ['matrix_type', 'Square'],
         ['output_matrix', "TestFC"],
     ]
-    
     test_input = r'C:\pasta2geonis\shapefiles\lterDomains_project.shp'
     if arcpy.Exists(test_input):
         test_input_points = r'C:\pasta2geonis\shapefiles\lterDomains_points.shp'
-        arcpy.FeatureToPoint_management(test_input, test_input_points)
+        if not arcpy.Exists(test_input_points):
+            arcpy.FeatureToPoint_management(test_input, test_input_points)
         defaults_list[0][1] = test_input_points
-
     defaults = utils.parameters_from_args(defaults_list, sys.argv)
     main(mode='script', **defaults)

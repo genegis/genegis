@@ -6,7 +6,7 @@
 		<SyncOnce>TRUE</SyncOnce>
 		</Esri>
 	<toolbox alias="" name="genegis">
-		<arcToolboxHelpPath>c:\apps\arcgis\desktop10.2\Help\gp</arcToolboxHelpPath>
+		<arcToolboxHelpPath>c:\program files (x86)\arcgis\desktop10.2\Help\gp</arcToolboxHelpPath>
 		<toolsets />
 	</toolbox>
 	<dataIdInfo>
