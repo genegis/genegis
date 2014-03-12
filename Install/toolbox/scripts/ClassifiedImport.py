@@ -36,8 +36,10 @@ import config
 def main(input_table=None, sr=None, output_loc=None,
     output_gdb=None, output_fc=None, genetic=None,
     identification=None, location=None, other=None,
-    mode=config.settings.mode, protected_map=None):
+    mode='toolbox', protected_map=config.protected_columns):
 
+    # set mode based on how script is called.
+    config.settings.mode = mode
     # First, create a geodatabase for all our future results.
     # TODO: can we generate this from a single value?
     gdb_path = os.path.abspath(os.path.join(output_loc, output_gdb + '.gdb'))
@@ -53,7 +55,7 @@ def main(input_table=None, sr=None, output_loc=None,
             # Process: Create File GDB
             # SYNTAX: CreateFileGDB_management (out_folder_path, out_name, {out_version})
             arcpy.CreateFileGDB_management(output_loc, output_gdb, "CURRENT")
-            utils.msg("File geodatabase `%s` successfully created." % gdb_path)
+            utils.msg("File geodatabase successfully created: %s" % gdb_path)
         else:
             utils.msg("File geodatabase already exists, skipping creation.")
     except Exception as e:
@@ -84,8 +86,8 @@ def main(input_table=None, sr=None, output_loc=None,
         
         # generate table name based on input name
         (label, ext) = os.path.splitext(os.path.basename(input_table))
-        
-        # Validate label will produce a valid table name
+      
+        # Validate label will produce a valid table name from our input file
         validated_label = arcpy.ValidateTableName(label)
 
         # write out our filtered table to ArcGIS
@@ -102,7 +104,7 @@ def main(input_table=None, sr=None, output_loc=None,
         utils.msg("Error converting table %s to GDB" % input_table, mtype='error', exception=e)
         sys.exit()
 
-    input_csv = os.path.join(gdb_path, label)
+    input_csv = os.path.join(gdb_path, validated_label)
     utils.msg("Table successfully imported: \n %s" % input_csv)
     fields = [f.name.lower() for f in arcpy.ListFields(input_csv)] 
 
@@ -139,6 +141,7 @@ def formatDate(input_date):
           
         # 'location', ArcGIS passes semicolon separated values
         loc_parts = location.split(";")
+
         # TODO: ArcGIS doesn't preserve order; do we need separate fields for these? or some other approach?
         if loc_parts[0].lower() in ['x', 'longitude', 'lon']:
             (x, y) = loc_parts
@@ -172,6 +175,8 @@ def formatDate(input_date):
     except Exception as e:
         utils.msg("Error copying features to a feature class", mtype='error', exception=e)
         sys.exit()
+
+    utils.msg("Feature Class successfully created, your SRGD file has been imported!")
 
     # Because we can't pass around objects between this process and the calling
     # addin environment, dump out the settings to our shared configuration file.
@@ -214,7 +219,6 @@ def formatDate(input_date):
 
     # reset adding of outputs.
     arcpy.env.addOutputsToMap = add_outputs_default
-    utils.msg("Feature Class successfully created, your SRGD file has been imported!")
 
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':
@@ -231,9 +235,7 @@ if __name__=='__main__':
         ('genetic', None),
         ('identification', None),
         ('location', None),
-        ('other', None),
-        ('protected_map', None)
+        ('other', None)
     )
-
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(mode='script', **defaults)
