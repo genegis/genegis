@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import csv
 import os
 import re
 import sys
@@ -22,10 +23,6 @@ import config
 
 # import utilities & config from our scripts as well
 from scripts import utils
-
-# import our datatype conversion submodule
-from datatype import datatype
-dt = datatype.DataType()
 
 # NOTE: setting the output to a geodatabase feature class is really expensive;
 # the two uses of this call in the initialization code make opening the toolbox
@@ -118,7 +115,7 @@ class ClassifiedImport(object):
         input_csv.displayName = u'SRGD Input File'
         input_csv.parameterType = 'Required'
         input_csv.direction = 'Input'
-        input_csv.datatype = dt.format('File')
+        input_csv.datatype = u'File'
 
         # Spatial_Reference
         sr = arcpy.Parameter()
@@ -126,7 +123,7 @@ class ClassifiedImport(object):
         sr.displayName = u'Spatial Reference'
         sr.parameterType = 'Optional'
         sr.direction = 'Input'
-        sr.datatype = dt.format('Spatial Reference')
+        sr.datatype = u'Spatial Reference'
 
         # File_Geodatabase_Location
         output_loc= arcpy.Parameter()
@@ -134,7 +131,7 @@ class ClassifiedImport(object):
         output_loc.displayName = u'File Geodatabase Location'
         output_loc.parameterType = 'Required'
         output_loc.direction = 'Input'
-        output_loc.datatype = dt.format('Folder')
+        output_loc.datatype = u'Folder'
 
         # File_Geodatabase_Name
         output_gdb= arcpy.Parameter()
@@ -142,7 +139,7 @@ class ClassifiedImport(object):
         output_gdb.displayName = u'File Geodatabase Name'
         output_gdb.parameterType = 'Required'
         output_gdb.direction = 'Input'
-        output_gdb.datatype = dt.format('String')
+        output_gdb.datatype = u'String'
 
         # Output_Feature_Class
         output_fc= arcpy.Parameter()
@@ -150,7 +147,7 @@ class ClassifiedImport(object):
         output_fc.displayName = u'Output Feature Class'
         output_fc.parameterType = 'Derived'
         output_fc.direction = 'Output'
-        output_fc.datatype = dt.format('DEFeatureClass')
+        output_fc.datatype = u'DEFeatureClass'
         output_fc.parameterDependencies = [output_loc.name, output_gdb.name]
 
         # genetic columns
@@ -341,7 +338,7 @@ class ExtractRasterByPoints(object):
         input_raster.displayName = u'Input Raster(s)'
         input_raster.parameterType = 'Required'
         input_raster.direction = 'Input'
-        input_raster.datatype = dt.format('Raster Dataset')
+        input_raster.datatype = u'Raster Dataset'
         input_raster.multiValue = True
 
         # Output Feature Class
@@ -350,7 +347,7 @@ class ExtractRasterByPoints(object):
         input_fc.displayName = u'Feature Class (will add columns for extracted raster results)'
         input_fc.direction = 'Input'
         input_fc.parameterType = 'Required'
-        input_fc.datatype = dt.format('Feature Class')
+        input_fc.datatype = u'DEFeatureClass'
         #input_fc.value = selected_layer()
 
         return [input_raster, input_fc]
@@ -393,7 +390,7 @@ class ShortestDistancePaths(object):
         input_fc.displayName = u'Feature Class'
         input_fc.direction = 'Input'
         input_fc.parameterType = 'Required'
-        input_fc.datatype = dt.format('Feature Layer')
+        input_fc.datatype = u'GPFeatureLayer'
         #input_fc.value = selected_layer()
 
         # Output Feature Class
@@ -402,7 +399,7 @@ class ShortestDistancePaths(object):
         output_fc.displayName = u'Output Feature Class'
         output_fc.direction = 'Output'
         output_fc.parameterType = 'Required'
-        output_fc.datatype = dt.format('Feature Layer')
+        output_fc.datatype = u'GPFeatureLayer'
 
         # limit to the closest observation
         closest = arcpy.Parameter()
@@ -410,7 +407,7 @@ class ShortestDistancePaths(object):
         closest.displayName = 'Find only closest feature'
         closest.direction = 'Input'
         closest.parameterType = 'Optional'
-        closest.datatype = dt.format('Boolean')
+        closest.datatype = 'GPBoolean'
 
         return [input_fc, output_fc, closest]
 
@@ -452,7 +449,7 @@ class DistanceMatrix(object):
         input_fc.displayName = u'Feature Class'
         input_fc.direction = 'Input'
         input_fc.parameterType = 'Required'
-        input_fc.datatype = dt.format('Feature Layer')
+        input_fc.datatype = u'GPFeatureLayer'
         #input_fc.value = selected_layer()
 
         # Matrix units
@@ -461,7 +458,7 @@ class DistanceMatrix(object):
         dist_unit.displayName = 'Distance Units'
         dist_unit.direction = 'Input'
         dist_unit.parameterType = 'Required'
-        dist_unit.datatype = dt.format('String')
+        dist_unit.datatype = 'String'
         dist_unit.filter.list = self.display_units
         dist_unit.value = self.display_units[0]
 
@@ -471,7 +468,7 @@ class DistanceMatrix(object):
         matrix_type.displayName = 'Matrix Type'
         matrix_type.direction = 'Input'
         matrix_type.parameterType = 'Required'
-        matrix_type.datatype = dt.format('String')
+        matrix_type.datatype = 'String'
         #matrix_type.filter.list = ['Pairwise', 'Square']
         matrix_type.filter.list = ['Square', 'Square (SPAGeDi formatted)']
         matrix_type.value = 'Square'
@@ -482,7 +479,7 @@ class DistanceMatrix(object):
         output_matrix.displayName = u'Output Matrix'
         output_matrix.direction = 'Output'
         output_matrix.parameterType = 'Required'
-        output_matrix.datatype = dt.format('File')
+        output_matrix.datatype = 'File'
 
         return [input_fc, dist_unit, matrix_type, output_matrix]
 
@@ -529,7 +526,7 @@ class SpagediFst(object):
         input_fc.displayName = u'Feature Class'
         input_fc.direction = 'Input'
         input_fc.parameterType = 'Required'
-        input_fc.datatype = dt.format('Feature Layer')
+        input_fc.datatype = u'GPFeatureLayer'
 
         # Attribute_Field__to_order_by_population_
         order_by = arcpy.Parameter()
@@ -537,7 +534,7 @@ class SpagediFst(object):
         order_by.displayName = u'Population Field'
         order_by.parameterType = 'Required'
         order_by.direction = 'Input'
-        order_by.datatype = dt.format('Field')
+        order_by.datatype = u'Field'
         order_by.parameterDependencies=[input_fc.name]
 
         # Analysis Type
@@ -546,7 +543,7 @@ class SpagediFst(object):
         analysis_type.displayName = 'Analysis Type'
         analysis_type.direction = 'Input'
         analysis_type.parameterType = 'Required'
-        analysis_type.datatype = dt.format('String')
+        analysis_type.datatype = 'String'
         analysis_type.filter.list = ['Jacknifing']
         analysis_type.value = 'Jacknifing'
 
@@ -556,7 +553,7 @@ class SpagediFst(object):
         output_file.displayName = u'Output Results File'
         output_file.direction = 'Output'
         output_file.parameterType = 'Required'
-        output_file.datatype = dt.format('File')
+        output_file.datatype = u'File'
 
         return [input_fc, order_by, analysis_type, output_file]
 
@@ -651,7 +648,7 @@ class ExportGenAlEx(object):
         input_features.displayName = u'Input Feature Class'
         input_features.parameterType = 'Required'
         input_features.direction = 'Input'
-        input_features.datatype = dt.format('Feature Layer')
+        input_features.datatype = u'GPFeatureLayer'
         #input_features.value = selected_layer()
 
         # Where_Clause
@@ -660,7 +657,7 @@ class ExportGenAlEx(object):
         where_clause.displayName = u'Where Clause'
         where_clause.parameterType = 'Optional'
         where_clause.direction = 'Output'
-        where_clause.datatype = dt.format('SQL Expression')
+        where_clause.datatype = u'SQL Expression'
         where_clause.parameterDependencies= [input_features.name]
 
         # Attribute_Field__to_order_by_population_
@@ -669,7 +666,7 @@ class ExportGenAlEx(object):
         order_by.displayName = u'Population Field'
         order_by.parameterType = 'Required'
         order_by.direction = 'Input'
-        order_by.datatype = dt.format('Field')
+        order_by.datatype = u'Field'
         order_by.parameterDependencies=[input_features.name]
 
         # Output_File_Location
@@ -678,7 +675,7 @@ class ExportGenAlEx(object):
         output_name.displayName = u'Output File'
         output_name.parameterType = 'Required'
         output_name.direction = 'Output'
-        output_name.datatype = dt.format('File')
+        output_name.datatype = u'File'
 
         return [input_features, where_clause, order_by, output_name]
 
@@ -726,7 +723,7 @@ class ExportGenepop(object):
         input_features.displayName = u'Input Feature Class'
         input_features.parameterType = 'Required'
         input_features.direction = 'Input'
-        input_features.datatype = dt.format('Feature Layer')
+        input_features.datatype = 'Feature Layer'
 
         # Where_Clause
         where_clause = arcpy.Parameter()
@@ -734,7 +731,7 @@ class ExportGenepop(object):
         where_clause.displayName = u'Where Clause'
         where_clause.parameterType = 'Optional'
         where_clause.direction = 'Output'
-        where_clause.datatype = dt.format('SQL Expression')
+        where_clause.datatype = u'SQL Expression'
         where_clause.parameterDependencies= [input_features.name]
 
         # Attribute_Field__to_order_by_population_
@@ -743,7 +740,7 @@ class ExportGenepop(object):
         order_by.displayName = u'Population Field'
         order_by.parameterType = 'Required'
         order_by.direction = 'Input'
-        order_by.datatype = dt.format('Field')
+        order_by.datatype = u'Field'
         order_by.parameterDependencies=[input_features.name]
 
         # Output_File_Location
@@ -752,7 +749,7 @@ class ExportGenepop(object):
         output_name.displayName = u'Output File'
         output_name.parameterType = 'Required'
         output_name.direction = 'Output'
-        output_name.datatype = dt.format('File')
+        output_name.datatype = u'File'
 
         return [input_features, where_clause, order_by, output_name]
 
@@ -801,7 +798,7 @@ class ExportSpagedi(object):
         input_features.displayName = u'Input Feature Class'
         input_features.parameterType = 'Required'
         input_features.direction = 'Input'
-        input_features.datatype = dt.format('Feature Layer')
+        input_features.datatype = 'Feature Layer'
 
         # Where_Clause
         where_clause = arcpy.Parameter()
@@ -809,7 +806,7 @@ class ExportSpagedi(object):
         where_clause.displayName = u'Where Clause'
         where_clause.parameterType = 'Optional'
         where_clause.direction = 'Output'
-        where_clause.datatype = dt.format('SQL Expression')
+        where_clause.datatype = u'SQL Expression'
         where_clause.parameterDependencies= [input_features.name]
 
         # Attribute_Field__to_order_by_population_
@@ -818,7 +815,7 @@ class ExportSpagedi(object):
         order_by.displayName = u'Population Field'
         order_by.parameterType = 'Required'
         order_by.direction = 'Input'
-        order_by.datatype = dt.format('Field')
+        order_by.datatype = u'Field'
         order_by.parameterDependencies=[input_features.name]
 
         # Output_File_Location
@@ -827,7 +824,7 @@ class ExportSpagedi(object):
         output_name.displayName = u'Output File'
         output_name.parameterType = 'Required'
         output_name.direction = 'Output'
-        output_name.datatype = dt.format('File')
+        output_name.datatype = u'File'
 
         return [input_features, where_clause, order_by, output_name]
 
@@ -875,7 +872,7 @@ class ExportAllelesInSpace(object):
         input_features.displayName = u'Input Feature Class'
         input_features.parameterType = 'Required'
         input_features.direction = 'Input'
-        input_features.datatype = dt.format('Feature Layer')
+        input_features.datatype = 'Feature Layer'
 
         # identification field
         id_field = arcpy.Parameter()
@@ -883,7 +880,7 @@ class ExportAllelesInSpace(object):
         id_field.displayName = u'Sample ID Field'
         id_field.parameterType = 'Required'
         id_field.direction = 'Input'
-        id_field.datatype = dt.format('Field')
+        id_field.datatype = u'Field'
         id_field.parameterDependencies=[input_features.name]
         id_field.value = config.settings.id_field
 
@@ -893,7 +890,7 @@ class ExportAllelesInSpace(object):
         where_clause.displayName = u'Where Clause'
         where_clause.parameterType = 'Optional'
         where_clause.direction = 'Output'
-        where_clause.datatype = dt.format('SQL Expression')
+        where_clause.datatype = u'SQL Expression'
         where_clause.parameterDependencies= [input_features.name]
 
         # Output coordinate information
@@ -902,7 +899,7 @@ class ExportAllelesInSpace(object):
         output_coords.displayName = u'Output Coordinates File'
         output_coords.parameterType = 'Required'
         output_coords.direction = 'Output'
-        output_coords.datatype = dt.format('File')
+        output_coords.datatype = u'File'
 
         # Output genetics information
         output_genetics= arcpy.Parameter()
@@ -910,7 +907,7 @@ class ExportAllelesInSpace(object):
         output_genetics.displayName = u'Output Genetics File'
         output_genetics.parameterType = 'Required'
         output_genetics.direction = 'Output'
-        output_genetics.datatype = dt.format('File')
+        output_genetics.datatype = u'File'
 
         return [input_features, id_field, where_clause, output_coords, output_genetics]
 
@@ -952,7 +949,7 @@ class SelectDataByAttributes(object):
         param_1.displayName = u'Input Feature Class'
         param_1.parameterType = 'Required'
         param_1.direction = 'Input'
-        param_1.datatype = dt.format('Feature Layer')
+        param_1.datatype = u'Feature Layer'
 
         # Selection_Type
         param_2 = arcpy.Parameter()
@@ -960,7 +957,7 @@ class SelectDataByAttributes(object):
         param_2.displayName = u'Selection Type'
         param_2.parameterType = 'Required'
         param_2.direction = 'Input'
-        param_2.datatype = dt.format('String')
+        param_2.datatype = u'String'
         param_2.filter.list = [u'NEW_SELECTION']
 
         # SQL_Expression
@@ -969,7 +966,7 @@ class SelectDataByAttributes(object):
         param_3.displayName = u'SQL Expression'
         param_3.parameterType = 'Required'
         param_3.direction = 'Input'
-        param_3.datatype = dt.format('SQL Expression')
+        param_3.datatype = u'SQL Expression'
 
         # Selection_Type_2
         param_4 = arcpy.Parameter()
@@ -977,7 +974,7 @@ class SelectDataByAttributes(object):
         param_4.displayName = u'Selection Type 2'
         param_4.parameterType = 'Optional'
         param_4.direction = 'Input'
-        param_4.datatype = dt.format('String')
+        param_4.datatype = u'String'
         param_4.filter.list = [u'ADD_TO_SELECTION', u'SUBSET_SELECTION']
 
         # SQL_Expression_2
@@ -986,7 +983,7 @@ class SelectDataByAttributes(object):
         param_5.displayName = u'SQL Expression 2'
         param_5.parameterType = 'Optional'
         param_5.direction = 'Input'
-        param_5.datatype = dt.format('SQL Expression')
+        param_5.datatype = u'SQL Expression'
 
         # Selection_Type_3
         param_6 = arcpy.Parameter()
@@ -994,7 +991,7 @@ class SelectDataByAttributes(object):
         param_6.displayName = u'Selection Type 3'
         param_6.parameterType = 'Optional'
         param_6.direction = 'Input'
-        param_6.datatype = dt.format('String')
+        param_6.datatype = u'String'
         param_6.filter.list = [u'ADD_TO_SELECTION', u'SUBSET_SELECTION']
 
         # SQL_Expression_3
@@ -1003,7 +1000,7 @@ class SelectDataByAttributes(object):
         param_7.displayName = u'SQL Expression 3'
         param_7.parameterType = 'Optional'
         param_7.direction = 'Input'
-        param_7.datatype = dt.format('SQL Expression')
+        param_7.datatype = u'SQL Expression'
 
         # Output_Feature_Class_Location
         param_8 = arcpy.Parameter()
@@ -1011,7 +1008,7 @@ class SelectDataByAttributes(object):
         param_8.displayName = u'Output Feature Class Location'
         param_8.parameterType = 'Required'
         param_8.direction = 'Input'
-        param_8.datatype = dt.format('Workspace')
+        param_8.datatype = u'Workspace'
 
         # Output_Feature_Class_Name
         param_9 = arcpy.Parameter()
@@ -1019,7 +1016,7 @@ class SelectDataByAttributes(object):
         param_9.displayName = u'Output Feature Class Name'
         param_9.parameterType = 'Required'
         param_9.direction = 'Input'
-        param_9.datatype = dt.format('String')
+        param_9.datatype = u'String'
 
         # Log_File_Location
         param_10 = arcpy.Parameter()
@@ -1027,7 +1024,7 @@ class SelectDataByAttributes(object):
         param_10.displayName = u'Log File Location'
         param_10.parameterType = 'Required'
         param_10.direction = 'Input'
-        param_10.datatype = dt.format('Folder')
+        param_10.datatype = u'Folder'
 
         return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
 
@@ -1067,7 +1064,7 @@ class ExportSRGD(object):
         input_feature.displayName = 'Input Feature'
         input_feature.parameterType = 'Required'
         input_feature.direction = 'Input'
-        input_feature.datatype = dt.format('Feature Layer')
+        input_feature.datatype = 'GPFeatureLayer'
 
         # Output_CSV
         output_csv= arcpy.Parameter()
@@ -1075,7 +1072,7 @@ class ExportSRGD(object):
         output_csv.displayName = u'Output SRGD CSV File'
         output_csv.parameterType = 'Required'
         output_csv.direction = 'Output'
-        output_csv.datatype = dt.format('File')
+        output_csv.datatype = u'File'
 
         return [input_feature, output_csv]
 
@@ -1121,7 +1118,7 @@ class MakeIndividualPaths(object):
         selected_pts.displayName = u'Selected Individuals'
         selected_pts.direction = 'Input'
         selected_pts.parameterType = 'Required'
-        selected_pts.datatype = dt.format('Feature Layer')
+        selected_pts.datatype = u'GPFeatureLayer'
 
         # Data source
         source_fc = arcpy.Parameter()
@@ -1129,7 +1126,7 @@ class MakeIndividualPaths(object):
         source_fc.displayName = u'Source features (to link with selected individuals)'
         source_fc.direction = 'Input'
         source_fc.parameterType = 'Required'
-        source_fc.datatype = dt.format('Feature Layer')
+        source_fc.datatype = u'GPFeatureLayer'
 
         # Output feature name
         output_name = arcpy.Parameter()
@@ -1137,7 +1134,7 @@ class MakeIndividualPaths(object):
         output_name.displayName = u'Output Pathsfeatures '
         output_name.direction = 'Output'
         output_name.parameterType = 'Required'
-        output_name.datatype = dt.format('String')
+        output_name.datatype = u'String'
 
         return [selected_pts, source_fc, output_name]
 

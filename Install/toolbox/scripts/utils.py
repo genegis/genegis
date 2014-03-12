@@ -180,10 +180,8 @@ def parse_table(input_file):
                 dialect = sniffer.sniff(sample)
                 # reset reading
                 input_table.seek(0)
-                # for reading, rely on dialect parsing to correctly dermine 
-                # the input file's traits (e.g. proper quoting).
-                table = csv.reader(input_table, dialect=dialect)
-
+            
+                table = csv.reader(input_table, dialect)
                 # pull off the first line of the CSV
                 header = table.next()
                 data = []
@@ -224,7 +222,7 @@ def validate_table(input_file):
     temp_csv = os.path.join(temp_dir, tmp_fn)
 
     with open(temp_csv, 'wb') as output_file:
-        writer = csv.writer(output_file, dialect=dialect, quotechar='"', quoting=csv.QUOTE_ALL)
+        writer = csv.writer(output_file, dialect=dialect)
         writer.writerow(validated_header)
         for row in data:
             writer.writerow(row)
@@ -292,11 +290,12 @@ def protect_columns(input_table_name=None, protected_columns={}):
     with open(schema_path, mode) as schema_file:
         header = "[{table_name}]\n".format(table_name=table_name)
         schema_file.write(header)
-        for (value, res_dict) in protected_columns.items():
-            (idx, data_type) = res_dict
-            col_label = "Col{idx}={value} {data_type}\n".format(
-                idx=idx, value=value, data_type=data_type)
-            schema_file.write(col_label)
+        if protected_columns:
+            for (value, res_dict) in protected_columns.items():
+                (idx, data_type) = res_dict
+                col_label = "Col{idx}={value} {data_type}\n".format(
+                    idx=idx, value=value, data_type=data_type)
+                schema_file.write(col_label)
 
     return schema_path
 
