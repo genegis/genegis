@@ -622,6 +622,7 @@ class SpagediFst(object):
                 spagedi_commands=spagedi_commands)
         utils.msg("trying to run %s" % cmd)
 
+        # TODO replace with subprocess call
         res = os.system(cmd)
 
         utils.msg("trying to open resulting file %s" % results)

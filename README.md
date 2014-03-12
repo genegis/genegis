@@ -29,10 +29,19 @@ geographic analysis:
  - generate pairwise geodesic segements between samples
  
 genetic analysis:
- - use SPAGeDi (included) to compute a variety of genetic tests, such as F_st.
+ - use SPAGeDi (included) to compute a variety of genetic tests, such as `F_st`.
 
 export:
  - export to GenAlEx
  - export to Genepop
  - export to SPAGeDi
  - export to SRGD formatted CSV files for use with the Shepard Project
+
+Building from Source
+--------------------
+
+```
+git clone https://github.com/genegis/genegis.git
+cd genegis
+git submodule update --init --recursive
+```
