@@ -21,7 +21,7 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, \
    
     # does the input fc exist?
     if not arcpy.Exists(input_fc):
-        utils.msg("Input, %s, doesn't exist.", mtype='error')
+        utils.msg("Input, %s, doesn't exist." % input_fc, mtype='error')
         sys.exit()
 
     # determine appropriate unit conversion factor.
@@ -56,7 +56,7 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, \
 
         # TODO: handle units in the C++ version.
         # TODO: handle SPAGeDi output in the C++ version.
-        utils.msg("Loaded high-performance geodesic calculations, running…")
+        utils.msg("Loaded high-performance geodesic calculations, running...")
         returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix)
         if returncode == -1:
             utils.msg("Cannot open the output file.", mtype='error')
@@ -102,7 +102,7 @@ def load_geodesic_dll():
 def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi):
     input_fc_mem = 'in_memory/input_fc'
     try:
-        utils.msg("Copying features into memory…")
+        utils.msg("Copying features into memory...")
         arcpy.CopyFeatures_management(input_fc, input_fc_mem)
     except Exception as e:
         msg = "Unable to copy features into memory."
@@ -117,7 +117,7 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
         utils.msg(msg, mtype='error')
         sys.exit()
 
-    utils.msg("Finding all input points…")
+    utils.msg("Finding all input points...")
     distance_matrix = OrderedDict()
     points = OrderedDict()
     records = arcpy.da.SearchCursor(input_fc_mem, ['OID@', 'SHAPE@XY'])
@@ -126,7 +126,7 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
         points[fid] = arcpy.Point(point[0], point[1])
 
     indicator = 0
-    utils.msg("Computing distances…")
+    utils.msg("Computing distances...")
     for (fid, from_point) in points.items():
         pct_progress = int(fid / float(row_count)*100)
         if pct_progress > indicator:
@@ -162,7 +162,7 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
     # Now compute the lines between these locations.
     try:
         # copy the final result back to disk.
-        utils.msg("Writing results to disk…")
+        utils.msg("Writing results to disk...")
         # The SPAGeDi matrix format are described in section 3.7 of the manual.
         if is_spagedi:
             first_header_cell = "M%i" % row_count
@@ -171,6 +171,7 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
             first_header_cell = ""
             sep = ","
 
+        import pdb; pdb.set_trace()
         with open(output_matrix, 'w') as csv:
             # initialize with our header row 
             output_rows = [[first_header_cell] + \
@@ -193,12 +194,18 @@ if __name__ == '__main__':
 
     # Defaults when no configuration is provided
     # TODO: change these to be test-based.
-    defaults_tuple = (
-        ('input_fc', ""),
-        ('dist_unit', 'Kilometers'),
-        ('matrix_type', 'Square'),
-        ('output_matrix', "TestFC"),
-    )
+    defaults_list = [
+        ['input_fc', ""],
+        ['dist_unit', 'Kilometers'],
+        ['matrix_type', 'Square'],
+        ['output_matrix', "TestFC"],
+    ]
+    
+    test_input = r'C:\pasta2geonis\shapefiles\lterDomains_project.shp'
+    if arcpy.Exists(test_input):
+        test_input_points = r'C:\pasta2geonis\shapefiles\lterDomains_points.shp'
+        arcpy.FeatureToPoint_management(test_input, test_input_points)
+        defaults_list[0][1] = test_input_points
 
-    defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
+    defaults = utils.parameters_from_args(defaults_list, sys.argv)
     main(mode='script', **defaults)

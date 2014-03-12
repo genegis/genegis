@@ -14,7 +14,7 @@ import utils
 import_paths = ['../Install/toolbox', '../Install']
 utils.addLocalPaths(import_paths)
 
-from scripts import ClassifiedImport
+from scripts import ClassifiedImport, DistanceMatrix
 
 # A GDB for our test results
 d = TempDir()
