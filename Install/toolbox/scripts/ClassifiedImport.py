@@ -166,10 +166,11 @@ def formatDate(input_date):
 
         # set to the results for this step
         add_outputs_default = arcpy.env.addOutputsToMap
-        arcpy.env.addOutputsToMap = False
+        arcpy.env.addOutputsToMap = True
         # Process: Copy Features
         # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
         arcpy.CopyFeatures_management(temporary_layer, output_fc, "", "0", "0", "0")
+        arcpy.env.addOutputsToMap = add_outputs_default
         utils.msg("Features succesfully created: \n %s" % output_fc)
 
     except Exception as e:
