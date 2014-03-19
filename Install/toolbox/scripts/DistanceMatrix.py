@@ -193,17 +193,20 @@ if __name__ == '__main__':
 
     # Defaults when no configuration is provided
     # TODO: change these to be test-based.
-    defaults_list = [
-        ['input_fc', ""],
-        ['dist_unit', 'Kilometers'],
-        ['matrix_type', 'Square'],
-        ['output_matrix', "TestFC"],
-    ]
-    test_input = r'C:\pasta2geonis\shapefiles\lterDomains_project.shp'
-    if arcpy.Exists(test_input):
-        test_input_points = r'C:\pasta2geonis\shapefiles\lterDomains_points.shp'
-        if not arcpy.Exists(test_input_points):
-            arcpy.FeatureToPoint_management(test_input, test_input_points)
-        defaults_list[0][1] = test_input_points
-    defaults = utils.parameters_from_args(defaults_list, sys.argv)
+    input_fc = "in_memory/temp"
+    scriptloc = os.path.dirname(os.path.realpath(__file__))
+    mxdpath = os.path.abspath(os.path.join(scriptloc, os.path.pardir, 'genegis.mxd'))
+    mxd = arcpy.mapping.MapDocument(mxdpath)
+    for lyr in arcpy.mapping.ListLayers(mxd):
+        if lyr.name == 'SRGD_example_Spatial':
+            arcpy.CopyFeatures_management(lyr, input_fc)
+            break
+    defaults = {
+        'input_fc': input_fc,
+        'dist_unit': 'Kilometers',
+        'matrix_type': 'Square',
+        'output_matrix': "TestFC",
+    }
+    # defaults = utils.parameters_from_args(defaults_list, sys.argv)
     main(mode='script', **defaults)
+    arcpy.DeleteFeatures_management(input_fc)

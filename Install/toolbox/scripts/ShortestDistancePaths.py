@@ -38,7 +38,7 @@ def main(input_fc=None, output_fc=None, closest=False, mode=config.settings.mode
 
     input_fc_mem = 'in_memory/input_fc'
     try:
-        utils.msg("Copying features into memory…")
+        utils.msg("Copying features into memory...")
         arcpy.CopyFeatures_management(input_fc, input_fc_mem)
     except Exception as e:
         utils.msg("Unable to copy features into memory.", mtype='error', exception=e)
@@ -74,7 +74,7 @@ def main(input_fc=None, output_fc=None, closest=False, mode=config.settings.mode
     # FIXME: do we need to filter this in some way? by group, ...?
     try:
         # generates an output table with IN_FID, NEAR_FID, NEAR_X, NEAR_Y [...]
-        utils.msg("Creating near table…")
+        utils.msg("Creating near table...")
         arcpy.GenerateNearTable_analysis(input_fc_mem, input_fc_mem, near_table, \
                 "", "LOCATION", "NO_ANGLE", "ALL")
 
@@ -84,7 +84,7 @@ def main(input_fc=None, output_fc=None, closest=False, mode=config.settings.mode
         sys.exit()
 
     try:
-        utils.msg("Joining attributes…")
+        utils.msg("Joining attributes...")
         in_fields = arcpy.ListFields(input_fc_mem)
         # find the OID field.
         oid_field = [f.name for f in in_fields if f.type == 'OID'][0]
@@ -109,11 +109,11 @@ def main(input_fc=None, output_fc=None, closest=False, mode=config.settings.mode
 
     # Now compute the lines between these locations.
     try:
-        utils.msg("Computing pairwise geodesic lines…")
+        utils.msg("Computing pairwise geodesic lines...")
         arcpy.XYToLine_management(near_table, output_fc_mem, \
                 "NEAR_X", "NEAR_Y", "POINT_X", "POINT_Y", "GEODESIC", id_field)
 
-        utils.msg("Remapping output columns…")
+        utils.msg("Remapping output columns...")
         arcpy.JoinField_management(output_fc_mem, id_field, near_table, id_field, ['IN_FID', 'NEAR_FID'])
 
         # column modifications necessary
@@ -143,7 +143,7 @@ def main(input_fc=None, output_fc=None, closest=False, mode=config.settings.mode
 
         # copy the final result back to disk.
         if output_fc_mem != output_fc:
-            utils.msg("Writing results to disk…")
+            utils.msg("Writing results to disk...")
             arcpy.CopyFeatures_management(output_fc_mem, output_fc)
 
         utils.msg("Created shortest distance paths successfully: {0}".format(output_fc))
@@ -164,20 +164,23 @@ if __name__=='__main__':
 
     # Defaults when no configuration is provided
     # TODO: change these to be test-based.
-    # defaults_tuple = (
-    #     ('input_fc', ""),
-    #     ('output_fc', "TestFC"),
-    # )
-    defaults_list = [
-        ['input_fc', ''],
-        ['output_fc', "TestFC"],
-    ]
-    test_input = r'C:\pasta2geonis\shapefiles\lterDomains_project.shp'
-    if arcpy.Exists(test_input):
-        test_input_points = r'C:\pasta2geonis\shapefiles\lterDomains_points.shp'
-        if not arcpy.Exists(test_input_points):
-            arcpy.FeatureToPoint_management(test_input, test_input_points)
-        defaults_list[0][1] = test_input_points
-    defaults = utils.parameters_from_args(defaults_list, sys.argv)
-    # defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
+    input_fc = "in_memory/temp"
+    scriptloc = os.path.dirname(os.path.realpath(__file__))
+    output_fc = os.path.abspath(
+        os.path.join(scriptloc, os.path.pardir, os.path.pardir, 'TestOutputFC')
+    )
+    mxdpath = os.path.abspath(
+        os.path.join(scriptloc, os.path.pardir, 'genegis.mxd')
+    )
+    mxd = arcpy.mapping.MapDocument(mxdpath)
+    for lyr in arcpy.mapping.ListLayers(mxd):
+        if lyr.name == 'SRGD_example_Spatial':
+            arcpy.CopyFeatures_management(lyr, input_fc)
+            break
+    defaults = {
+        'input_fc': input_fc,
+        'output_fc': output_fc,
+    }
+    # defaults = utils.parameters_from_args(defaults_list, sys.argv)
     main(mode='script', **defaults)
+    arcpy.DeleteFeatures_management(input_fc)
