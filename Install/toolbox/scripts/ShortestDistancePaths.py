@@ -5,7 +5,10 @@
 
 # Created on: 26 May 2013
 
-#Shortest cost paths between all elements, in geographic space.
+# Shortest cost paths between all elements, in geographic space.
+# This tool creates a feature class containing actual paths between elements,
+# in contrast to the DistanceMatrix tool, which simply outputs the shortest
+# pairwise distances.
 
 """
 A result between: (-83.7453,8.6583) and (-85.9176,11.0253): 353995.597 meters
@@ -161,10 +164,20 @@ if __name__=='__main__':
 
     # Defaults when no configuration is provided
     # TODO: change these to be test-based.
-    defaults_tuple = (
-        ('input_fc', ""),
-        ('output_fc', "TestFC"),
-    )
-
-    defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
+    # defaults_tuple = (
+    #     ('input_fc', ""),
+    #     ('output_fc', "TestFC"),
+    # )
+    defaults_list = [
+        ['input_fc', ''],
+        ['output_fc', "TestFC"],
+    ]
+    test_input = r'C:\pasta2geonis\shapefiles\lterDomains_project.shp'
+    if arcpy.Exists(test_input):
+        test_input_points = r'C:\pasta2geonis\shapefiles\lterDomains_points.shp'
+        if not arcpy.Exists(test_input_points):
+            arcpy.FeatureToPoint_management(test_input, test_input_points)
+        defaults_list[0][1] = test_input_points
+    defaults = utils.parameters_from_args(defaults_list, sys.argv)
+    # defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(mode='script', **defaults)

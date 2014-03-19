@@ -74,6 +74,7 @@ class TestClassifiedImport(unittest.TestCase):
         arcpy.Delete_management(gdb_path)
         self.assertFalse(os.path.exists(gdb_path))
 
+
 class TestDistanceMatrix(unittest.TestCase):
 
     def setUp(self):
@@ -100,24 +101,61 @@ class TestDistanceMatrix(unittest.TestCase):
                     matrix_type='Square', output_matrix='TestFC',
                     mode='script')
 
-        # Some sanity checks for the distance matrix:
-        # - It must exist
-        # - The first row must contain point indices 1, 2, 3, ...
-        # - The first entry in each row should contain its point index
-        # - The diagonal entries should all be 0
-        # - All entries should be positive
-        # - There should be the same number of rows and columns
+        input_fc_mem = 'in_memory/input_fc'
+        arcpy.CopyFeatures_management(self.inputpoints, input_fc_mem)
+        WGS84 = arcpy.SpatialReference('WGS 1984')
+        cursor = arcpy.da.SearchCursor(input_fc_mem, ['OID@', 'SHAPE@XY'],
+                                       spatial_reference=WGS84)
+        points = {}
+        for row in cursor:
+            points[row[0]] = (row[1][0], row[1][1])
+
+        # Calculate reference distances using geographiclib
+        from geographiclib.geodesic import Geodesic
+        ref_dist = {}
+        for from_fid, from_point in points.items():
+            ref_dist[from_fid] = {}
+            for to_fid, to_point in points.items():
+                if from_fid == to_fid:
+                    ref_dist[from_fid][to_fid] = 0
+                else:
+                    ref_dist[from_fid][to_fid] = Geodesic.WGS84.Inverse(
+                        from_point[1], from_point[0], to_point[1], to_point[0]
+                    )['s12'] / 1000.0
+
+        # Sanity checks for the distance matrix:
+        # 1. It must exist
+        # 2. The first row must contain point indices 1, 2, 3, ...
+        # 3. The first entry in each row should contain its point index
+        # 4. The diagonal entries should all be 0
+        # 5. All entries should be positive
+        # 6. There should be the same number of rows and columns
+        # 7. The matrix must be symmetric (distances a->b & b->a must be equal)
+        # 8. The distances should be the same as reported by geographiclib
+        #
+        # Sanity check 1
         self.assertTrue(arcpy.Exists(self.output))
         with open(self.output, 'rU') as outfile:
             for i, line in enumerate(outfile):
                 row = line.strip().split(',')
+                # Sanity check 2
                 if i == 0:
                     self.assertListEqual(map(int, row[1:]), range(1, len(row)))
                 else:
                     row = map(float, row)
+                    # Sanity check 3
                     self.assertEqual(i, row[0])
+                    # Sanity check 4
                     self.assertEqual(0, row[i])
+                    # Sanity check 5
                     self.assertTrue(all([j >= 0 for j in row]))
+                    # Sanity check 8
+                    # (distances rounded to the nearest 0.001 km)
+                    # from pprint import pprint as pp; from nose.tools import set_trace; set_trace()
+                    for j, dist in enumerate(row[1:]):
+                        rounded_ref_dist = round(ref_dist[int(row[0])][j+1], 3)
+                        self.assertEqual(round(dist, 3), rounded_ref_dist)
+            # Sanity check 6
             self.assertEqual(i+1, len(row))
 
     def testToolboxImport(self):
@@ -127,6 +165,7 @@ class TestDistanceMatrix(unittest.TestCase):
     def testCleanup(self):
         # clean up
         arcpy.Delete_management(self.output)
+
 
 class TestQuotedMultilineInput(unittest.TestCase):
     
