@@ -4,6 +4,7 @@ import unittest
 
 import arcpy
 import zipfile
+from geographiclib.geodesic import Geodesic
 
 from tempdir import TempDir
 
@@ -111,7 +112,6 @@ class TestDistanceMatrix(unittest.TestCase):
             points[row[0]] = (row[1][0], row[1][1])
 
         # Calculate reference distances using geographiclib
-        from geographiclib.geodesic import Geodesic
         ref_dist = {}
         for from_fid, from_point in points.items():
             ref_dist[from_fid] = {}
@@ -130,8 +130,8 @@ class TestDistanceMatrix(unittest.TestCase):
         # 4. The diagonal entries should all be 0
         # 5. All entries should be positive
         # 6. There should be the same number of rows and columns
-        # 7. The matrix must be symmetric (distances a->b & b->a must be equal)
-        # 8. The distances should be the same as reported by geographiclib
+        # 7. The distances should be the same as reported by geographiclib
+        # 8. The matrix must be symmetric (distances a->b & b->a must be equal)
         #
         # Sanity check 1
         self.assertTrue(arcpy.Exists(self.output))
@@ -149,14 +149,19 @@ class TestDistanceMatrix(unittest.TestCase):
                     self.assertEqual(0, row[i])
                     # Sanity check 5
                     self.assertTrue(all([j >= 0 for j in row]))
-                    # Sanity check 8
+                    # Sanity check 7
                     # (distances rounded to the nearest 0.001 km)
-                    # from pprint import pprint as pp; from nose.tools import set_trace; set_trace()
                     for j, dist in enumerate(row[1:]):
                         rounded_ref_dist = round(ref_dist[int(row[0])][j+1], 3)
                         self.assertEqual(round(dist, 3), rounded_ref_dist)
             # Sanity check 6
             self.assertEqual(i+1, len(row))
+            # Sanity check 8
+            # (using reference matrix, which we already verified is the same
+            # as the matrix calculated by DistanceMatrix.py, in check 7)
+            ref_matrix = [dist.values() for row, dist in ref_dist.items()]
+            ref_matrix_transpose = map(list, zip(*ref_matrix))
+            self.assertEqual(ref_matrix, ref_matrix_transpose)
 
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
