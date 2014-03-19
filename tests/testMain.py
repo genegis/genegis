@@ -222,7 +222,7 @@ class TestShortestDistancePaths(unittest.TestCase):
         self.assertTrue('ShortestDistancePaths' in vars(self.toolbox))
 
     def testCleanup(self):
-        arcpy.Delete_management(self.output_fc)
+        arcpy.Delete_management(self.output_fc + '.shp')
 
 
 class TestQuotedMultilineInput(unittest.TestCase):
