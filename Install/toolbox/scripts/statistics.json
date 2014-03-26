@@ -1,0 +1,69 @@
+{
+    "population": {
+        "1": {
+            "label": "identity-Fst: global F-statistics and pairwise Fst"
+        },
+        "2": {
+            "label": "identity-Rho: global F-statistics and pairwise Rho"
+        },
+        "3": {
+            "label": "identity-Gst: global Gst and pairwise Gst"
+        },
+        "4": {
+            "label": "identity-Gij: global Gst and pairwise Gij"
+        },
+        "5": {
+            "label": "identity-Ds: global F-statistics and pairwise Ds"
+        },
+        "6": {
+            "label": "size-Rst: global R-statistics and pairwise Rst"
+        },
+        "7": {
+            "label": "size-dm2: global R-statistics and pairwise dm2 distance"
+        },
+        "8": {
+            "label": "distance-Nst: global Nst and pairwise Nst"
+        },
+        "9": {
+            "label": "distance-Nij: global Nst and pairwise Nij"
+        }
+    },
+    "individual": {
+        "1": {
+            "label": "kinship coefficient (Loiselle et al., 1995)"
+        },
+        "2": {
+            "label": "kinship coefficient (Ritland, 1996)"
+        },
+        "3": {
+            "label": "relationship coefficient (Moran's I on indiv allele freq)"
+        },
+        "4": {
+            "label": "relationship coefficient (Queller & Goodnight, 1989)"
+        },
+        "5": {
+            "label": "relationship coefficient ('r' in Lynch & Ritland, 1999)"
+        },
+        "6": {
+            "label": "relationship coefficient ('r' in Wang, 2002)"
+        },
+        "7": {
+            "label": "relationship coefficient (Li et al., 1993)"
+        },
+        "8": {
+            "label": "fraternity coefficient ('delta' in Lynch & Ritland, 1999)"
+        },
+        "9": {
+            "label": "fraternity coefficient ('delta' in Wang, 2002)"
+        },
+        "A": {
+            "label": "Aij: Rousset's distance ('a' in Rousset, 2000)"
+        },
+        "R": {
+            "label": "Rij: Allele size correlation coefficient (I' in Streiff et al., 1998)"
+        },
+        "N": {
+            "label": "Nij: kinship coefficient for ordered alleles (OJ Hardy, unpublished)"
+        }
+    }
+}

@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 """
-Standalone script to test out spagedi functionality.
+Standalone script to test drive spagedi functionality.
 """
 import os, re, sys, time, platform, glob, getopt, csv
-from usage import Usage
-import xml.etree.cElementTree as et
 import argparse as ap
-
+import xml.etree.cElementTree as et
+from pprint import pprint as pp
+from usage import Usage
 import arcpy
+from functools import wraps
+from spagedi_tree import *
 
 # enable local imports; allow importing both this directory and one above
 local_path = os.path.dirname(__file__)
@@ -26,13 +28,32 @@ from scripts import utils
 from datatype import datatype
 dt = datatype.DataType()
 
-from pprint import pprint as pp
+def error_handler(task=""):
+    def decorate(task_func):
+        @wraps(task_func)
+        def wrapper(self, *args, **kwargs):
+            try:
+                return task_func(self, *args, **kwargs)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                erroroutput = (
+                    "Error in task \"" + task + "\" (" + sys.exc_info()[0].__name__ + "/" +
+                    fname + "/" + str(exc_tb.tb_lineno) + "):\n--> " + e.message
+                )
+                with open(self.log, 'a') as logfile:
+                    print >>logfile, erroroutput + "\nTraceback:"
+                    traceback.print_tb(exc_tb, limit=5, file=logfile)
+        return wrapper
+    return decorate
 
 class BoxOfSpagedi(object):
     """
-    BoxOfSpagedi: access the tools, or "noodles", of Spagedi, from
-    the convenience of your very own Python!
+    BoxOfSpagedi: a conveniently shaped object which allows you to access the
+    tools, or "noodles", of Spagedi, from Python
     """
+    TREE = spagedi_tree()
+
     def __init__(self, standalone=True, noodle=None, input_fc=None,
                  output_file=None, order_by=None, analysis_type=None):
         self.label = u'Genetic Analysis - F_st'
@@ -45,7 +66,6 @@ class BoxOfSpagedi(object):
             'analysis_type': 2,
             'output_file': 3
         }
-        self.noodle = noodle
         self.standalone = standalone
         self.input_fc = input_fc
         self.output_file = output_file
@@ -225,18 +245,35 @@ def main(argv=None):
             if opt in ('-h', '--help'):
                 print __doc__
                 return 0
+        
+        # What test are we doing?  "Noodle" options:
+        # 1. identity-Fst: global F-statistics and pairwise Fst
+        # 2. identity-Rho: global F-statistics and pairwise Rho
+        # 3. identity-Gst: global Gst and pairwise Gst
+        # 4. identity-Gij: global Gst and pairwise Gij
+        # 5. identity-Ds: global F-statistics and pairwise Ds
+        # 6. size-Rst: global R-statistics and pairwise Rst
+        # 7. size-dm2: global R-statistics and pairwise dm2 distance
+        # 8. distance-Nst: global Nst and pairwise Nst
+        # 9. distance-Nij: global Nst and pairwise Nij
         sauce = {
             'standalone': True,
-            'noodle': 'Fst',
+            'noodle': 'identity-Fst',
             'input_fc': "in_memory/temp",
             'output_file': r"C:\Users\Sparky\src\genegis\tests\data\test_spagedi_export.txt",
             'order_by': 'Individual_ID',
             'analysis_type': 'Jacknifing',
         }
+
+        # Clear out any leftover outputs from previous runs and
+        # get the input feature class loaded into memory
         prepare(sauce)
+
+        # Fire up Spagedi and crunch some numbers
         spagedi = BoxOfSpagedi(**sauce)
         parameters = spagedi.getParameterInfo()
         spagedi.execute(parameters, None)
+
     except Usage as e:
         print >>sys.stderr, e.msg
         print >>sys.stderr, "for help use --help"
