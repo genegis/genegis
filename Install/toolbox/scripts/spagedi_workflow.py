@@ -2,7 +2,8 @@
 """
 Standalone script to test drive spagedi functionality.
 """
-import os, re, sys, time, platform, glob, getopt, csv
+import os, re, sys, time, platform, glob, getopt
+from random import randint
 import argparse as ap
 import xml.etree.cElementTree as et
 from pprint import pprint as pp
@@ -49,12 +50,12 @@ def error_handler(task=""):
 
 class BoxOfSpagedi(object):
     """
-    BoxOfSpagedi: a conveniently shaped object which allows you to access the
-    tools of Spagedi, from Python
+    BoxOfSpagedi: a conveniently shaped object from which you can
+    tools of Spagedi, without ever leaving the comfort of Python.
     """
     TREE = spagedi_tree()
 
-    def __init__(self, standalone=True, noodle=None, input_fc=None,
+    def __init__(self, standalone=True, sequence=None, input_fc=None,
                  output_file=None, order_by=None, analysis_type=None):
         self.label = u'Genetic Analysis - F_st'
         self.description = u'Calculate F_st using Jacknifing'
@@ -67,6 +68,7 @@ class BoxOfSpagedi(object):
             'output_file': 3
         }
         self.standalone = standalone
+        self.sequence = sequence
         self.input_fc = input_fc
         self.output_file = output_file
         self.order_by = order_by
@@ -82,7 +84,7 @@ class BoxOfSpagedi(object):
             input_fc['direction'] = 'Input'
             input_fc['parameterType'] = 'Required'
             input_fc['datatype'] = dt.format('Feature Layer')
-            input_fc['value'] = self.input_fc
+            input_fc['valueAsText'] = self.input_fc
             input_fc = ap.Namespace(**input_fc)
             
             order_by = {}
@@ -92,7 +94,7 @@ class BoxOfSpagedi(object):
             order_by['direction'] = 'Input'
             order_by['datatype'] = dt.format('Field')
             order_by['parameterDependencies'] = [input_fc.name]
-            order_by['value'] = self.order_by
+            order_by['valueAsText'] = self.order_by
             order_by = ap.Namespace(**order_by)
 
             analysis_type = {}
@@ -102,7 +104,7 @@ class BoxOfSpagedi(object):
             analysis_type['parameterType'] = 'Required'
             analysis_type['datatype'] = dt.format('String')
             analysis_type['filter.list'] = ['Jacknifing']
-            analysis_type['value'] = self.analysis_type
+            analysis_type['valueAsText'] = self.analysis_type
             analysis_type = ap.Namespace(**analysis_type)
 
             output_file = {}
@@ -111,7 +113,7 @@ class BoxOfSpagedi(object):
             output_file['direction'] = 'Output'
             output_file['parameterType'] = 'Required'
             output_file['datatype'] = dt.format('File')
-            output_file['value'] = self.output_file
+            output_file['valueAsText'] = self.output_file
             output_file = ap.Namespace(**output_file)
         else:
             input_fc = arcpy.Parameter()
@@ -164,7 +166,7 @@ class BoxOfSpagedi(object):
     def execute(self, parameters, messages):
         from scripts import ExportToSPAGeDi
    
-        results = parameters[3].value if self.standalone else parameters[3].valueAsText
+        results = parameters[3].valueAsText
 
         # temporary SPAGEDI output file
         spagedi_file_path = os.path.join(config.config_dir, "spagedi_data.txt")
@@ -173,9 +175,9 @@ class BoxOfSpagedi(object):
 
         # compute our spagedi file first
         ExportToSPAGeDi.main(
-            input_features=parameters[0].value if self.standalone else parameters[0].valueAsText,
+            input_features=parameters[0].valueAsText,
             where_clause="",
-            order_by=parameters[1].value if self.standalone else parameters[1].valueAsText,
+            order_by=parameters[1].valueAsText,
             output_name=spagedi_file_path
         )
 
@@ -187,14 +189,18 @@ class BoxOfSpagedi(object):
             file_string = """{spagedi_file_path}
 {results}
 
-2
-1
-4
+{sequence_0}
+{sequence_1}
+{sequence_2}
 
 
 
 """.format(spagedi_file_path=spagedi_file_path,
-           results=results)
+           results=results,
+           sequence_0=self.sequence[0],
+           sequence_1=self.sequence[1],
+           sequence_2=self.sequence[2])
+            print file_string
             command_file.write(file_string)
 
         # now, fire up SPAGeDi
@@ -233,37 +239,49 @@ def prepare(sauce):
             arcpy.CopyFeatures_management(lyr, sauce['input_fc'])
             return
 
+def descend(T, sequence, randomize=False):
+    print T.pop('headline')
+    for key, item in sorted(T.items()):
+        print key + '.', item.label
+    while True:
+        selection = str(randint(0, len(T))) if randomize else raw_input("Selection: ")
+        if selection in T.keys():
+            break
+    sequence.append(selection)
+    if 'next' in item:
+        descend(T[sequence[-1]].next, sequence, randomize)
+    return sequence
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], 'h', ['help'])
+            opts, args = getopt.getopt(argv[1:], 'hr', ['help', 'random'])
         except getopt.GetoptError as e:
              raise Usage(e)
+        input_fc = "in_memory/temp"
+        output_file = r"C:\Users\Sparky\src\genegis\tests\data\test_spagedi_export.txt"
+        randomize = False
         for opt, arg in opts:
             if opt in ('-h', '--help'):
                 print __doc__
                 return 0
+            elif opt in ('-r', '--random'):
+                randomize = True
         
-        # What test are we doing?  "Noodle" options:
-        # 1. identity-Fst: global F-statistics and pairwise Fst
-        # 2. identity-Rho: global F-statistics and pairwise Rho
-        # 3. identity-Gst: global Gst and pairwise Gst
-        # 4. identity-Gij: global Gst and pairwise Gij
-        # 5. identity-Ds: global F-statistics and pairwise Ds
-        # 6. size-Rst: global R-statistics and pairwise Rst
-        # 7. size-dm2: global R-statistics and pairwise dm2 distance
-        # 8. distance-Nst: global Nst and pairwise Nst
-        # 9. distance-Nij: global Nst and pairwise Nij
+        # Prompt the user: what test are we doing?
+        sequence = descend(BoxOfSpagedi.TREE, [], randomize)
+        analysis_type = BoxOfSpagedi.TREE[sequence[0]].next[sequence[1]].next[sequence[2]].label
         sauce = {
             'standalone': True,
-            'noodle': 'identity-Fst',
-            'input_fc': "in_memory/temp",
-            'output_file': r"C:\Users\Sparky\src\genegis\tests\data\test_spagedi_export.txt",
+            'sequence': sequence,
+            'input_fc': input_fc,
+            'output_file': output_file,
+            'analysis_type': analysis_type,
             'order_by': 'Individual_ID',
-            'analysis_type': 'Jacknifing',
         }
+        pp(sauce)
 
         # Clear out any leftover outputs from previous runs and
         # get the input feature class loaded into memory

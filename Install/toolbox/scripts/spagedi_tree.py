@@ -1,33 +1,34 @@
 import json
+from collections import OrderedDict
+from bunch import bunchify
 
 def spagedi_tree():
 
-    level = {
-        '1': 'individual',
-        '2': 'population',
-        '3': 'population',
-        '4': 'population',
-    }
+    level = {'1': 'individual', '2': 'population', '3': 'population', '4': 'population'}
 
     # Import levels of the Spagedi decision tree from JSON files
-    layers = ('level_of_analyses', 'statistics',
-              'computational_options', 'output_options')
-    tree = {}
+    layers = ('level_of_analyses', 'statistics', 'computational_options', 'output_options')
+    tree = OrderedDict()
     for lyr in layers:
         with open(lyr + '.json') as datafile:
-            tree[lyr] = json.load(datafile)
+            tree[lyr] = json.load(datafile, object_pairs_hook=OrderedDict)
 
     # Connect them up and build the decision tree
-    for key in tree['computational_options']:
-        tree['computational_options'][key]['next'] = tree['output_options']
+    for group, subtree in tree['computational_options'].items():
+        for key in subtree:
+            if key != 'headline':
+                subtree[key]['next'] = tree['output_options']
     for key in tree['statistics']['individual']:
-        tree['statistics']['individual'][key]['next'] = tree['computational_options']['individual']
+        if key != 'headline':
+            tree['statistics']['individual'][key]['next'] = tree['computational_options']['individual']
     for key in tree['statistics']['population']:
-        tree['statistics']['population'][key]['next'] = tree['computational_options']['population']
+        if key != 'headline':
+            tree['statistics']['population'][key]['next'] = tree['computational_options']['population']
     for key in tree['level_of_analyses']:
-        tree['level_of_analyses'][key]['next'] = tree['statistics'][level[key]]
+        if key != 'headline':   
+            tree['level_of_analyses'][key]['next'] = tree['statistics'][level[key]]
 
-    return tree['level_of_analyses']
+    return bunchify(tree['level_of_analyses'])
 
 if __name__ == '__main__':
-    print json.dumps(spagedi_tree(), indent=2, sort_keys=True)
+    print json.dumps(spagedi_tree(), indent=3, sort_keys=True)
