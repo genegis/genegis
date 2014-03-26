@@ -78,6 +78,9 @@ class SpagediWrapper(object):
 
     @error_handler("")
     def getParameterInfo(self):
+
+        # Bunch has attribute-style access, so it is a reasonable
+        # substitute for arcpy's Parameter class
         if self.standalone:
             input_fc = Bunch()
             order_by = Bunch()
@@ -88,6 +91,7 @@ class SpagediWrapper(object):
             order_by.valueAsText = self.order_by
             analysis_type.valueAsText = self.analysis_type
             output_file.valueAsText = self.output_file
+            
         else:
             input_fc = arcpy.Parameter()
             analysis_type = arcpy.Parameter()
