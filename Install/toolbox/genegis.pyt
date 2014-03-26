@@ -592,6 +592,7 @@ class SpagediFst(object):
         utils.msg("writing out spagedi commands...")
         # now, generate an input file for SPAGeDi
         spagedi_commands = os.path.join(config.config_dir, "spagedi_commands.txt")
+        utils.msg(spagedi_commands)
         with open(spagedi_commands, 'w') as command_file:
             file_string = """{spagedi_file_path}
 {results}
