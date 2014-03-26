@@ -50,7 +50,7 @@ def error_handler(task=""):
 class BoxOfSpagedi(object):
     """
     BoxOfSpagedi: a conveniently shaped object which allows you to access the
-    tools, or "noodles", of Spagedi, from Python
+    tools of Spagedi, from Python
     """
     TREE = spagedi_tree()
 

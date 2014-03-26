@@ -1,37 +1,33 @@
 import json
-from copy import deepcopy
 
 def spagedi_tree():
 
-    analysis_level = {
-        "1": "individual",
-        "2": "population",
-        "3": "population",
-        "4": "population",
+    level = {
+        '1': 'individual',
+        '2': 'population',
+        '3': 'population',
+        '4': 'population',
     }
 
     # Import levels of the Spagedi decision tree from JSON files
-    with open('level_of_analyses.json') as datafile:
-        LEVEL_OF_ANALYSES = json.load(datafile)
-    with open('statistics.json') as datafile:
-        STATISTICS = json.load(datafile)
-    with open('computational_options.json') as datafile:
-        COMPUTATIONAL_OPTIONS = json.load(datafile)
-    with open('output_options.json') as datafile:
-        OUTPUT_OPTIONS = json.load(datafile)
+    layers = ('level_of_analyses', 'statistics',
+              'computational_options', 'output_options')
+    tree = {}
+    for lyr in layers:
+        with open(lyr + '.json') as datafile:
+            tree[lyr] = json.load(datafile)
 
-    # Connect them up
-    for key in COMPUTATIONAL_OPTIONS:
-        COMPUTATIONAL_OPTIONS[key]["next"] = OUTPUT_OPTIONS
-    for key in STATISTICS["individual"]:
-        STATISTICS["individual"][key]["next"] = COMPUTATIONAL_OPTIONS["individual"]
-    for key in STATISTICS["population"]:
-        STATISTICS["population"][key]["next"] = COMPUTATIONAL_OPTIONS["population"]
-    for key in LEVEL_OF_ANALYSES:
-        LEVEL_OF_ANALYSES[key]["next"] = STATISTICS[analysis_level[key]]
+    # Connect them up and build the decision tree
+    for key in tree['computational_options']:
+        tree['computational_options'][key]['next'] = tree['output_options']
+    for key in tree['statistics']['individual']:
+        tree['statistics']['individual'][key]['next'] = tree['computational_options']['individual']
+    for key in tree['statistics']['population']:
+        tree['statistics']['population'][key]['next'] = tree['computational_options']['population']
+    for key in tree['level_of_analyses']:
+        tree['level_of_analyses'][key]['next'] = tree['statistics'][level[key]]
 
-    return LEVEL_OF_ANALYSES
+    return tree['level_of_analyses']
 
 if __name__ == '__main__':
-    TREE = spagedi_tree()
-    print json.dumps(TREE, indent=2)
+    print json.dumps(spagedi_tree(), indent=2, sort_keys=True)
