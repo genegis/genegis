@@ -73,7 +73,9 @@ class BoxOfSpagedi(object):
         self.output_file = output_file
         self.order_by = order_by
         self.analysis_type = analysis_type
+        self.log = 'log/error.log'
 
+    @error_handler
     def getParameterInfo(self):
 
         # Input Feature Class
@@ -155,6 +157,7 @@ class BoxOfSpagedi(object):
     def isLicensed(self):
         return True
 
+    @error_handler
     def updateParameters(self, parameters):
         output_file = parameters[self.cols['output_file']]
         output_file.value = utils.set_file_extension(output_file, 'txt')
@@ -163,6 +166,7 @@ class BoxOfSpagedi(object):
     def updateMessages(self, parameters):
         return
 
+    @error_handler
     def execute(self, parameters, messages):
         from scripts import ExportToSPAGeDi
    
@@ -229,6 +233,10 @@ class BoxOfSpagedi(object):
 
 
 def prepare(sauce):
+    """
+    Clear out any leftover outputs from previous runs and get the input
+    feature class loaded into memory.
+    """
     if os.path.isfile(sauce['output_file']):
         os.remove(sauce['output_file'])
     scriptloc = os.path.dirname(os.path.realpath(__file__))
@@ -237,9 +245,15 @@ def prepare(sauce):
     for lyr in arcpy.mapping.ListLayers(mxd):
         if lyr.name == 'SRGD_example_Spatial':
             arcpy.CopyFeatures_management(lyr, sauce['input_fc'])
-            return
+            return sauce
 
 def descend(T, sequence, randomize=False):
+    """
+    Prompt the user through Spagedi's decision tree, then save the commands so
+    we can re-use them when we actually run Spagedi from the main workflow.
+
+    Note: this does not handle every part of the tree yet.
+    """
     print T.pop('headline')
     for key, item in sorted(T.items()):
         print key + '.', item.label
@@ -273,19 +287,15 @@ def main(argv=None):
         # Prompt the user: what test are we doing?
         sequence = descend(BoxOfSpagedi.TREE, [], randomize)
         analysis_type = BoxOfSpagedi.TREE[sequence[0]].next[sequence[1]].next[sequence[2]].label
-        sauce = {
+        sauce = prepare({
             'standalone': True,
             'sequence': sequence,
             'input_fc': input_fc,
             'output_file': output_file,
             'analysis_type': analysis_type,
             'order_by': 'Individual_ID',
-        }
-        pp(sauce)
-
-        # Clear out any leftover outputs from previous runs and
-        # get the input feature class loaded into memory
-        prepare(sauce)
+        })
+        print json.dumps(sauce, indent=3, sort_keys=True)
 
         # Fire up Spagedi and crunch some numbers
         spagedi = BoxOfSpagedi(**sauce)

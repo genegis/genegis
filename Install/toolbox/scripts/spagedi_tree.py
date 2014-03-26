@@ -10,7 +10,7 @@ def spagedi_tree():
     layers = ('level_of_analyses', 'statistics', 'computational_options', 'output_options')
     tree = OrderedDict()
     for lyr in layers:
-        with open(lyr + '.json') as datafile:
+        with open('json/' + lyr + '.json') as datafile:
             tree[lyr] = json.load(datafile, object_pairs_hook=OrderedDict)
 
     # Connect them up and build the decision tree
