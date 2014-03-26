@@ -4,13 +4,13 @@ Standalone script to test drive spagedi functionality.
 """
 import os, re, sys, time, platform, glob, getopt
 from random import randint
-import argparse as ap
 import xml.etree.cElementTree as et
 from pprint import pprint as pp
 from usage import Usage
 import arcpy
 from functools import wraps
 from spagedi_tree import *
+from bunch import Bunch
 
 # enable local imports; allow importing both this directory and one above
 local_path = os.path.dirname(__file__)
@@ -79,78 +79,51 @@ class SpagediWrapper(object):
     @error_handler("")
     def getParameterInfo(self):
         if self.standalone:
-            input_fc = {}
-            input_fc['name'] = u'Input_Feature_Class'
-            input_fc['displayName'] = u'Feature Class'
-            input_fc['direction'] = 'Input'
-            input_fc['parameterType'] = 'Required'
-            input_fc['datatype'] = dt.format('Feature Layer')
-            input_fc['valueAsText'] = self.input_fc
-            input_fc = ap.Namespace(**input_fc)
-            
-            order_by = {}
-            order_by['name'] = u'Population Field'
-            order_by['displayName'] = u'Population Field'
-            order_by['parameterType'] = 'Required'
-            order_by['direction'] = 'Input'
-            order_by['datatype'] = dt.format('Field')
-            order_by['parameterDependencies'] = [input_fc.name]
-            order_by['valueAsText'] = self.order_by
-            order_by = ap.Namespace(**order_by)
-
-            analysis_type = {}
-            analysis_type['name'] = 'Analysis_Type'
-            analysis_type['displayName'] = 'Analysis Type'
-            analysis_type['direction'] = 'Input'
-            analysis_type['parameterType'] = 'Required'
-            analysis_type['datatype'] = dt.format('String')
-            analysis_type['filter.list'] = ['Jacknifing']
-            analysis_type['valueAsText'] = self.analysis_type
-            analysis_type = ap.Namespace(**analysis_type)
-
-            output_file = {}
-            output_file['name'] = u'Output_File'
-            output_file['displayName'] = u'Output Results File'
-            output_file['direction'] = 'Output'
-            output_file['parameterType'] = 'Required'
-            output_file['datatype'] = dt.format('File')
-            output_file['valueAsText'] = self.output_file
-            output_file = ap.Namespace(**output_file)
+            input_fc = Bunch()
+            order_by = Bunch()
+            analysis_type = Bunch()
+            analysis_type.filter = Bunch()
+            output_file = Bunch()
+            input_fc.valueAsText = self.input_fc
+            order_by.valueAsText = self.order_by
+            analysis_type.valueAsText = self.analysis_type
+            output_file.valueAsText = self.output_file
         else:
-            # Input feature class
             input_fc = arcpy.Parameter()
-            input_fc.name = u'Input_Feature_Class'
-            input_fc.displayName = u'Feature Class'
-            input_fc.direction = 'Input'
-            input_fc.parameterType = 'Required'
-            input_fc.datatype = dt.format('Feature Layer')
-
-            # Attribute_Field__to_order_by_population_
-            order_by = arcpy.Parameter()
-            order_by.name = u'Population Field'
-            order_by.displayName = u'Population Field'
-            order_by.parameterType = 'Required'
-            order_by.direction = 'Input'
-            order_by.datatype = dt.format('Field')
-            order_by.parameterDependencies=[input_fc.name]
-
-            # Analysis Type
             analysis_type = arcpy.Parameter()
-            analysis_type.name = 'Analysis_Type'
-            analysis_type.displayName = 'Analysis Type'
-            analysis_type.direction = 'Input'
-            analysis_type.parameterType = 'Required'
-            analysis_type.datatype = dt.format('String')
-            analysis_type.filter.list = ['Jacknifing']
-            analysis_type.value = 'Jacknifing'
-
-            # Output File
+            order_by = arcpy.Parameter()
             output_file = arcpy.Parameter()
-            output_file.name = u'Output_File'
-            output_file.displayName = u'Output Results File'
-            output_file.direction = 'Output'
-            output_file.parameterType = 'Required'
-            output_file.datatype = dt.format('File')
+            analysis_type.value = self.analysis_type
+
+        # Input feature class
+        input_fc.name = u'Input_Feature_Class'
+        input_fc.displayName = u'Feature Class'
+        input_fc.direction = 'Input'
+        input_fc.parameterType = 'Required'
+        input_fc.datatype = dt.format('Feature Layer')
+
+        # Attribute_Field__to_order_by_population_    
+        order_by.name = u'Population Field'
+        order_by.displayName = u'Population Field'
+        order_by.parameterType = 'Required'
+        order_by.direction = 'Input'
+        order_by.datatype = dt.format('Field')
+        order_by.parameterDependencies=[input_fc.name]
+
+        # Analysis Type           
+        analysis_type.name = 'Analysis_Type'
+        analysis_type.displayName = 'Analysis Type'
+        analysis_type.direction = 'Input'
+        analysis_type.parameterType = 'Required'
+        analysis_type.datatype = dt.format('String')
+        analysis_type.filter.list = [self.analysis_type]
+
+        # Output File
+        output_file.name = u'Output_File'
+        output_file.displayName = u'Output Results File'
+        output_file.direction = 'Output'
+        output_file.parameterType = 'Required'
+        output_file.datatype = dt.format('File')
 
         return [input_fc, order_by, analysis_type, output_file]
 
