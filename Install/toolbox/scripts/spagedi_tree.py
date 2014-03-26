@@ -1,16 +1,16 @@
-import json
+import os, json 
 from collections import OrderedDict
 from bunch import bunchify
 
 def spagedi_tree():
-
     level = {'1': 'individual', '2': 'population', '3': 'population', '4': 'population'}
 
     # Import levels of the Spagedi decision tree from JSON files
     layers = ('level_of_analyses', 'statistics', 'computational_options', 'output_options')
     tree = OrderedDict()
     for lyr in layers:
-        with open('json/' + lyr + '.json') as datafile:
+        json_path = 'json' + os.sep + lyr + '.json'
+        with open(json_path) as datafile:
             tree[lyr] = json.load(datafile, object_pairs_hook=OrderedDict)
 
     # Connect them up and build the decision tree

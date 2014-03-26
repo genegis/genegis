@@ -204,7 +204,7 @@ class BoxOfSpagedi(object):
            sequence_0=self.sequence[0],
            sequence_1=self.sequence[1],
            sequence_2=self.sequence[2])
-            print file_string
+            # print file_string
             command_file.write(file_string)
 
         # now, fire up SPAGeDi
@@ -295,7 +295,7 @@ def main(argv=None):
             'analysis_type': analysis_type,
             'order_by': 'Individual_ID',
         })
-        print json.dumps(sauce, indent=3, sort_keys=True)
+        # print json.dumps(sauce, indent=3, sort_keys=True)
 
         # Fire up Spagedi and crunch some numbers
         spagedi = BoxOfSpagedi(**sauce)
