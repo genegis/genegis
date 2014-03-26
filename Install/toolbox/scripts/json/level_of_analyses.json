@@ -1,0 +1,15 @@
+{
+    "headline": "LEVEL OF ANALYSES.  Spatial analyses are carried out at the level of:",
+    "1": {
+        "label": "Individuals (e.g. kinship coefficients)"
+    },
+    "2": {
+        "label": "Populations (categorical)"
+    },
+    "3": {
+        "label": "Populations (spatial)"
+    },
+    "4": {
+        "label": "Populations (spatio-categorical)"
+    }
+}

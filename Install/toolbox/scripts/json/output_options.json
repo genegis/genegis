@@ -1,0 +1,24 @@
+{
+    "headline": "OUTPUT OPTIONS.  Select among the following options.",
+    "1": {
+        "label": "Report allele freq and diversity coef per pop (or only averages reported)"
+    },
+    "2": {
+        "label": "Set subsample size to compute allelic richness (or use minimal sample size)"
+    },
+    "3": {
+        "label": "Report all stat of regression analyses (or only use slopes reported)"
+    },
+    "4": {
+        "label": "Report matrices with pairwise spatial distances and genetic coefficients"
+    },
+    "5": {
+        "label": "Convert data file into GENEPOP or FSTAT format"
+    },
+    "6": {
+        "label": "Estimate gene dispersal sigma"
+    },
+    "7": {
+        "label": "Report actual variance of pairwise genetic coefficients"
+    }
+}
