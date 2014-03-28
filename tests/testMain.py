@@ -4,6 +4,7 @@ import unittest
 
 import arcpy
 import zipfile
+from geographiclib.geodesic import Geodesic
 
 from tempdir import TempDir
 
@@ -14,7 +15,7 @@ import utils
 import_paths = ['../Install/toolbox', '../Install']
 utils.addLocalPaths(import_paths)
 
-from scripts import ClassifiedImport
+from scripts import ClassifiedImport, DistanceMatrix, ShortestDistancePaths
 
 # A GDB for our test results
 d = TempDir()
@@ -73,6 +74,156 @@ class TestClassifiedImport(unittest.TestCase):
         # clean up
         arcpy.Delete_management(gdb_path)
         self.assertFalse(os.path.exists(gdb_path))
+
+
+class TestDistanceMatrix(unittest.TestCase):
+
+    def setUp(self):
+        self.input_fc = "in_memory/temp"
+        scriptloc = os.path.dirname(os.path.realpath(__file__))
+        self.output = os.path.join(scriptloc, 'data', 'Test_DistanceMatrix')
+
+        # Use the SRGD_example_Spatial layer from genegis.mxd for testing
+        mxdpath = os.path.abspath(
+            os.path.join(scriptloc, os.path.pardir, 
+                         'Install', 'toolbox', 'genegis.mxd')
+        )
+        mxd = arcpy.mapping.MapDocument(mxdpath)
+        for lyr in arcpy.mapping.ListLayers(mxd):
+            if lyr.name == 'SRGD_example_Spatial':
+                arcpy.CopyFeatures_management(lyr, self.input_fc)
+                break
+
+    def testDistanceMatrixAvailable(self, method=DistanceMatrix):
+        self.assertTrue('main' in vars(method))
+
+    def testDistanceMatrixRun(self, method=DistanceMatrix):
+        # clean up from any past runs
+        arcpy.Delete_management(self.output)
+
+        parameters = {
+            'input_fc': self.input_fc,
+            'dist_unit': 'Kilometers',
+            'matrix_type': 'Square',
+            'output_matrix': self.output,
+        }
+        method.main(mode='script', **parameters)
+
+        # Calculate a "reference" distance matrix using geographiclib.
+        # This will be used to check the output of DistanceMatrix.py.
+        input_fc_mem = 'in_memory/input_fc'
+        arcpy.CopyFeatures_management(self.input_fc, input_fc_mem)
+        WGS84 = arcpy.SpatialReference('WGS 1984')
+        cursor = arcpy.da.SearchCursor(input_fc_mem, ['OID@', 'SHAPE@XY'],
+                                       spatial_reference=WGS84)
+        points = {}
+        for row in cursor:
+            points[row[0]] = (row[1][0], row[1][1])
+        ref_dist = {}
+        for from_fid, from_point in points.items():
+            ref_dist[from_fid] = {}
+            for to_fid, to_point in points.items():
+                if from_fid == to_fid:
+                    ref_dist[from_fid][to_fid] = 0
+                else:
+                    ref_dist[from_fid][to_fid] = Geodesic.WGS84.Inverse(
+                        from_point[1], from_point[0], to_point[1], to_point[0]
+                    )['s12'] / 1000.0
+
+        # Sanity checks for the distance matrix:
+        # 1. It must exist
+        # 2. The first row must contain point indices 1, 2, 3, ...
+        # 3. The first entry in each row should contain its point index
+        # 4. The diagonal entries should all be 0
+        # 5. All entries should be positive
+        # 6. There should be the same number of rows and columns
+        # 7. The distances should be the same as reported by geographiclib
+        # 8. The matrix must be symmetric (distances a->b & b->a must be equal)
+        #
+        # Sanity check 1
+        self.assertTrue(arcpy.Exists(self.output))
+        with open(self.output, 'rU') as outfile:
+            for i, line in enumerate(outfile):
+                row = line.strip().split(',')
+                # Sanity check 2
+                if i == 0:
+                    self.assertListEqual(map(int, row[1:]), range(1, len(row)))
+                else:
+                    row = map(float, row)
+                    # Sanity check 3
+                    self.assertEqual(i, row[0])
+                    # Sanity check 4
+                    self.assertEqual(0, row[i])
+                    # Sanity check 5
+                    self.assertTrue(all([j >= 0 for j in row]))
+                    # Sanity check 7
+                    # (distances rounded to the nearest 0.001 km)
+                    for j, dist in enumerate(row[1:]):
+                        rounded_ref_dist = round(ref_dist[int(row[0])][j+1], 3)
+                        self.assertEqual(round(dist, 3), rounded_ref_dist)
+            # Sanity check 6
+            self.assertEqual(i+1, len(row))
+            # Sanity check 8
+            # (using reference matrix, which we already verified is the same
+            # as the matrix calculated by DistanceMatrix.py, in check 7)
+            ref_matrix = [dist.values() for row, dist in ref_dist.items()]
+            ref_matrix_transpose = map(list, zip(*ref_matrix))
+            self.assertEqual(ref_matrix, ref_matrix_transpose)
+
+    def testToolboxImport(self):
+        self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
+        self.assertTrue('DistanceMatrix' in vars(self.toolbox))
+
+    def testCleanup(self):
+        # clean up
+        arcpy.Delete_management(self.output)
+
+
+class TestShortestDistancePaths(unittest.TestCase):
+
+    def setUp(self):
+        self.input_fc = "in_memory/temp"
+        scriptloc = os.path.dirname(os.path.realpath(__file__))
+        self.output_fc = os.path.join(scriptloc, 'data', 'Test_ShortestDistancePaths')
+
+        # Use the SRGD_example_Spatial layer from genegis.mxd for testing
+        mxdpath = os.path.abspath(
+            os.path.join(scriptloc, os.path.pardir, 
+                         'Install', 'toolbox', 'genegis.mxd')
+        )
+        mxd = arcpy.mapping.MapDocument(mxdpath)
+        for lyr in arcpy.mapping.ListLayers(mxd):
+            if lyr.name == 'SRGD_example_Spatial':
+                arcpy.CopyFeatures_management(lyr, self.input_fc)
+                break
+
+    def testShortestDistancePathsAvailable(self, method=ShortestDistancePaths):
+        self.assertTrue('main' in vars(method))
+
+    def testShortestDistancePathsRun(self, method=ShortestDistancePaths):
+        # clean up from any past runs
+        arcpy.Delete_management(self.output_fc)
+
+        parameters = {
+            'input_fc': self.input_fc,
+            'output_fc': self.output_fc,
+        }
+        method.main(mode='script', **parameters)
+        arcpy.DeleteFeatures_management(self.input_fc)
+
+        output_file_extensions = ('.cpg', '.dbf', '.prj', '.sbn',
+                                  '.sbx', '.shp', '.shp.xml', '.shx')
+        for ext in output_file_extensions:
+            output_file = self.output_fc + ext
+            self.assertTrue(arcpy.Exists(output_file))
+
+    def testToolboxImport(self):
+        self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
+        self.assertTrue('ShortestDistancePaths' in vars(self.toolbox))
+
+    def testCleanup(self):
+        arcpy.Delete_management(self.output_fc + '.shp')
+
 
 class TestQuotedMultilineInput(unittest.TestCase):
     

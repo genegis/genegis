@@ -13,6 +13,7 @@ import sys
 import time
 from collections import OrderedDict
 from datetime import datetime
+import platform
 
 # local imports
 import utils
@@ -175,7 +176,7 @@ def main(input_features=None, where_clause=None, order_by=None,
     # Now compute the lines between these locations.
     try:
         # copy the final result back to disk.
-        utils.msg("Writing results to disk…")
+        utils.msg("Writing results to disk...")
 
         output_rows = [comment_row, header_row, distances_row, labels_row] + \
                 data_rows
@@ -202,14 +203,24 @@ def main(input_features=None, where_clause=None, order_by=None,
 
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':
-    # Defaults when no configuration is provided
-    # TODO: change these to be test-based.
+    if platform.node() == 'MountThielsen':
+        input_fc = "in_memory/temp"
+        scriptloc = os.path.dirname(os.path.realpath(__file__))
+        mxdpath = os.path.abspath(os.path.join(scriptloc, os.path.pardir, 'genegis.mxd'))
+        mxd = arcpy.mapping.MapDocument(mxdpath)
+        for lyr in arcpy.mapping.ListLayers(mxd):
+            if lyr.name == 'SRGD_example_Spatial':
+                arcpy.CopyFeatures_management(lyr, input_fc)
+                break
+        output_file = r"C:\Users\Sparky\src\genegis\tests\data\test_spagedi_export.txt"
+    else:
+        input_fc = "C:\\geneGIS\\test.gdb\\test_Spatial"
+        output_file = "C:\\geneGIS\\spagedi_export.txt"
     defaults_tuple = (
-        ('input_features', "C:\\geneGIS\\test.gdb\\test_Spatial"),
-        ('output_name',  "C:\\geneGIS\\spagedi_export.txt"),
+        ('input_features', input_fc),
+        ('output_name',  output_file),
         ('where_clause', ""),
         ('order_by', 'Region')
-    )
-    
+    )    
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(mode='script', **defaults)
