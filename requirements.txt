@@ -1,0 +1,3 @@
+# external libraries used only for tests (not necessary for package installation)
+nose
+geographiclib
