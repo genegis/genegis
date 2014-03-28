@@ -70,12 +70,11 @@ class TestClassifiedImport(unittest.TestCase):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
         self.assertTrue('ClassifiedImport' in vars(self.toolbox))
 
-    def testCleanup(self):
+    def tearDown(self):
         # clean up
         arcpy.Delete_management(gdb_path)
         self.assertFalse(os.path.exists(gdb_path))
-
-
+        
 class TestDistanceMatrix(unittest.TestCase):
 
     def setUp(self):
@@ -174,7 +173,7 @@ class TestDistanceMatrix(unittest.TestCase):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
         self.assertTrue('DistanceMatrix' in vars(self.toolbox))
 
-    def testCleanup(self):
+    def tearDown(self):
         # clean up
         arcpy.Delete_management(self.output)
 
@@ -221,7 +220,7 @@ class TestShortestDistancePaths(unittest.TestCase):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
         self.assertTrue('ShortestDistancePaths' in vars(self.toolbox))
 
-    def testCleanup(self):
+    def tearDown(self):
         arcpy.Delete_management(self.output_fc + '.shp')
 
 
@@ -253,7 +252,7 @@ class TestQuotedMultilineInput(unittest.TestCase):
                 'the CSV parser.\n Now, a new line.'
         self.assertTrue(res[0] == expected_value) 
         
-    def testCleanup(self):
+    def tearDown(self):
         # clean up
         arcpy.Delete_management(gdb_path)
         self.assertFalse(os.path.exists(gdb_path))
