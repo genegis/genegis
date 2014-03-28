@@ -243,7 +243,7 @@ class ClassifiedImport(object):
                                 # examine the data to determine which'd be best.
                                 preferred_type = data_type[0]
                                 data_sample = data[0][i]
-                                if preferred_type == 'Integer':
+                                if preferred_type == 'Long':
                                     try:
                                         int(data_sample)
                                         forced_type = preferred_type

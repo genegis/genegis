@@ -87,7 +87,7 @@ group_expressions = [
     ('Genetic', '^haplotype$', 'Text'),
     ('Genetic', '^dlphap$', 'Text'),
     ('Genetic', '^l_', None), 
-    ('Identification', '_id$', ('Integer', 'Text')),
+    ('Identification', '_id$', ('Long', 'Text')),
     ('Location', '^x$', None), 
     ('Location', '^y$', None),
     ('Location', 'longitude', None),
