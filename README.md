@@ -46,12 +46,12 @@ cd genegis
 git submodule update --init --recursive
 ```
 
-Testing
--------
+Development
+-----------
 
 [Nose](https://nose.readthedocs.org/en/latest/) tests are included which perform basic checks. To run, the tests, use `pip` to install requirements:
     
-    $ pip install -r requirements.txt
+    $ pip install -r requirements-dev.txt
 
 Then, run nose from the top-level directory:
 
