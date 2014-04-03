@@ -2,13 +2,13 @@
 """
 Standalone script to test drive spagedi functionality.
 """
-import os, re, sys, time, platform, glob, getopt
+import os, re, sys, time, platform, glob, getopt, traceback, subprocess
+from functools import wraps
 from random import randint
 import xml.etree.cElementTree as et
 from pprint import pprint as pp
 from usage import Usage
 import arcpy
-from functools import wraps
 from spagedi_tree import *
 from bunch import Bunch
 
@@ -167,20 +167,34 @@ class SpagediWrapper(object):
         spagedi_commands = os.path.join(config.config_dir, "spagedi_commands.txt")
         utils.msg(spagedi_commands)
         with open(spagedi_commands, 'w') as command_file:
+#             file_string = """{spagedi_file_path}
+# {results}
+
+# {sequence_0}
+# {sequence_1}
+# {sequence_2}
+
+
+
+# """.format(spagedi_file_path=spagedi_file_path,
+#            results=results,
+#            sequence_0=self.sequence[0],
+#            sequence_1=self.sequence[1],
+#            sequence_2=self.sequence[2])
             file_string = """{spagedi_file_path}
 {results}
 
-{sequence_0}
-{sequence_1}
-{sequence_2}
+2
+5
+3
+1
+40
+1
 
 
 
 """.format(spagedi_file_path=spagedi_file_path,
-           results=results,
-           sequence_0=self.sequence[0],
-           sequence_1=self.sequence[1],
-           sequence_2=self.sequence[2])
+           results=results)
             # print file_string
             command_file.write(file_string)
 
@@ -190,19 +204,18 @@ class SpagediWrapper(object):
                Written by Olivier Hardy & Xavier Vekemans
                Contributions by Reed Cartwright"""
         utils.msg(spagedi_msg)
-        time.sleep(2)
+        time.sleep(1)
 
         spagedi_executable_path = os.path.abspath( \
                 os.path.join(os.path.abspath(os.path.dirname(__file__)), \
                 "..", "lib", config.spagedi_executable))
 
-        cmd = "{spagedi_exe} < {spagedi_commands}".format(
-                spagedi_exe=spagedi_executable_path,
-                spagedi_commands=spagedi_commands)
         utils.msg("trying to run %s" % cmd)
-
-        # TODO replace with subprocess call
-        res = os.system(cmd)
+        with open(spagedi_commands) as spagedi_input, open(os.devnull, 'w') as FNULL: 
+            p = subprocess.Popen(spagedi_executable_path, stdin=spagedi_input,
+                                 stdout=FNULL, stderr=subprocess.STDOUT)
+            p.wait()
+            FNULL.flush()
 
         utils.msg("trying to open resulting file %s" % results)
         os.startfile(results)
@@ -260,7 +273,7 @@ def main(argv=None):
                 return 0
             elif opt in ('-r', '--random'):
                 randomize = True
-        
+
         # Prompt the user: what test are we doing?
         sequence = descend(SpagediWrapper.TREE, [], randomize)
         analysis_type = SpagediWrapper.TREE[sequence[0]].next[sequence[1]].next[sequence[2]].label
