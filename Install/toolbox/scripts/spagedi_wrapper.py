@@ -163,40 +163,27 @@ class SpagediWrapper(object):
         )
 
         utils.msg("writing out spagedi commands...")
+
         # now, generate an input file for SPAGeDi
         spagedi_commands = os.path.join(config.config_dir, "spagedi_commands.txt")
         utils.msg(spagedi_commands)
         with open(spagedi_commands, 'w') as command_file:
-#             file_string = """{spagedi_file_path}
-# {results}
-
-# {sequence_0}
-# {sequence_1}
-# {sequence_2}
-
-
-
-# """.format(spagedi_file_path=spagedi_file_path,
-#            results=results,
-#            sequence_0=self.sequence[0],
-#            sequence_1=self.sequence[1],
-#            sequence_2=self.sequence[2])
             file_string = """{spagedi_file_path}
 {results}
 
-2
-5
-3
-1
-40
-1
+{sequence_0}
+{sequence_1}
+{sequence_2}
+{sequence_3}
 
 
 
 """.format(spagedi_file_path=spagedi_file_path,
-           results=results)
-            # print file_string
-            command_file.write(file_string)
+           results=results,
+           sequence_0=self.sequence[0],
+           sequence_1=self.sequence[1],
+           sequence_2=self.sequence[2],
+           sequence_3=self.sequence[3])
 
         # now, fire up SPAGeDi
         spagedi_msg = """Now running SPAGeDi 1.4a (build 11-01-2013)
@@ -209,13 +196,24 @@ class SpagediWrapper(object):
         spagedi_executable_path = os.path.abspath( \
                 os.path.join(os.path.abspath(os.path.dirname(__file__)), \
                 "..", "lib", config.spagedi_executable))
-
-        utils.msg("trying to run %s" % cmd)
-        with open(spagedi_commands) as spagedi_input, open(os.devnull, 'w') as FNULL: 
-            p = subprocess.Popen(spagedi_executable_path, stdin=spagedi_input,
-                                 stdout=FNULL, stderr=subprocess.STDOUT)
-            p.wait()
-            FNULL.flush()
+        
+        if sys.platform.startswith("win"):
+            import ctypes
+            SEM_NOGPFAULTERRORBOX = 0x0002
+            ctypes.windll.kernel32.SetErrorMode(SEM_NOGPFAULTERRORBOX);
+            subprocess_flags = 0x8000000
+        else:
+            subprocess_flags = 0
+        
+        with open(spagedi_commands) as spagedi_input, open(os.devnull, 'w') as FNULL:
+            process = subprocess.Popen(spagedi_executable_path,
+                                       stdin=spagedi_input,
+                                       stdout=FNULL,
+                                       stderr=subprocess.STDOUT,
+                                       creationflags=subprocess_flags)
+            (stdout, stderr) = process.communicate()
+            if process.returncode != 0:
+                import ipdb; ipdb.set_trace()
 
         utils.msg("trying to open resulting file %s" % results)
         os.startfile(results)
@@ -261,22 +259,29 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], 'hr', ['help', 'random'])
+            opts, args = getopt.getopt(argv[1:], 'hrt', ['help', 'random', 'test'])
         except getopt.GetoptError as e:
              raise Usage(e)
         input_fc = "in_memory/temp"
         output_file = r"C:\Users\Sparky\src\genegis\tests\data\test_spagedi_export.txt"
         randomize = False
+        testing = False
         for opt, arg in opts:
             if opt in ('-h', '--help'):
                 print __doc__
                 return 0
             elif opt in ('-r', '--random'):
                 randomize = True
+            elif opt in ('-t', '--test'):
+                testing = True
 
         # Prompt the user: what test are we doing?
-        sequence = descend(SpagediWrapper.TREE, [], randomize)
-        analysis_type = SpagediWrapper.TREE[sequence[0]].next[sequence[1]].next[sequence[2]].label
+        if not testing:
+            sequence = descend(SpagediWrapper.TREE, [], randomize)
+            analysis_type = SpagediWrapper.TREE[sequence[0]].next[sequence[1]].next[sequence[2]].label
+        else:
+            sequence = [1, 1, 1, 1]
+            analysis_type = "testing"
         sauce = prepare({
             'standalone': True,
             'sequence': sequence,
