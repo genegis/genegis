@@ -1,0 +1,15 @@
+{
+    "headline": "PERMUTATION OPTIONS. Select among the following options.",
+    "1": {
+        "label": "Report only P-values (otherwise details of permutation tests are reported)"
+    },
+    "2": {
+        "label": "Define # of permutations for each randomized unit (otherwise same #)"
+    },
+    "3": {
+        "label": "Initialize random number generator (otherwise initialization on clock)"
+    },
+    "4": {
+        "label": "Perform tests of genetic differentiation"
+    }
+}
