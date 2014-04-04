@@ -41,9 +41,7 @@ Building from Source
 --------------------
 
 ```
-git clone https://github.com/genegis/genegis.git
-cd genegis
-git submodule update --init --recursive
+git clone --recursive https://github.com/genegis/genegis.git
 ```
 
 Development
