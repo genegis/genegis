@@ -699,13 +699,14 @@ class ExportGenAlEx(object):
         from scripts import ExportToGenAlEx
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters:
+        add_output = arcpy.env.addOutputsToMap
+        arcpy.env.addOutputsToMap  = False
         ExportToGenAlEx.main(
             input_features=parameters[0].valueAsText,
             where_clause=parameters[1].valueAsText,
             order_by=parameters[2].valueAsText,
             output_name=parameters[3].valueAsText)
-
-    arcpy.env.addOutputsToMap  = False
+        arcpy.env.addOutputsToMap  = add_output
 
 class ExportGenepop(object):
 
@@ -772,15 +773,16 @@ class ExportGenepop(object):
     def execute(self, parameters, messages):
         from scripts import ExportToGenepop
 
+        add_output = arcpy.env.addOutputsToMap
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters
+        arcpy.env.addOutputsToMap  = False
         ExportToGenepop.main(
             input_features=parameters[0].valueAsText,
             where_clause=parameters[1].valueAsText,
             order_by=parameters[2].valueAsText,
             output_name=parameters[3].valueAsText)
-            
-    arcpy.env.addOutputsToMap  = False
+        arcpy.env.addOutputsToMap  = add_output
     
 class ExportSpagedi(object):
 
@@ -1097,11 +1099,13 @@ class ExportSRGD(object):
     def execute(self, parameters, messages):
         input_feature = parameters[0].valueAsText
         output_csv = parameters[1].valueAsText
+        add_output = arcpy.env.addOutputsToMap
         arcpy.env.addOutputsToMap  = False
         # run export on this feature class.
         messages.addMessage("Running export...")
         addin_utils.writeToSRGD(input_feature, output_csv)
         messages.addMessage("Exported results saved to %s." % output_csv)
+        arcpy.env.addOutputsToMap = add_output
         time.sleep(4)
 
 class MakeIndividualPaths(object):

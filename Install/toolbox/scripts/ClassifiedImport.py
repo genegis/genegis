@@ -40,6 +40,9 @@ def main(input_table=None, sr=None, output_loc=None,
 
     # set mode based on how script is called.
     config.settings.mode = mode
+    add_output = arcpy.env.addOutputsToMap
+    arcpy.env.addOutputsToMap = True
+
     # First, create a geodatabase for all our future results.
     # TODO: can we generate this from a single value?
     gdb_path = os.path.abspath(os.path.join(output_loc, output_gdb + '.gdb'))
@@ -164,13 +167,9 @@ def formatDate(input_date):
         # for this step, overwrite any existing results
         arcpy.env.overwriteOutput = config.overwrite
 
-        # set to the results for this step
-        add_outputs_default = arcpy.env.addOutputsToMap
-        arcpy.env.addOutputsToMap = True
         # Process: Copy Features
         # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
         arcpy.CopyFeatures_management(temporary_layer, output_fc, "", "0", "0", "0")
-        arcpy.env.addOutputsToMap = add_outputs_default
         utils.msg("Features succesfully created: \n %s" % output_fc)
 
     except Exception as e:
@@ -218,8 +217,7 @@ def formatDate(input_date):
         utils.msg("Unable to delete temporary layer", mtype='error', exception=e)
         sys.exit()
 
-    # reset adding of outputs.
-    arcpy.env.addOutputsToMap = add_outputs_default
+    arcpy.env.addOutputsToMap = add_output
 
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':

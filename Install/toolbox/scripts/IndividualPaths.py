@@ -8,11 +8,7 @@ import utils
 import config
 import time
 
-##selected_pts = arcpy.GetParameterAsText(0)
-##source_fc = arcpy.GetParameterAsText(1)
-##output_name = arcpy.GetParameterAsText(2)
-
-#sr = arcpy.SpatialReference(4326)
+add_outputs = arcpy.env.addOutputsToMap
 arcpy.env.addOutputsToMap = True
 arcpy.env.overwriteOutput = True
 
@@ -122,6 +118,9 @@ def main(selected_pts=None, source_fc=None, output_name=None):
         # end for row in id_cursor
     # end with id_cursor
     # TODO: apply symbology?
+    
+    # restore add outputs state
+    arcpy.env.addOutputsToMap = add_outputs
 
 # when executing as a standalone script get parameters from sys
 if __name__ == '__main__':
