@@ -5,6 +5,9 @@ Standalone script to test drive spagedi functionality.
 import os, re, sys, time, platform, glob, getopt, traceback, subprocess
 from functools import wraps
 from random import randint
+import Queue
+from threading import Thread
+from collections import deque
 import xml.etree.cElementTree as et
 from pprint import pprint as pp
 from usage import Usage
@@ -28,6 +31,11 @@ from scripts import utils
 # import our datatype conversion submodule
 from datatype import datatype
 dt = datatype.DataType()
+
+def enqueue_output(out, queue):
+    for line in iter(out.readline, b''):
+        queue.put(line)
+    out.close()
 
 def error_handler(task=""):
     def decorate(task_func):
@@ -184,6 +192,7 @@ class SpagediWrapper(object):
            sequence_1=self.sequence[1],
            sequence_2=self.sequence[2],
            sequence_3=self.sequence[3])
+            command_file.write(file_string)
 
         # now, fire up SPAGeDi
         spagedi_msg = """Now running SPAGeDi 1.4a (build 11-01-2013)
@@ -191,33 +200,27 @@ class SpagediWrapper(object):
                Written by Olivier Hardy & Xavier Vekemans
                Contributions by Reed Cartwright"""
         utils.msg(spagedi_msg)
-        time.sleep(1)
+        time.sleep(2)
 
         spagedi_executable_path = os.path.abspath( \
                 os.path.join(os.path.abspath(os.path.dirname(__file__)), \
                 "..", "lib", config.spagedi_executable))
-        
-        if sys.platform.startswith("win"):
-            import ctypes
-            SEM_NOGPFAULTERRORBOX = 0x0002
-            ctypes.windll.kernel32.SetErrorMode(SEM_NOGPFAULTERRORBOX);
-            subprocess_flags = 0x8000000
-        else:
-            subprocess_flags = 0
-        
-        with open(spagedi_commands) as spagedi_input, open(os.devnull, 'w') as FNULL:
-            process = subprocess.Popen(spagedi_executable_path,
-                                       stdin=spagedi_input,
-                                       stdout=FNULL,
-                                       stderr=subprocess.STDOUT,
-                                       creationflags=subprocess_flags)
-            (stdout, stderr) = process.communicate()
-            if process.returncode != 0:
-                import ipdb; ipdb.set_trace()
 
-        utils.msg("trying to open resulting file %s" % results)
-        os.startfile(results)
-        utils.msg("all done!")
+        print "Export spagedi output to:", results
+
+        p = subprocess.Popen(
+            [spagedi_executable_path],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        d = deque('\n21441\n\n\n\n')
+        d.extendleft([results])
+        d.extendleft([spagedi_file_path])
+        L = len(d)
+        print "Subprocess starting"
+        for j in xrange(L):
+            p.stdin.write(d.popleft())
 
 
 def prepare(sauce):
@@ -225,8 +228,10 @@ def prepare(sauce):
     Clear out any leftover outputs from previous runs and get the input
     feature class loaded into memory.
     """
-    if os.path.isfile(sauce['output_file']):
-        os.remove(sauce['output_file'])
+    # if os.path.isfile(sauce['output_file']):
+    #     os.remove(sauce['output_file'])
+    if not os.path.isfile(sauce['output_file']):
+        open(sauce['output_file'], 'a').close()
     scriptloc = os.path.dirname(os.path.realpath(__file__))
     mxdpath = os.path.abspath(os.path.join(scriptloc, os.path.pardir, 'genegis.mxd'))
     mxd = arcpy.mapping.MapDocument(mxdpath)
@@ -295,7 +300,7 @@ def main(argv=None):
         # Fire up Spagedi and crunch some numbers
         spagedi = SpagediWrapper(**sauce)
         parameters = spagedi.getParameterInfo()
-        spagedi.execute(parameters, None)
+        return spagedi.execute(parameters, None)
 
     except Usage as e:
         print >>sys.stderr, e.msg
