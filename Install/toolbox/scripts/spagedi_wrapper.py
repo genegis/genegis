@@ -5,8 +5,6 @@ Standalone script to test drive spagedi functionality.
 import os, re, sys, time, platform, glob, getopt, traceback, subprocess
 from functools import wraps
 from random import randint
-import Queue
-from threading import Thread
 from collections import deque
 import xml.etree.cElementTree as et
 from pprint import pprint as pp
@@ -31,11 +29,6 @@ from scripts import utils
 # import our datatype conversion submodule
 from datatype import datatype
 dt = datatype.DataType()
-
-def enqueue_output(out, queue):
-    for line in iter(out.readline, b''):
-        queue.put(line)
-    out.close()
 
 def error_handler(task=""):
     def decorate(task_func):
@@ -84,7 +77,7 @@ class SpagediWrapper(object):
         self.analysis_type = analysis_type
         self.log = 'log/error.log'
 
-    @error_handler("")
+    @error_handler("getParameterInfo")
     def getParameterInfo(self):
 
         # Bunch has attribute-style access, so it is a reasonable
@@ -142,7 +135,7 @@ class SpagediWrapper(object):
     def isLicensed(self):
         return True
 
-    @error_handler("")
+    @error_handler("updateParameters")
     def updateParameters(self, parameters):
         output_file = parameters[self.cols['output_file']]
         output_file.value = utils.set_file_extension(output_file, 'txt')
@@ -151,7 +144,7 @@ class SpagediWrapper(object):
     def updateMessages(self, parameters):
         return
 
-    @error_handler("")
+    @error_handler("execute")
     def execute(self, parameters, messages):
         from scripts import ExportToSPAGeDi
    
@@ -206,32 +199,18 @@ class SpagediWrapper(object):
                 os.path.join(os.path.abspath(os.path.dirname(__file__)), \
                 "..", "lib", config.spagedi_executable))
 
-        print "Export spagedi output to:", results
-
-        p = subprocess.Popen(
-            [spagedi_executable_path],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        d = deque('\n21441\n\n\n\n')
-        d.extendleft([results])
-        d.extendleft([spagedi_file_path])
-        L = len(d)
-        print "Subprocess starting"
-        for j in xrange(L):
-            p.stdin.write(d.popleft())
-
+        p = subprocess.Popen([spagedi_executable_path], stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        spagedi_output = p.communicate(input=file_string)[0]
+        # print spagedi_output
 
 def prepare(sauce):
     """
     Clear out any leftover outputs from previous runs and get the input
     feature class loaded into memory.
     """
-    # if os.path.isfile(sauce['output_file']):
-    #     os.remove(sauce['output_file'])
-    if not os.path.isfile(sauce['output_file']):
-        open(sauce['output_file'], 'a').close()
+    if os.path.isfile(sauce['output_file']):
+        os.remove(sauce['output_file'])
     scriptloc = os.path.dirname(os.path.realpath(__file__))
     mxdpath = os.path.abspath(os.path.join(scriptloc, os.path.pardir, 'genegis.mxd'))
     mxd = arcpy.mapping.MapDocument(mxdpath)
