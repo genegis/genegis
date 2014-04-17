@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import sys, traceback, Queue, threading, subprocess
-from pprint import pprint as pp
 
 def threadframe():
     print >> sys.stderr, "\n*** STACKTRACE - START ***\n"
@@ -39,13 +38,11 @@ def main():
                          shell=False, universal_newlines=True)
     out_queue = Queue.Queue()
     output_thread = threading.Thread(target=enqueue_output, args=(p.stdout, out_queue))
-    # output_thread.daemon = True
+    output_thread.daemon = True
     output_thread.start()
     for command in sequence:
         p.stdin.write(command)
-        import pdb; pdb.set_trace()
         output = get_output(out_queue)
-        # print output
 
 if __name__ == '__main__':
     main()
