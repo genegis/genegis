@@ -21,9 +21,6 @@ def fasten(tree, next, skip=None, ignore_keys=('headline', 'default')):
                             tree[node].next = next
     return tree
 
-def prp(js):
-    print json.dumps(js, indent=3, sort_keys=True)
-
 def buildtree(tree, ordering):
     '''Build the decision tree by connecting the layers'''
     below = ordering[0]
@@ -56,5 +53,8 @@ def spagedi_tree():
     tree = bunchify(tree)
     return buildtree(tree, layers[::-1])
 
+def prp(js):
+    print json.dumps(js, indent=3, sort_keys=True)
+
 if __name__ == '__main__':
-    print json.dumps(spagedi_tree(), indent=3, sort_keys=True)
+    print prp(spagedi_tree())
