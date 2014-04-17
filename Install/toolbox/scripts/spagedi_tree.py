@@ -20,23 +20,42 @@ def spagedi_tree():
         with open(json_path) as datafile:
             tree[lyr] = json.load(datafile, object_pairs_hook=OrderedDict)
 
-    # Connect them up and build the decision tree
+    # Connect the layers up and build the decision tree
     tree = bunchify(tree)
-    for group, subtree in tree.computational_options.items():
-        for key in subtree:
-            if key != 'headline':
-                subtree[key].next = tree.output_options
+    # for group, subtree in tree.computational_options.items():
+    #     for key in subtree:
+    #         if key != 'headline':
+    #             subtree[key].next = tree.output_options
+    for key in tree.computational_sublayer:
+        if key not in ('headline', 'default'):
+
+
+    for key in tree.computational_options.individual:
+        if key not in ('headline', 'default'):
+            if tree.computational_sublayer[key] is None:
+                tree.computational_options.individual[key].next = tree.output_options
+            else:
+                tree.computational_options.individual[key].next = tree.computational_sublayer[key]
+    # for key in tree.computational_options.population:
+    #     if key != 'headline':
+    #         tree.computational_options.population[key].next = tree.output_options
+    
+    for key in tree.statistics_sublayer:
+        if key not in ('headline', 'default'):
+            tree.statistics_sublayer[key].next = tree.computational_options.individual
+
     for key in tree.statistics.individual:
-        if key != 'headline':
+        if key not in ('headline', 'default'):
             tree.statistics.individual[key].next = tree.computational_options.individual
-    for key in tree.statistics.population:
-        if key != 'headline':
-            tree.statistics.population[key].next = tree.computational_options.population
+    # for key in tree.statistics.population:
+    #     if key != 'headline':
+    #         tree.statistics.population[key].next = tree.computational_options.population
+    
     for key in tree.level_of_analyses:
-        if key != 'headline':   
+        if key not in ('headline', 'default'):
             tree.level_of_analyses[key].next = tree.statistics[level[key]]
 
-    return tree['level_of_analyses']
+    return tree.level_of_analyses
 
 if __name__ == '__main__':
     tree = unbunchify(spagedi_tree())

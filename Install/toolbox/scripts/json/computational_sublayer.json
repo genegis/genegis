@@ -24,35 +24,139 @@
     "3": {
         "headline": "PERMUTATION OPTIONS. Select among the following options.",
         "1": {
-            "label": "Report only P-values (otherwise details of permutation tests are reported)"
+            "label": "Report only P-values (otherwise details of permutation tests are reported)",
+            "next": {
+                "headline": null,
+                "user_input": [{
+                    "label": "Enter # of permutations for tests (min=40, max=20000): ",
+                    "input_type": "number"
+                }]
+            }
         },
         "2": {
-            "label": "Define # of permutations for each randomized unit (otherwise same #)"
+            "label": "Define # of permutations for each randomized unit (otherwise same #)",
+            "next": {
+                "headline": "Enter # permutations for each randomization unit (>=40 & <=20000, 0 = no test):",
+                "user_input": [{
+                    "label": "LOCATION permutations (tests of spatial structure): ",
+                    "input_type": "number"
+                }, {
+                    "label": "INDIVIDUAL permutations (tests of intra-group coefficients): ",
+                    "input_type": "number"
+                }, {
+                    "label": "GENE COPY permutations (tests of inbreeding coefficients): ",
+                    "input_type": "number"
+                }]
+            }
         },
         "3": {
-            "label": "Initialize random number generator (otherwise initialization on clock)"
-        },
-        "4": {
-            "label": "Perform tests of genetic differentiation"
+            "label": "Initialize random number generator (otherwise initialization on clock)",
+            "next": {
+                "headline": null,
+                "user_input": [{
+                    "label": "Enter # permutations for tests (min=40, max=20000): ",
+                    "input_type": "number"
+                }, {
+                    "label": "Enter a number for the initial seed: ",
+                    "input_type": "number"
+                }]
+            }
         }
     },
     "4": null,
     "5": {
         "headline": "TYPES OF PAIRWISE COMPARISONS",
+        "default": 1,
         "1": {
-            "label": "all pairs (irrespective of categories = default option)"
+            "label": "all pairs (irrespective of categories = default option)",
+            "next": {
+                "headline": "Select the reference allele frequencies to compute pairwise statistics:",
+                "default": 1,
+                "1": {
+                    "label": "whole sample (enter '1' or press RETURN)"
+                },
+                "2": {
+                    "label": "unweighted average allele frequencies over categories (enter '2')"
+                }
+            }
         },
         "2": {
-            "label": "only pairs within category"
+            "label": "only pairs within category",
+            "next": {
+                "headline": "Select the reference allele frequencies to compute pairwise statistics:",
+                "default": 1,
+                "1": {
+                    "label": "whole sample (enter '1' or press RETURN)"
+                },
+                "2": {
+                    "label": "unweighted average allele frequencies over categories (enter '2')"
+                },
+                "3": {
+                    "label": "sample within category (enter '3')"
+                }
+            }
         },
         "3": {
-            "label": "only pairs among categories"
+            "label": "only pairs among categories",
+            "next": {
+                "headline": "Select the reference allele frequencies to compute pairwise statistics:",
+                "default": 1,
+                "1": {
+                    "label": "whole sample (enter '1' or press RETURN)"
+                },
+                "2": {
+                    "label": "unweighted average allele frequencies over categories (enter '2')"
+                }
+            }
         },
         "4": {
-            "label": "only pairs within a specified category"
+            "label": "only pairs within a specified category",
+            "next": {
+                "headline": null,
+                "user_input": [{
+                    "label": "Give the name of the category for within category analysis: ",
+                    "input_type": "category"
+                }, {
+                    "label": "Enter a number for the initial seed: ",
+                    "input_type": "number"
+                }],
+                "next": {
+                    "headline": "Select the reference allele frequencies to compute pairwise statistics:",
+                    "default": 1,
+                    "1": {
+                        "label": "whole sample (enter '1' or press RETURN)"
+                    },
+                    "2": {
+                        "label": "unweighted average allele frequencies over categories (enter '2')"
+                    },
+                    "3": {
+                        "label": "sample within category (enter '3')"
+                    }
+                }
+            }
         },
         "5": {
-            "label": "only pairs between two specified categories"
+            "label": "only pairs between two specified categories",
+            "next": {
+                "headline": "Give the names of the two categories for between categories analysis:",
+                "user_input": [{
+                    "label": "First category: ",
+                    "input_type": "category"
+                }, {
+                    "label": "Second category: ",
+                    "input_type": "category"
+                }],
+                "next": {
+                    "headline": "Select the reference allele frequencies to compute pairwise statistics:",
+                    "default": 1,
+                    "1": {
+                        "label": "whole sample (enter '1' or press RETURN)"
+                    },
+                    "2": {
+                        "label": "unweighted average allele frequencies over categories (enter '2')"
+                    }
+                }
+            }
         }
     },
     "6": {
@@ -61,6 +165,6 @@
             "label": "Enter the name of the file with reference allele frequencies, or press RETURN if it is the default file name 'freq.txt':",
             "input_type": "path",
             "default": "'freq.txt'"
-        }]       
+        }]  
     }
 }
