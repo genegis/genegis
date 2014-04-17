@@ -1,7 +1,20 @@
 #!/usr/bin/env python
-import Queue
-import threading
-import subprocess
+import sys, traceback, Queue, threading, subprocess
+from pprint import pprint as pp
+
+def threadframe():
+    print >> sys.stderr, "\n*** STACKTRACE - START ***\n"
+    code = []
+    for threadId, stack in sys._current_frames().items():
+        code.append("\n# ThreadID: %s" % threadId)
+        for filename, lineno, name, line in traceback.extract_stack(stack):
+            code.append('File: "%s", line %d, in %s' % (filename,
+                                                        lineno, name))
+            if line:
+                code.append("  %s" % (line.strip()))
+    for line in code:
+        print >> sys.stderr, line
+    print >> sys.stderr, "\n*** STACKTRACE - END ***\n"
 
 def enqueue_output(out, queue):
     for line in iter(out.readline, b''):
@@ -25,13 +38,14 @@ def main():
                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                          shell=False, universal_newlines=True)
     out_queue = Queue.Queue()
-    outThread = threading.Thread(target=enqueue_output, args=(p.stdout, out_queue))
-    outThread.daemon = True
-    outThread.start()
+    output_thread = threading.Thread(target=enqueue_output, args=(p.stdout, out_queue))
+    # output_thread.daemon = True
+    output_thread.start()
     for command in sequence:
         p.stdin.write(command)
+        import pdb; pdb.set_trace()
         output = get_output(out_queue)
-        print output
+        # print output
 
 if __name__ == '__main__':
     main()

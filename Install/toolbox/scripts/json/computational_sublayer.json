@@ -1,0 +1,66 @@
+{
+    "1": {
+        "headline": "FILE FOR PAIRWISE SPATIAL DISTANCES",
+        "user_input": [{
+            "label": "Enter the name of the file containing pairwise distances, or press RETURN if it is the data file %s:",
+            "input_type": "path",
+            "default": "spagedi_file_path"
+        }]
+    },
+    "2": {
+        "headline": "DISTANCE RANGE FOR RESTRICTED REGRESSION.  Enter minimal and maximal distances for restricted spatial regressions (or press RETURN for an unbounded minimal or maximal distance).",
+        "user_input": [
+            {
+                "label": "Minimal distance = ",
+                "input_type": "number",
+                "default": -1
+            }, {
+                "label": "Maximal distance = ",
+                "input_type": "number",
+                "default": -1
+            }
+        ]
+    },
+    "3": {
+        "headline": "PERMUTATION OPTIONS. Select among the following options.",
+        "1": {
+            "label": "Report only P-values (otherwise details of permutation tests are reported)"
+        },
+        "2": {
+            "label": "Define # of permutations for each randomized unit (otherwise same #)"
+        },
+        "3": {
+            "label": "Initialize random number generator (otherwise initialization on clock)"
+        },
+        "4": {
+            "label": "Perform tests of genetic differentiation"
+        }
+    },
+    "4": null,
+    "5": {
+        "headline": "TYPES OF PAIRWISE COMPARISONS",
+        "1": {
+            "label": "all pairs (irrespective of categories = default option)"
+        },
+        "2": {
+            "label": "only pairs within category"
+        },
+        "3": {
+            "label": "only pairs among categories"
+        },
+        "4": {
+            "label": "only pairs within a specified category"
+        },
+        "5": {
+            "label": "only pairs between two specified categories"
+        }
+    },
+    "6": {
+        "headline": "FILE WITH REFERENCE ALLELE FREQUENCIES",
+        "user_input": [{
+            "label": "Enter the name of the file with reference allele frequencies, or press RETURN if it is the default file name 'freq.txt':",
+            "input_type": "path",
+            "default": "'freq.txt'"
+        }]       
+    }
+}
