@@ -32,7 +32,7 @@ def buildtree(tree, ordering):
         else:
             tree[lyr] = fasten(tree[lyr], subtree)
         below = lyr
-    subtree = tree.pop('statistics', None)
+    subtree = tree.pop(lyr, None)
     tree = tree.level_of_analyses
     grouping = {'1': 'individual', '2': 'population', '3': 'population', '4': 'population'}
     for node in tree:
@@ -53,8 +53,8 @@ def spagedi_tree():
     tree = bunchify(tree)
     return buildtree(tree, layers[::-1])
 
-def prp(js):
-    print json.dumps(js, indent=3, sort_keys=True)
+def prp(o):
+    print json.dumps(o, indent=3, sort_keys=True)
 
 if __name__ == '__main__':
-    print prp(spagedi_tree())
+    prp(spagedi_tree())
