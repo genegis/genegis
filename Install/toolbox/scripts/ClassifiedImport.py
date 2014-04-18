@@ -5,9 +5,6 @@
 #             College of Earth, Ocean and Atmospheric Sciences
 #             Oregon State Univeristy
 # 
-# Created on: 3 March 2012
-# Last modified: 9 September 2012
-# 
 # Description: This script converts spatially reference genetic data from a 
 # simple flat file format to a Feature Class viewable in ArcGIS 10.  
 #
@@ -147,9 +144,9 @@ def formatDate(input_date):
 
         # TODO: ArcGIS doesn't preserve order; do we need separate fields for these? or some other approach?
         if loc_parts[0].lower() in ['x', 'longitude', 'lon']:
-            (x, y) = loc_parts
+            (x, y) = loc_parts[:2]
         else:
-            (y, x) = loc_parts
+            (y, x) = loc_parts[:2]
 
         # Process: Make XY Event Layer.  This layer is temporary and will be 
         # deleted upon script completion.

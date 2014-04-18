@@ -1,4 +1,5 @@
 import arcpy
+import glob
 import os
 import ConfigParser
 from collections import OrderedDict
@@ -38,6 +39,10 @@ config_dir = os.path.join(os.environ['APPDATA'], app_name)
 config_path = os.path.join(config_dir, "{}.cfg".format(app_name))
 log_path = os.path.join(config_dir, "{}.log".format(app_name))
 
+# clean up our temp path, if it exists
+for fn in glob.glob(os.path.join(config_dir, "*.{}.tmp".format(app_name))):
+    os.remove(fn)
+
 config_vars = {
     'fc_path': None, # path to the imported feature class,
     'haplotype_path': None,
@@ -51,7 +56,7 @@ config_vars = {
                    # is WGS84 (SRID 4326), use it.
     'mode': 'toolbox', # default mode for tools. Expect tools to be run from a 
                       # Python toolbox, not the command-line by default.
-    'log_level': 'error' 
+    'log_level': 'error'
 }
 
 # initialize a basic configuration file.

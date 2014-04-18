@@ -111,6 +111,12 @@ class ClassifiedImport(object):
         # in the script, the script state isn't correct and the ModTime and ModDate fields will remain.
         metadata(update=False)
 
+    def splitParamValues(self, parameters, column):
+        return parameters[self.cols[column]].value.exportToString().split(";")
+
+    def tempPath(self):
+        return os.path.join(config.config_dir, "{}.{}.tmp".format(os.getpid(), config.app_name))
+
     def getParameterInfo(self):
         # SRGD_Input_File
         input_csv = arcpy.Parameter()
@@ -213,71 +219,105 @@ class ClassifiedImport(object):
     def updateParameters(self, parameters):
         unused_values = []
 
+        # this is ugly as all sin, but I couldn't get self or config based peristence.
+        if os.path.exists(self.tempPath()):
+            with open(self.tempPath(), 'r') as col_f:
+                columns_init = col_f.read().strip()
+        else:
+            columns_init = 'False'
+
         input_table_name = parameters[self.cols['input_csv']].valueAsText
         output_loc = parameters[self.cols['output_loc']].valueAsText
         output_gdb = parameters[self.cols['output_gdb']].valueAsText
         output_fc = parameters[self.cols['output_fc']].valueAsText
+        dynamic_cols = ['Genetic', 'Identification', 'Location', 'Other']
 
-        if input_table_name is not None:
-            # read the validated header
-            (header, data, dialect) = utils.validated_table_results(input_table_name)
-            # create a duplicate list; but a copy so we can modify the list as we go
-            unused_values = list(header)
+        with open(config.log_path, 'a') as log_f:
+            log_f.write("running updateParameters... {}\n".format(columns_init))
 
-            dynamic_cols = ['Genetic', 'Identification', 'Location', 'Other']
-            # A little tricky: implement unique result lists for each of
-            # our group types.
-            results = dict(((group,[]) for group in dynamic_cols))
-            for (group, expr, data_type) in config.group_expressions:
-                for (i, value) in enumerate(header):
-                    if re.search(expr, value, re.IGNORECASE):
-                        results[group].append(value)
-                        unused_values.remove(value)
-                        # if a data type is defined for this column,
-                        # record it so we can force a mapping on import.
-                        if data_type is not None:
-                            if isinstance(data_type, str):
-                                forced_type = data_type
-                            else: 
-                                # if we have multiple values in the data type,
-                                # examine the data to determine which'd be best.
-                                preferred_type = data_type[0]
-                                data_sample = data[0][i]
-                                if preferred_type == 'Long':
-                                    try:
-                                        int(data_sample)
-                                        forced_type = preferred_type
-                                    except:
-                                        # fall back to the default type
-                                        forced_type = data_type[1]
+            if input_table_name is not None and columns_init == 'True':
+                unchecked = {}
+                all_checked = []
+                # go through each of the dynamic cols, and check for any 'unchecked' elements.
+                for i, group in enumerate(dynamic_cols):
+                    filter_list = parameters[self.cols[group]].filter.list
+                    filter_values = self.splitParamValues(parameters, group)
+                    all_checked += filter_values
 
-                            config.protected_columns[value] = (i + 1, forced_type)
+                    log_f.write("filter list:" + ";".join(filter_list) + "\n")
+                    log_f.write("filter values:" + ";".join(filter_values) + "\n")
 
-            # any remaining attributes should be included under 'Other'
-            results['Other'] = unused_values
+                    unused = list(set(filter_list) - set(filter_values))
+                    for label in unused:
+                        unchecked[label] = group
+                log_f.write("all checked: " + ";".join(all_checked) + "\n")
 
-            # update the lists provided to the user
-            for (group, vals) in results.items():
-                parameters[self.cols[group]].filter.list = vals
-                parameters[self.cols[group]].value = vals
+                for group in dynamic_cols:
+                    base_vals = self.splitParamValues(parameters, group)
+                    for (label, label_group) in unchecked.items():
+                        if label_group != group and label not in all_checked:
+                            base_vals.append(label)
 
-        if output_loc is not None and input_table_name is not None and output_gdb is not None:
-            # derive the output feature class name if these two parameters are set
-            (label, ext) = os.path.splitext(os.path.basename(input_table_name))
-            output_fc_path = os.path.join(output_loc, "%s.gdb" % output_gdb, "%s_Spatial" % label)
-            parameters[self.cols['output_fc']].value = output_fc_path
+                    parameters[self.cols[group]].filter.list = base_vals
 
-        """
-        for i, label in enumerate(dynamic_cols[1:]):
-            update_label = self.cols[label]
-            filter_label = self.cols[dynamic_cols[i]]
-            #f.write("Running with: {0} {1} {2}\n\n".format(update_label,
-            #    filter_label, ",".join(unused_values)))
-            unused_values = self.updateDynamicFilters(
-                    parameters[filter_label],
-                    parameters[update_label],
-                    unused_values)
-        """
+            if input_table_name is not None and columns_init != 'True':
+                # read the validated header
+                (header, data, dialect) = utils.validated_table_results(input_table_name)
+                # create a duplicate list; but a copy so we can modify the list as we go
+                unused_values = list(header)
+
+                # A little tricky: implement unique result lists for each of
+                # our group types.
+                results = dict(((group,[]) for group in dynamic_cols))
+                for (group, expr, data_type) in config.group_expressions:
+                    for (i, value) in enumerate(header):
+                        #log_f.write("working on {}\n".format(value))
+                        if re.search(expr, value, re.IGNORECASE):
+                            #log_f.write("  found match for {}\n".format(expr))
+                            results[group].append(value)
+                            unused_values.remove(value)
+                            # if a data type is defined for this column,
+                            # record it so we can force a mapping on import.
+                            if data_type is not None:
+                                if isinstance(data_type, str):
+                                    log_f.write("  it's a string: {}\n".format(data_type))
+                                    forced_type = data_type
+                                else: 
+                                    # if we have multiple values in the data type,
+                                    # examine the data to determine which'd be best.
+                                    preferred_type = data_type[0]
+                                    data_sample = data[0][i]
+                                    if preferred_type == 'Long':
+                                        try:
+                                            log_f.write("  checking if this is an int: {}\n".format(data_sample))
+                                            int(data_sample)
+                                            forced_type = preferred_type
+                                        except ValueError:
+                                            log_f.write("  got a value error, going with {}\n".format(data_type[1]))
+                                            # fall back to the default type
+                                            forced_type = data_type[1]
+
+                                config.protected_columns[value] = (i + 1, forced_type)
+
+                # any remaining attributes should be included under 'Other'
+                log_f.write("we also ended up with unused values: {}\n".format(unused_values))
+                results['Other'] += unused_values
+
+                # update the lists provided to the user
+                for (group, vals) in results.items():
+                    parameters[self.cols[group]].filter.list = vals
+                    parameters[self.cols[group]].value = vals
+
+                # finished our intial setup for the columns, let future changes persist
+                with open(self.tempPath(), 'w') as col_f:
+                    col_f.write('True')
+
+            if output_loc is not None and input_table_name is not None and output_gdb is not None:
+                # derive the output feature class name if these two parameters are set
+                (label, ext) = os.path.splitext(os.path.basename(input_table_name))
+                output_fc_path = os.path.join(output_loc, "%s.gdb" % output_gdb, "%s_Spatial" % label)
+                parameters[self.cols['output_fc']].value = output_fc_path
+
         return
 
     def updateMessages(self, parameters):
