@@ -100,6 +100,11 @@ class Haplotype(object):
         # 1: A+, 2: E1, ...
         return itertools.izip(itertools.count(1), sorted_cols)
 
+class MissingCSVHeader(Exception):
+    def __init__(self, csv):
+        self.csv = csv
+        Exception.__init__(self, "CSV file is missing a header: {}".format(csv))
+
 def parameters_from_args(defaults_tuple=None, sys_args=None):
     """Provided a set of tuples for default values, return a list of mapped
        variables."""
