@@ -4,6 +4,7 @@ import unittest
 
 import arcpy
 import zipfile
+import gzip
 from geographiclib.geodesic import Geodesic
 
 from tempdir import TempDir
@@ -74,7 +75,53 @@ class TestClassifiedImport(unittest.TestCase):
         # clean up
         arcpy.Delete_management(gdb_path)
         self.assertFalse(os.path.exists(gdb_path))
-        
+
+
+class TestClassifiedImportFullDataset(unittest.TestCase):
+    def setUp(self):
+        self.output_fc = os.path.join(gdb_path, "test_csv_spatial")
+        self.temp_srgd = os.path.join(output_dir, "SRGD_export.csv")
+
+    def testClassifiedImportAvailable(self, method=ClassifiedImport):
+        self.assertTrue('main' in vars(method))
+
+    def testClassifiedImportRun(self, method=ClassifiedImport):
+        # write out a temporary uncompressed version
+        with gzip.open(consts.test_csv_full, 'rb') as f:
+            with open(self.temp_srgd, 'wb') as w:
+                w.write(f.read())
+
+        method.main(input_table=self.temp_srgd,
+                sr=None, output_loc=output_dir, 
+                output_gdb=output_gdb, output_fc=self.output_fc,
+                genetic=consts.genetic_columns, 
+                identification=consts.id_columns, location=consts.loc_columns, 
+                other=consts.other_columns, mode='script')
+        self.assertTrue(os.path.exists(gdb_path))
+
+        # test that the input columns exist. Note that in the general case,
+        # these column names may be remapped, but here we're using presets
+        # which already conform to the naming requirements.
+        input_columns = ";".join([consts.genetic_columns, consts.id_columns, \
+                consts.loc_columns, consts.other_columns]).split(";")
+        output_columns = [f.name for f in arcpy.ListFields(self.output_fc)]
+        for column in input_columns:
+            self.assertTrue(column in output_columns)
+
+        # delete our temp srgd file (extracted from source)
+        os.remove(self.temp_srgd)
+        self.assertFalse(os.path.exists(self.temp_srgd))
+
+
+    def testToolboxImport(self):
+        self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
+        self.assertTrue('ClassifiedImport' in vars(self.toolbox))
+
+    def tearDown(self):
+        # clean up
+        arcpy.Delete_management(gdb_path)
+        self.assertFalse(os.path.exists(gdb_path))
+
 class TestDistanceMatrix(unittest.TestCase):
 
     def setUp(self):

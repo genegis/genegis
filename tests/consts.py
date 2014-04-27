@@ -7,6 +7,7 @@ data_path = os.path.join(local_path, 'data')
 # testing-specific constants.
 test_csv_doc = os.path.join(data_path, 'SRGD_example.csv')
 test_csv_with_comment_field = os.path.join(data_path, 'SRGD_with_comment_field.csv')
+test_csv_full = os.path.join(data_path, 'SRGD_export_demodna.csv.gz')
 
 # our default set of columns.
 genetic_columns = "Sex;Haplotype;L_GATA417_1;L_GATA417_2;L_Ev37_1" + \
