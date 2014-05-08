@@ -13,9 +13,6 @@
         "4": {
             "label": "jackknife over loci"
         },
-        "5": {
-            "label": "restrict pairwise comparisons within or among (selected) categories"
-        },
         "6": {
             "label": "pairwise Fst (or Rst or Rho) provided as Fst/(1-Fst) ratios"
         }

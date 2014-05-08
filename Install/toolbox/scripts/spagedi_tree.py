@@ -2,11 +2,11 @@ import os, json
 from collections import OrderedDict
 from bunch import Bunch, bunchify
 
-def fasten(tree, next, skip=None, ignore_keys=('headline', 'default')):
+def fasten(tree, next, ignore_keys=('headline', 'default')):
     if type(tree) == Bunch:
         # If there is already a link to the next level, descend
         if 'next' in tree:
-            tree = fasten(tree.next, next, skip)
+            tree = fasten(tree.next, next)
         else:
             # If free-form user input is expected, 'next' is on the same level
             if 'user_input' in tree:
@@ -16,7 +16,7 @@ def fasten(tree, next, skip=None, ignore_keys=('headline', 'default')):
                 for node in tree:
                     if type(tree[node]) == Bunch and node not in ignore_keys:
                         if 'next' in tree[node]:
-                            tree = fasten(tree[node], next, skip)
+                            tree = fasten(tree[node], next)
                         else:
                             tree[node].next = next
     return tree
@@ -28,7 +28,7 @@ def buildtree(tree, ordering):
         subtree = tree.pop(below, None)
         if 'individual' in subtree:
             tree[lyr].individual = fasten(tree[lyr].individual, subtree.pop('individual'))
-            # tree[lyr].population = fasten(tree[lyr].population, subtree.pop('population'))
+            tree[lyr].population = fasten(tree[lyr].population, subtree.pop('population'))
         else:
             tree[lyr] = fasten(tree[lyr], subtree)
         below = lyr
