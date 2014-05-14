@@ -59,8 +59,9 @@ class SpagediWrapper(object):
 
     def __init__(self, standalone=True, sequence=None, input_fc=None,
                  output_file=None, order_by=None, analysis_type=None):
-        self.label = u'Genetic Analysis - F_st'
-        self.description = u'Calculate F_st using Jacknifing'
+        self.sequence = sequence
+        self.label = self.sequence[1]
+        self.description = self.sequence[3]
         self.canRunInBackground = False
         self.category = "Analysis"
         self.cols = {
@@ -70,7 +71,6 @@ class SpagediWrapper(object):
             'output_file': 3
         }
         self.standalone = standalone
-        self.sequence = sequence
         self.input_fc = input_fc
         self.output_file = output_file
         self.order_by = order_by
@@ -171,20 +171,26 @@ class SpagediWrapper(object):
         with open(spagedi_commands, 'w') as command_file:
             file_string = """{spagedi_file_path}
 {results}
+""".format(spagedi_file_path=spagedi_file_path, results=results)
+            for cmd in self.sequence:
+                file_string += cmd + '\n'
+            file_string += '\n\n\n'
+#             file_string = """{spagedi_file_path}
+# {results}
 
-{sequence_0}
-{sequence_1}
-{sequence_2}
-{sequence_3}
+# {sequence_0}
+# {sequence_1}
+# {sequence_2}
+# {sequence_3}
 
 
 
-""".format(spagedi_file_path=spagedi_file_path,
-           results=results,
-           sequence_0=self.sequence[0],
-           sequence_1=self.sequence[1],
-           sequence_2=self.sequence[2],
-           sequence_3=self.sequence[3])
+# """.format(spagedi_file_path=spagedi_file_path,
+#            results=results,
+#            sequence_0=self.sequence[0],
+#            sequence_1=self.sequence[1],
+#            sequence_2=self.sequence[2],
+#            sequence_3=self.sequence[3])
             command_file.write(file_string)
 
         # now, fire up SPAGeDi
