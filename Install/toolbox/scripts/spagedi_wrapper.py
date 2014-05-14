@@ -10,7 +10,7 @@ import xml.etree.cElementTree as et
 from pprint import pprint as pp
 from usage import Usage
 import arcpy
-from spagedi_tree import *
+from spagedi_tree import spagedi_tree
 from bunch import Bunch
 
 # enable local imports; allow importing both this directory and one above
@@ -219,23 +219,49 @@ def prepare(sauce):
             arcpy.CopyFeatures_management(lyr, sauce['input_fc'])
             return sauce
 
-def descend(T, sequence, randomize=False):
+def descend(T, sequence, randomize=False, grouping=None):
     """
     Prompt the user through Spagedi's decision tree, then save the commands so
     we can re-use them when we actually run Spagedi from the main workflow.
-
-    Note: this does not handle every part of the tree yet.
     """
     print T.pop('headline')
-    for key, item in sorted(T.items()):
-        print key + '.', item.label
-    while True:
-        selection = str(randint(0, len(T))) if randomize else raw_input("Selection: ")
-        if selection in T.keys():
-            break
-    sequence.append(selection)
-    if 'next' in item:
-        descend(T[sequence[-1]].next, sequence, randomize)
+    if 'population' in T and grouping is not None:
+        descend(T[grouping], sequence, randomize)
+    else:
+        if 'user_input' in T:
+            print T.user_input.label
+            user_input = raw_input("> ")
+            # Input can be path, number, or category
+            if T.user_input.input_type == 'path':
+                if not os.path.exists(user_input):
+                    user_input = T.user_input.default
+            elif T.user_input.input_type == 'number':
+                is_number = False
+                while not is_number:
+                    try:
+                        user_input = float(user_input)
+                        is_number = True
+                    except TypeError as e:
+                        # if 'default' in T.user_input:
+                        #     print "Invalid input, defaulting to", T.user_input.default
+                        #     user_input = T.user_input.default
+                        print "Input must be a number, try again"
+        else:
+            for key, item in sorted(T.items()):
+                print key + '.', item.label
+            while True:
+                if randomize:
+                    user_input = str(randint(0, len(T)))
+                else:
+                    user_input = raw_input("Selection: ")
+                if user_input in T:
+                    break
+                print "Please select one of the options."
+            if not sequence:
+                grouping = 'individuals' if user_input == '1' else 'populations'
+        sequence.append(user_input)
+        if 'next' in item:
+            descend(T[sequence[-1]].next, sequence, randomize)
     return sequence
 
 def main(argv=None):
