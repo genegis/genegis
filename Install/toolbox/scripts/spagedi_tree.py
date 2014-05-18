@@ -36,6 +36,7 @@ class TreeMaker(object):
             subtree = tree.pop(below, None)
             if 'individual' in subtree:
                 tree[lyr].individual = self.fasten(tree[lyr].individual, subtree.pop('individual'))
+                import ipdb; ipdb.set_trace()
                 tree[lyr].population = self.fasten(tree[lyr].population, subtree.pop('population'))
             else:
                 tree[lyr] = self.fasten(tree[lyr], subtree)

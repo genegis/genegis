@@ -230,12 +230,24 @@ def descend(T, sequence, randomize=False, grouping=None):
     Prompt the user through Spagedi's decision tree, then save the commands so
     we can re-use them when we actually run Spagedi from the main workflow.
     """
-    print T.pop('headline')
+    print T.keys()
     if 'population' in T and grouping is not None:
+        print "descend(T[" + str(grouping) + "], " + str(sequence) + ", " + str(randomize) + ")"
         descend(T[grouping], sequence, randomize)
     else:
+        if 'headline' in T:
+            print T.pop('headline')
+        if sequence:
+            try:
+                if 'user_input' in T[sequence[-1]]:
+                    print "descend(T[" + str(sequence[-1]) + "], " + str(sequence) + ", " + str(randomize) + ")"
+                    descend(T[sequence[-1]], sequence, randomize)
+            except Exception as e:
+                print e
+                import ipdb; ipdb.set_trace()
         if 'user_input' in T:
-            print T.user_input.label
+            if 'label' in T.user_input:
+                print T.user_input.label
             user_input = raw_input("> ")
             # Input can be path, number, or category
             if T.user_input.input_type == 'path':
@@ -254,7 +266,11 @@ def descend(T, sequence, randomize=False, grouping=None):
                         print "Input must be a number, try again"
         else:
             for key, item in sorted(T.items()):
-                print key + '.', item.label
+                try:
+                    print key + '.', item.label
+                except AttributeError as e:
+                    print e
+                    import ipdb; ipdb.set_trace()
             while True:
                 if randomize:
                     user_input = str(randint(0, len(T)))
@@ -267,6 +283,7 @@ def descend(T, sequence, randomize=False, grouping=None):
                 grouping = 'individuals' if user_input == '1' else 'populations'
         sequence.append(user_input)
         if 'next' in item:
+            print "descend(T[" + str(sequence[-1]) + "], " + str(sequence) + ", " + str(randomize) + ")"
             descend(T[sequence[-1]].next, sequence, randomize)
     return sequence
 

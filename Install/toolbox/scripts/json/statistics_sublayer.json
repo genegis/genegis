@@ -1,4 +1,5 @@
 {
+    "sublayer": true,
     "individual": {
         "N": {
             "headline": "File for pairwise genetic distances between alleles",
