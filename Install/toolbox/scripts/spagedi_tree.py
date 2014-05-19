@@ -34,7 +34,7 @@ class TreeMaker(object):
         # Set up computational sublayer
         computational_sublayer_path = 'json' + os.sep + 'computational_sublayer' + '.json'
         with open(computational_sublayer_path) as datafile:
-            computational_sublayer = json.load(datafile, object_pairs_hook=OrderedDict)
+            computational_sublayer = bunchify(json.load(datafile, object_pairs_hook=OrderedDict))
         # Individual
         for k in tree['1'].next.keys():
             if k not in ('headline', 'next'):
@@ -53,7 +53,7 @@ class TreeMaker(object):
         # Set up statistics sublayer
         statistics_sublayer_path = 'json' + os.sep + 'statistics_sublayer' + '.json'
         with open(statistics_sublayer_path) as datafile:
-            statistics_sublayer = json.load(datafile, object_pairs_hook=OrderedDict)
+            statistics_sublayer = bunchify(json.load(datafile, object_pairs_hook=OrderedDict))
         # Individual
         temp = tree['1'].next['N'].next
         tree['1'].next['N'].next = statistics_sublayer['individual']['N']
