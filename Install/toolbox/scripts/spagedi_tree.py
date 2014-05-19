@@ -6,25 +6,9 @@ class TreeMaker(object):
 
     def fasten(self, tree, next, ignore_keys=('headline', 'default')):
         if type(tree) == Bunch:
-            # If there is already a link to the next level, descend
-            # if 'next' in tree:
-            #     tree = self.fasten(tree.next, next)
-            # else:
             for node in tree:
-                # if type(tree[node]) == Bunch and node not in ignore_keys:
                 if node not in ignore_keys:
-                    # if 'next' in tree[node]:
-                    #     tree = self.fasten(tree[node], next)
-                    # elif type(tree[node][tree[node].keys()[0]]) == Bunch:
-                    #     for subnode in tree[node]:
-                    #         if tree[node][subnode] and subnode not in ignore_keys:
-                    #             tree[node][subnode].next = next
-                    #         elif tree[node][subnode] is None:
-                    #             tree[node][subnode].next = self.output_options
-                    # else:
                     tree[node].next = next
-                # elif tree[node] is None:
-                #     tree[node].next = self.output_options
         return tree
 
     def buildtree(self, tree, ordering):
