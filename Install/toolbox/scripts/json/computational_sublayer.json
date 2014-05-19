@@ -1,5 +1,4 @@
 {
-    "sublayer": true,
     "individual": {
         "1": {
             "headline": "FILE FOR PAIRWISE SPATIAL DISTANCES",
@@ -65,7 +64,6 @@
                 }
             }
         },
-        "4": null,
         "5": {
             "headline": "TYPES OF PAIRWISE COMPARISONS",
             "default": 1,
@@ -244,8 +242,6 @@
                     }]
                 }
             }
-        },
-        "4": null,
-        "6": null    
+        }
     }
 }
