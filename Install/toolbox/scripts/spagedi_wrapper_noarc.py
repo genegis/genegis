@@ -19,11 +19,7 @@ for path in [local_path, os.path.join(local_path, '..')]:
     sys.path.insert(0, os.path.abspath(path))
 
 class SpagediWrapper(object):
-    """
-    Wrapper for the SPAGeDi command line tool for spatial pattern analysis
-    of genetic diversity.  This script is tested on SPAGeDi 1.4a, running
-    on Windows 7, with ArcGIS 10.2.
-    """
+
     TREE = spagedi_tree()
 
     def __init__(self, standalone=True, sequence=None, input_fc=None,
@@ -72,7 +68,7 @@ def descend(T, sequence, randomize=False, grouping=None):
                     is_number = False
                     while not is_number:
                         try:
-                            user_input = float(user_input)
+                            # user_input = float(user_input)
                             is_number = True
                         except TypeError as e:
                             print "Input must be a number, try again"
