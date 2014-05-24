@@ -1,6 +1,7 @@
 import os, json 
 from collections import OrderedDict
 from bunch import Bunch, bunchify
+from copy import deepcopy
 import ipdb
 
 class TreeMaker(object):
@@ -23,7 +24,6 @@ class TreeMaker(object):
                     if 'next' in current[key]:
                         self.descend(current[key].next, bottom)
                     else:
-                        ipdb.set_trace()
                         current[key].next = bottom
         return current
 
@@ -57,40 +57,40 @@ class TreeMaker(object):
         for k in tree['1'].next.keys():
             if k not in ('headline', 'next'):
                 for j in computational_sublayer['individual'].keys():
-                    if j == '5':
-                        ipdb.set_trace()
-                    temp = tree['1'].next[k].next[j].next
-                    tree['1'].next[k].next[j].next = computational_sublayer['individual'][j]
-                    tree['1'].next[k].next[j] = self.descend(
-                        tree['1'].next[k].next[j].next, temp
-                    )
+                    if 'next' in tree['1'].next[k].next[j]:
+                        temp = deepcopy(tree['1'].next[k].next[j].next)
+                        tree['1'].next[k].next[j].next = deepcopy(computational_sublayer['individual'][j])
+                        tree['1'].next[k].next[j] = self.descend(
+                            tree['1'].next[k].next[j].next, temp
+                        )
         
         # Population
         for i in ('2', '3', '4'):
             for k in tree[i].next.keys():
                 if k not in ('headline', 'next'):
                     for j in computational_sublayer['population'].keys():
-                        temp = tree[i].next[k].next[j].next
-                        tree[i].next[k].next[j].next = computational_sublayer['population'][j]
-                        tree[i].next[k].next[j] = self.descend(
-                            tree[i].next[k].next[j].next, temp
-                        )
-        
+                        if 'next' in tree[i].next[k].next[j]:                        
+                            temp = tree[i].next[k].next[j].next
+                            tree[i].next[k].next[j].next = deepcopy(computational_sublayer['population'][j])
+                            tree[i].next[k].next[j] = self.descend(
+                                tree[i].next[k].next[j].next, temp
+                            )
+
         # Set up statistics sublayer
         statistics_sublayer_path = 'json' + os.sep + 'statistics_sublayer' + '.json'
         with open(statistics_sublayer_path) as datafile:
             statistics_sublayer = bunchify(json.load(datafile, object_pairs_hook=OrderedDict))
         
         # Individual
-        temp = tree['1'].next['N'].next
-        tree['1'].next['N'].next = statistics_sublayer['individual']['N']
+        temp = deepcopy(tree['1'].next['N'].next)
+        tree['1'].next['N'].next = deepcopy(statistics_sublayer['individual']['N'])
         tree['1'].next['N'].next.next = temp
         
         # Population
         for i in ('2', '3', '4'):
             for j in statistics_sublayer['population'].keys():
-                temp = tree['2'].next[j].next
-                tree['2'].next[j].next = statistics_sublayer['population'][j]
+                temp = deepcopy(tree['2'].next[j].next)
+                tree['2'].next[j].next = deepcopy(statistics_sublayer['population'][j])
                 tree['2'].next[j].next.next = temp
         return tree
 
