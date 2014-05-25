@@ -10,7 +10,7 @@ class TreeMaker(object):
         if type(tree) == Bunch:
             for node in tree:
                 if node not in ('headline', 'default'):
-                    tree[node].next = next
+                    tree[node].next = deepcopy(next)
         return tree
 
     def descend(self, current, bottom):
@@ -31,7 +31,7 @@ class TreeMaker(object):
         '''Build the decision tree by connecting the layers'''
         below = ordering[0]
         for lyr in ordering[1:-1]:
-            subtree = tree.pop(below, None)
+            subtree = deepcopy(tree.pop(below, None))
             if 'individual' in subtree:
                 tree[lyr].individual = self.fasten(tree[lyr].individual,
                                                    subtree.pop('individual'))
@@ -41,12 +41,17 @@ class TreeMaker(object):
                 tree[lyr].individual = self.fasten(tree[lyr].individual, subtree)
                 tree[lyr].population = self.fasten(tree[lyr].population, subtree)
             below = lyr
-        subtree = tree.pop(below, None)
-        tree = tree.level_of_analyses
-        grouping = {'1': 'individual', '2': 'population', '3': 'population', '4': 'population'}
+        subtree = deepcopy(tree.pop(below, None))
+        tree = deepcopy(tree.level_of_analyses)
+        grouping = {
+            '1': 'individual',
+            '2': 'population',
+            '3': 'population',
+            '4': 'population',
+        }
         for node in tree:
             if node != 'headline':
-                tree[node].next = subtree[grouping[node]]
+                tree[node].next = deepcopy(subtree[grouping[node]])
 
         # Set up computational sublayer
         computational_sublayer_path = 'json' + os.sep + 'computational_sublayer' + '.json'
@@ -60,7 +65,7 @@ class TreeMaker(object):
                     if 'next' in tree['1'].next[k].next[j]:
                         temp = deepcopy(tree['1'].next[k].next[j].next)
                         tree['1'].next[k].next[j].next = deepcopy(computational_sublayer['individual'][j])
-                        tree['1'].next[k].next[j] = self.descend(
+                        tree['1'].next[k].next[j].next = self.descend(
                             tree['1'].next[k].next[j].next, temp
                         )
         
@@ -69,10 +74,10 @@ class TreeMaker(object):
             for k in tree[i].next.keys():
                 if k not in ('headline', 'next'):
                     for j in computational_sublayer['population'].keys():
-                        if 'next' in tree[i].next[k].next[j]:                        
-                            temp = tree[i].next[k].next[j].next
+                        if 'next' in tree[i].next[k].next[j]:
+                            temp = deepcopy(tree[i].next[k].next[j].next)
                             tree[i].next[k].next[j].next = deepcopy(computational_sublayer['population'][j])
-                            tree[i].next[k].next[j] = self.descend(
+                            tree[i].next[k].next[j].next = self.descend(
                                 tree[i].next[k].next[j].next, temp
                             )
 

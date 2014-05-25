@@ -48,33 +48,37 @@ def descend(T, sequence, randomize=False, grouping=None):
     Prompt the user through Spagedi's decision tree, then save the commands so
     we can re-use them when we actually run Spagedi from the main workflow.
     """
-    print T.keys()
     if 'population' in T and grouping is not None:
-        print "descend(T[" + str(grouping) + "], " + str(sequence) + ", " + str(randomize) + ")"
         descend(T[grouping], sequence, randomize)
     else:
-        if 'headline' in T:
-            print T.pop('headline')
+        print T.pop('headline')
+
+        # Free-form user input
         if 'user_input' in T:
             for u in T.user_input:
-                if 'label' in u:
-                    print u.label
+                print u.label
                 user_input = raw_input("> ")
+
                 # Input can be path, number, or category
+                # If it's a path, make sure the path exists
                 if u.input_type == 'path':
                     if not os.path.exists(user_input):
                         user_input = u.default
+
+                # If we're expecting a number, check to make sure the user
+                # has entered a number
                 elif u.input_type == 'number':
                     is_number = False
                     while not is_number:
                         try:
-                            # user_input = float(user_input)
+                            user_input = float(user_input)
                             is_number = True
                         except TypeError as e:
                             print "Input must be a number, try again"
                 sequence.append(user_input)
-            print sequence
             descend(T.next, sequence, randomize)
+
+        # Prompt user to select an item from a menu
         else:
             for key, item in sorted(T.items()):
                 print key + '.', item.label
@@ -89,11 +93,9 @@ def descend(T, sequence, randomize=False, grouping=None):
             if not sequence:
                 grouping = 'individual' if user_input == '1' else 'population'
             sequence.append(user_input)
-            print sequence
             if 'next' in T[sequence[-1]]:
                 descend(T[sequence[-1]].next, sequence, randomize)
     return sequence
-
 
 def main(argv=None):
     if argv is None:
@@ -117,26 +119,8 @@ def main(argv=None):
                 testing = True
 
         # Prompt the user: what test are we doing?
-        if not testing:
-            sequence = descend(SpagediWrapper.TREE, [], randomize)
-            analysis_type = SpagediWrapper.TREE[sequence[0]].next[sequence[1]].next[sequence[2]].label
-        else:
-            sequence = [1, 1, 1, 1]
-            analysis_type = "testing"
-        sauce = {
-            'standalone': True,
-            'sequence': sequence,
-            'input_fc': input_fc,
-            'output_file': output_file,
-            'analysis_type': analysis_type,
-            'order_by': 'Individual_ID',
-        }
-        # print json.dumps(sauce, indent=3, sort_keys=True)
-
-        # Fire up Spagedi and crunch some numbers
-        # spagedi = SpagediWrapper(**sauce)
-        # parameters = spagedi.getParameterInfo()
-        # return spagedi.execute(parameters, None)
+        sequence = descend(SpagediWrapper.TREE, [], randomize)
+        analysis_type = SpagediWrapper.TREE[sequence[0]].next[sequence[1]].next[sequence[2]].label
 
     except Usage as e:
         print >>sys.stderr, e.msg
