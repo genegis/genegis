@@ -43,58 +43,52 @@ class SpagediWrapper(object):
         self.log = 'log/error.log'
 
 
-def descend(T, sequence, randomize=False, grouping=None):
+def descend(T, sequence):
     """
     Prompt the user through Spagedi's decision tree, then save the commands so
     we can re-use them when we actually run Spagedi from the main workflow.
-    """
-    if 'population' in T and grouping is not None:
-        descend(T[grouping], sequence, randomize)
-    else:
-        print T.pop('headline')
+    """        
+    print T.pop('headline')
 
-        # Free-form user input
-        if 'user_input' in T:
-            for u in T.user_input:
-                print u.label
-                user_input = raw_input("> ")
+    # Free-form user input
+    if 'user_input' in T:
+        for u in T.user_input:
+            print u.label
+            user_input = raw_input("> ")
 
-                # Input can be path, number, or category
-                # If it's a path, make sure the path exists
-                if u.input_type == 'path':
-                    if not os.path.exists(user_input):
-                        user_input = u.default
+            # Input can be path, number, or category
+            # If it's a path, make sure the path exists
+            if u.input_type == 'path':
+                if not os.path.exists(user_input):
+                    user_input = u.default
 
-                # If we're expecting a number, check to make sure the user
-                # has entered a number
-                elif u.input_type == 'number':
-                    is_number = False
-                    while not is_number:
-                        try:
-                            user_input = float(user_input)
-                            is_number = True
-                        except TypeError as e:
-                            print "Input must be a number, try again"
-                sequence.append(user_input)
-            descend(T.next, sequence, randomize)
+            # If we're expecting a number, check to make sure the user
+            # has entered a number
+            elif u.input_type == 'number':
+                is_number = False
+                while not is_number:
+                    try:
+                        user_input = float(user_input)
+                        is_number = True
+                    except TypeError as e:
+                        print "Input must be a number, try again"
 
-        # Prompt user to select an item from a menu
-        else:
-            for key, item in sorted(T.items()):
-                print key + '.', item.label
-            while True:
-                if randomize:
-                    user_input = str(randint(0, len(T)))
-                else:
-                    user_input = raw_input("Selection: ")
-                if user_input in T:
-                    break
-                print "Please select one of the options."
-            if not sequence:
-                grouping = 'individual' if user_input == '1' else 'population'
             sequence.append(user_input)
-            if 'next' in T[sequence[-1]]:
-                descend(T[sequence[-1]].next, sequence, randomize)
+        descend(T.next, sequence)
+
+    # Prompt user to select an item from a menu
+    else:
+        options = sorted(T.items())
+        for key, item in options:
+            print key + '.', item.label
+        while True:
+            user_input = raw_input("Selection: ")
+            if user_input in T:
+                break
+            print "Please select one of the options."
+        sequence.append(user_input)
+        if 'next' in T[sequence[-1]]:
+            descend(T[sequence[-1]].next, sequence)
     return sequence
 
 def main(argv=None):
@@ -102,24 +96,20 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], 'hrt', ['help', 'random', 'test'])
+            opts, args = getopt.getopt(argv[1:], 'h', ['help'])
         except getopt.GetoptError as e:
              raise Usage(e)
         input_fc = "in_memory/temp"
         output_file = r"C:\Users\Sparky\src\genegis\tests\data\test_spagedi_export.txt"
-        randomize = False
         testing = False
         for opt, arg in opts:
             if opt in ('-h', '--help'):
                 print __doc__
                 return 0
-            elif opt in ('-r', '--random'):
-                randomize = True
-            elif opt in ('-t', '--test'):
-                testing = True
-
+        
         # Prompt the user: what test are we doing?
-        sequence = descend(SpagediWrapper.TREE, [], randomize)
+        sequence = descend(SpagediWrapper.TREE, [])
+        print sequence
         analysis_type = SpagediWrapper.TREE[sequence[0]].next[sequence[1]].next[sequence[2]].label
 
     except Usage as e:
@@ -127,5 +117,5 @@ def main(argv=None):
         print >>sys.stderr, "for help use --help"
         return 2
 
-if __name__=='__main__':
+if __name__ == '__main__':
     sys.exit(main())
