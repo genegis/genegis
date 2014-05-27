@@ -2,14 +2,12 @@
 """
 Standalone script to test drive spagedi functionality.
 """
-import os, re, sys, time, platform, glob, getopt, traceback, subprocess, json
+import os, re, sys, time, platform, glob, getopt, traceback
 from functools import wraps
-from random import randint
-from collections import deque
 import xml.etree.cElementTree as et
 from usage import Usage
 import arcpy
-from spagedi_tree import spagedi_tree, prp
+from spagedi_tree import spagedi_tree
 from bunch import Bunch
 
 # enable local imports; allow importing both this directory and one above
@@ -54,8 +52,6 @@ class SpagediWrapper(object):
     of genetic diversity.  This script is tested on SPAGeDi 1.4a, running
     on Windows 7, with ArcGIS 10.2.
     """
-    TREE = spagedi_tree()
-
     def __init__(self, standalone=True, sequence=None, input_fc=None,
                  output_file=None, order_by=None, analysis_type=None,
                  spagedi_file_path=None, show_spagedi_output=False):
@@ -174,7 +170,7 @@ class SpagediWrapper(object):
         spagedi_commands = os.path.join(config.config_dir, "spagedi_commands.txt")
         utils.msg(spagedi_commands)
         with open(spagedi_commands, 'w') as command_file:
-            file_string = "{spagedi_file_path}\n{results}\n".format(
+            file_string = "{spagedi_file_path}\n{results}\n\n".format(
                 spagedi_file_path=spagedi_file_path,
                 results=results
             )
@@ -329,8 +325,7 @@ def main(argv=None):
         defaults = Bunch({
             'spagedi_file_path': os.path.join(config.config_dir, "spagedi_data.txt"),
         })
-        sequence = spagedi_user_inputs(SpagediWrapper.TREE, [], defaults)
-        del SpagediWrapper.TREE
+        sequence = spagedi_user_inputs(spagedi_tree(), [], defaults)
         sauce = prepare({
             'standalone': True,
             'sequence': sequence,

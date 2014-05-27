@@ -3,7 +3,7 @@
         "N": {
             "headline": "File for pairwise genetic distances between alleles",
             "user_input": {
-                "label": "Enter the name of the file containing pairwise distances, or press RETURN if it is the data file %s:",
+                "label": "Enter the name of the file containing pairwise distances, or press RETURN if it is the same as the data file:",
                 "input_type": "path",
                 "default": "spagedi_file_path"
             }
@@ -13,7 +13,7 @@
         "8": {
             "headline": "File for pairwise genetic distances between alleles",
             "user_input": {
-                "label": "Enter the name of the file containing pairwise distances, or press RETURN if it is the data file %s:",
+                "label": "Enter the name of the file containing pairwise distances, or press RETURN if it is the same as the data file:",
                 "input_type": "path",
                 "default": "spagedi_file_path"
             }
@@ -21,7 +21,7 @@
         "9": {
             "headline": "File for pairwise genetic distances between alleles",
             "user_input": {
-                "label": "Enter the name of the file containing pairwise distances, or press RETURN if it is the data file %s:",
+                "label": "Enter the name of the file containing pairwise distances, or press RETURN if it is the same as the data file:",
                 "input_type": "path",
                 "default": "spagedi_file_path"
             }
