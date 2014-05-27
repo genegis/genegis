@@ -1,6 +1,6 @@
 {
     "population": {
-        "headline": "COMPUTATIONAL OPTIONS.  Select among the following options.",
+        "headline": "COMPUTATIONAL OPTIONS.  Select among the following options (or press RETURN).",
         "1": {
             "label": "use a matrix to define pairwise spatial distances"
         },
@@ -18,7 +18,7 @@
         }
     },
     "individual": {
-        "headline": "COMPUTATIONAL OPTIONS.  Select among the following options.",
+        "headline": "COMPUTATIONAL OPTIONS.  Select among the following options (or press RETURN).",
         "1": {
             "label": "use a matrix to define pairwise spatial distances"
         },

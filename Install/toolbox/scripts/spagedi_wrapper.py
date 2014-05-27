@@ -2,15 +2,14 @@
 """
 Standalone script to test drive spagedi functionality.
 """
-import os, re, sys, time, platform, glob, getopt, traceback, subprocess
+import os, re, sys, time, platform, glob, getopt, traceback, subprocess, json
 from functools import wraps
 from random import randint
 from collections import deque
 import xml.etree.cElementTree as et
-from pprint import pprint as pp
 from usage import Usage
 import arcpy
-from spagedi_tree import spagedi_tree
+from spagedi_tree import spagedi_tree, prp
 from bunch import Bunch
 
 # enable local imports; allow importing both this directory and one above
@@ -58,10 +57,13 @@ class SpagediWrapper(object):
     TREE = spagedi_tree()
 
     def __init__(self, standalone=True, sequence=None, input_fc=None,
-                 output_file=None, order_by=None, analysis_type=None):
+                 output_file=None, order_by=None, analysis_type=None,
+                 spagedi_file_path=None, show_spagedi_output=False):
         self.sequence = sequence
         self.label = self.sequence[1]
         self.description = self.sequence[3]
+        self.spagedi_file_path = spagedi_file_path
+        self.show_spagedi_output = show_spagedi_output
         self.canRunInBackground = False
         self.category = "Analysis"
         self.cols = {
@@ -151,7 +153,10 @@ class SpagediWrapper(object):
         results = parameters[3].valueAsText
 
         # temporary SPAGEDI output file
-        spagedi_file_path = os.path.join(config.config_dir, "spagedi_data.txt")
+        if self.spagedi_file_path is not None:
+            spagedi_file_path = self.spagedi_file_path
+        else:
+            spagedi_file_path = os.path.join(config.config_dir, "spagedi_data.txt")
 
         utils.msg("writing spagedi-formatted results...")
 
@@ -169,28 +174,13 @@ class SpagediWrapper(object):
         spagedi_commands = os.path.join(config.config_dir, "spagedi_commands.txt")
         utils.msg(spagedi_commands)
         with open(spagedi_commands, 'w') as command_file:
-            file_string = """{spagedi_file_path}
-{results}
-""".format(spagedi_file_path=spagedi_file_path, results=results)
+            file_string = "{spagedi_file_path}\n{results}\n".format(
+                spagedi_file_path=spagedi_file_path,
+                results=results
+            )
             for cmd in self.sequence:
                 file_string += cmd + '\n'
             file_string += '\n\n\n'
-#             file_string = """{spagedi_file_path}
-# {results}
-
-# {sequence_0}
-# {sequence_1}
-# {sequence_2}
-# {sequence_3}
-
-
-
-# """.format(spagedi_file_path=spagedi_file_path,
-#            results=results,
-#            sequence_0=self.sequence[0],
-#            sequence_1=self.sequence[1],
-#            sequence_2=self.sequence[2],
-#            sequence_3=self.sequence[3])
             command_file.write(file_string)
 
         # now, fire up SPAGeDi
@@ -200,15 +190,15 @@ class SpagediWrapper(object):
                Contributions by Reed Cartwright"""
         utils.msg(spagedi_msg)
         time.sleep(2)
-
         spagedi_executable_path = os.path.abspath( \
                 os.path.join(os.path.abspath(os.path.dirname(__file__)), \
                 "..", "lib", config.spagedi_executable))
+        shell_cmd = "{spagedi_exe} < {spagedi_commands}".format(
+                spagedi_exe=spagedi_executable_path,
+                spagedi_commands=spagedi_commands)
+        res = os.system(shell_cmd)
+        return 0
 
-        p = subprocess.Popen([spagedi_executable_path], stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        spagedi_output = p.communicate(input=file_string)[0]
-        # print spagedi_output
 
 def prepare(sauce):
     """
@@ -225,66 +215,99 @@ def prepare(sauce):
             arcpy.CopyFeatures_management(lyr, sauce['input_fc'])
             return sauce
 
-def descend(T, sequence, randomize=False, grouping=None):
+def spagedi_user_inputs(T, sequence, defaults):
     """
     Prompt the user through Spagedi's decision tree, then save the commands so
     we can re-use them when we actually run Spagedi from the main workflow.
-    """
-    print T.keys()
-    if 'population' in T and grouping is not None:
-        print "descend(T[" + str(grouping) + "], " + str(sequence) + ", " + str(randomize) + ")"
-        descend(T[grouping], sequence, randomize)
-    else:
-        if 'headline' in T:
-            print T.pop('headline')
-        if sequence:
-            try:
-                if 'user_input' in T[sequence[-1]]:
-                    print "descend(T[" + str(sequence[-1]) + "], " + str(sequence) + ", " + str(randomize) + ")"
-                    descend(T[sequence[-1]], sequence, randomize)
-            except Exception as e:
-                print e
-                import ipdb; ipdb.set_trace()
-        if 'user_input' in T:
-            if 'label' in T.user_input:
-                print T.user_input.label
+    """        
+    print T.pop('headline')
+
+    # Free-form user input
+    if 'user_input' in T:
+        for u in T.user_input:
+            print u.label
             user_input = raw_input("> ")
+
             # Input can be path, number, or category
-            if T.user_input.input_type == 'path':
-                if not os.path.exists(user_input):
-                    user_input = T.user_input.default
-            elif T.user_input.input_type == 'number':
+            # If it's a path, make sure the path exists
+            if u.input_type == 'path':
+                valid_path = False
+                while not valid_path:
+                    if not user_input or not os.path.exists(user_input):
+                        if 'default' in u:
+                            if u.default in defaults:
+                                user_input = defaults[u.default]
+                            else:
+                                user_input = str(u.default)
+                            valid_path = True
+                        else:
+                            print "Invalid path, try again"
+                    else:
+                        valid_path = True
+
+            # If we're expecting a number, check to make sure the user
+            # has entered a number
+            elif u.input_type == 'number':
                 is_number = False
                 while not is_number:
-                    try:
-                        user_input = float(user_input)
-                        is_number = True
-                    except TypeError as e:
-                        # if 'default' in T.user_input:
-                        #     print "Invalid input, defaulting to", T.user_input.default
-                        #     user_input = T.user_input.default
-                        print "Input must be a number, try again"
-        else:
-            for key, item in sorted(T.items()):
-                try:
-                    print key + '.', item.label
-                except AttributeError as e:
-                    print e
-                    import ipdb; ipdb.set_trace()
-            while True:
-                if randomize:
-                    user_input = str(randint(0, len(T)))
-                else:
-                    user_input = raw_input("Selection: ")
-                if user_input in T:
-                    break
-                print "Please select one of the options."
-            if not sequence:
-                grouping = 'individuals' if user_input == '1' else 'populations'
+                    if user_input:
+                        try:
+                            temp = float(user_input)
+                            is_number = True
+                        except TypeError as e:
+                            print "Input must be a number, try again"
+                    else:
+                        if 'default' in u:
+                            if u.default == -1:
+                                user_input = ''
+                            else:
+                                if u.default in defaults:
+                                    user_input = defaults[u.default]
+                                else:
+                                    user_input = str(u.default)
+                            is_number = True
+
+            sequence.append(user_input)
+        return spagedi_user_inputs(T.next, sequence, defaults)
+
+    # Prompt user to select an item from a menu
+    else:
+        options = sorted(T.items())
+        for key, item in options:
+            print key + '.', item.label
+        skip = False
+        complete = False
+        while True:
+            user_input = raw_input("Selection: ")
+            if user_input in T:
+                break
+
+            # Retrofitted to allow users to press enter for the output
+            # options and computational options layers
+            # (this could be replaced with something less hackish)
+            if not user_input and len(sequence) > 1:
+                if '4' in T and 'label' in T['4']:
+                    if T['4'].label == "jackknife over loci":
+                        skip = True
+                        user_input = '4'
+                        break
+                    elif len(T['4'].label) > 5 and T['4'].label[:6] == u"Report":
+                        complete = True
+                        user_input = ''
+                        break
+    
+            print "Please select one of the options."
         sequence.append(user_input)
-        if 'next' in item:
-            print "descend(T[" + str(sequence[-1]) + "], " + str(sequence) + ", " + str(randomize) + ")"
-            descend(T[sequence[-1]].next, sequence, randomize)
+        if not complete:
+            if sequence[-1] in T and 'next' in T[sequence[-1]]:
+
+                # More "press enter" hackery
+                if skip:
+                    temp = sequence[-1]
+                    sequence[-1] = ''
+                    return spagedi_user_inputs(T[temp].next, sequence, defaults)
+
+                return spagedi_user_inputs(T[sequence[-1]].next, sequence, defaults)
     return sequence
 
 def main(argv=None):
@@ -292,38 +315,32 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], 'hrt', ['help', 'random', 'test'])
+            opts, args = getopt.getopt(argv[1:], 'h', ['help'])
         except getopt.GetoptError as e:
-             raise Usage(e)
+             raise Usage(e)             
         input_fc = "in_memory/temp"
-        output_file = r"C:\Users\Sparky\src\genegis\tests\data\test_spagedi_export.txt"
-        randomize = False
-        testing = False
+        output_file = os.path.join(config.config_dir, "test_spagedi_export.txt")
         for opt, arg in opts:
             if opt in ('-h', '--help'):
                 print __doc__
                 return 0
-            elif opt in ('-r', '--random'):
-                randomize = True
-            elif opt in ('-t', '--test'):
-                testing = True
-
+        
         # Prompt the user: what test are we doing?
-        if not testing:
-            sequence = descend(SpagediWrapper.TREE, [], randomize)
-            analysis_type = SpagediWrapper.TREE[sequence[0]].next[sequence[1]].next[sequence[2]].label
-        else:
-            sequence = [1, 1, 1, 1]
-            analysis_type = "testing"
+        defaults = Bunch({
+            'spagedi_file_path': os.path.join(config.config_dir, "spagedi_data.txt"),
+        })
+        sequence = spagedi_user_inputs(SpagediWrapper.TREE, [], defaults)
+        del SpagediWrapper.TREE
         sauce = prepare({
             'standalone': True,
             'sequence': sequence,
             'input_fc': input_fc,
+            'spagedi_file_path': defaults.spagedi_file_path,
             'output_file': output_file,
-            'analysis_type': analysis_type,
+            'analysis_type': '',
             'order_by': 'Individual_ID',
+            'show_spagedi_output': True,
         })
-        # print json.dumps(sauce, indent=3, sort_keys=True)
 
         # Fire up Spagedi and crunch some numbers
         spagedi = SpagediWrapper(**sauce)
@@ -335,5 +352,5 @@ def main(argv=None):
         print >>sys.stderr, "for help use --help"
         return 2
 
-if __name__=='__main__':
+if __name__ == '__main__':
     sys.exit(main())

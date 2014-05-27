@@ -43,7 +43,7 @@ class SpagediWrapper(object):
         self.log = 'log/error.log'
 
 
-def descend(T, sequence):
+def spagedi_user_inputs(T, sequence):
     """
     Prompt the user through Spagedi's decision tree, then save the commands so
     we can re-use them when we actually run Spagedi from the main workflow.
@@ -68,13 +68,13 @@ def descend(T, sequence):
                 is_number = False
                 while not is_number:
                     try:
-                        user_input = float(user_input)
+                        temp = float(user_input)
                         is_number = True
                     except TypeError as e:
                         print "Input must be a number, try again"
 
             sequence.append(user_input)
-        descend(T.next, sequence)
+        spagedi_user_inputs(T.next, sequence)
 
     # Prompt user to select an item from a menu
     else:
@@ -88,7 +88,7 @@ def descend(T, sequence):
             print "Please select one of the options."
         sequence.append(user_input)
         if 'next' in T[sequence[-1]]:
-            descend(T[sequence[-1]].next, sequence)
+            spagedi_user_inputs(T[sequence[-1]].next, sequence)
     return sequence
 
 def main(argv=None):
@@ -108,8 +108,10 @@ def main(argv=None):
                 return 0
         
         # Prompt the user: what test are we doing?
-        sequence = descend(SpagediWrapper.TREE, [])
-        print sequence
+        sequence = spagedi_user_inputs(SpagediWrapper.TREE, [])
+        for i, cmd in enumerate(sequence):
+            if cmd == u'spagedi_file_path':
+                sequence[i] = input_fc
         analysis_type = SpagediWrapper.TREE[sequence[0]].next[sequence[1]].next[sequence[2]].label
 
     except Usage as e:

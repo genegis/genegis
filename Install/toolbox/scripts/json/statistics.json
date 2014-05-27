@@ -1,6 +1,6 @@
 {
     "population": {
-        "headline": "STATISTICS.  Select the individual-level statistics you would like calculated.",
+        "headline": "STATISTICS.  Select the population-level statistics you would like calculated.",
         "1": {
             "label": "identity-Fst: global F-statistics and pairwise Fst"
         },
@@ -30,7 +30,7 @@
         }
     },
     "individual": {
-        "headline": "STATISTICS.  Select the population-level statistics you would like calculated.",
+        "headline": "STATISTICS.  Select the individual-level statistics you would like calculated.",
         "1": {
             "label": "kinship coefficient (Loiselle et al., 1995)"
         },

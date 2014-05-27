@@ -1,5 +1,5 @@
 {
-    "headline": "OUTPUT OPTIONS.  Select among the following options.",
+    "headline": "OUTPUT OPTIONS.  Select among the following options (or press RETURN).",
     "1": {
         "label": "Report allele freq and diversity coef per pop (or only averages reported)"
     },
