@@ -8,13 +8,9 @@ import xml.etree.cElementTree as et
 from usage import Usage
 import arcpy
 from spagedi_tree import spagedi_tree
-from bunch import Bunch
-
 # enable local imports; allow importing both this directory and one above
-local_path = os.path.dirname(__file__)
-for path in [local_path, os.path.join(local_path, '..')]:
-    full_path = os.path.abspath(path)
-    sys.path.insert(0, os.path.abspath(path))
+import add_install_path
+from bunch import Bunch
 
 # addin specific configuration and utility functions
 import utils as addin_utils

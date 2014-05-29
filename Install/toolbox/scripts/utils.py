@@ -11,13 +11,7 @@ import traceback
 import arcpy
 
 # enable local imports; redirect config calls to general config
-def add_install_path():
-    local_path = os.path.dirname(__file__)
-    for path in [local_path, os.path.join(local_path, '..', '..')]:
-        full_path = os.path.abspath(path)
-        sys.path.insert(0, full_path)
-
-add_install_path() # pull config from parent project
+import add_install_path
 import config
 
 class Loci(object):

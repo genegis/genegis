@@ -10,13 +10,6 @@ import xml.etree.cElementTree as et
 from pprint import pprint as pp
 from usage import Usage
 from spagedi_tree import spagedi_tree, prp
-from bunch import Bunch
-
-# enable local imports; allow importing both this directory and one above
-local_path = os.path.dirname(__file__)
-for path in [local_path, os.path.join(local_path, '..')]:
-    full_path = os.path.abspath(path)
-    sys.path.insert(0, os.path.abspath(path))
 
 class SpagediWrapper(object):
 

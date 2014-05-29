@@ -1,8 +1,9 @@
-import os, json 
+import os, json, sys
 from collections import OrderedDict
-from bunch import Bunch, bunchify
 from copy import deepcopy
 import ipdb
+import add_install_path # modifies our path to allow local includes
+from bunch import Bunch, bunchify
 
 class TreeMaker(object):
 

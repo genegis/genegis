@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# direct import from bunch: https://github.com/dsc/bunch
+# license: MIT
+
 # -*- coding: utf-8 -*-
 """ Bunch is a subclass of dict with attribute-style access.
     
