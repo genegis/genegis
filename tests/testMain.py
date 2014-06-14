@@ -19,10 +19,30 @@ utils.addLocalPaths(import_paths)
 from scripts import ClassifiedImport, DistanceMatrix, ShortestDistancePaths
 
 # A GDB for our test results
-d = TempDir()
-output_dir = d.name
-output_gdb = 'test_genegis'
-gdb_path = os.path.join(output_dir, "%s.gdb" % output_gdb)
+class CoreFGDB(object):
+    """ Create a FGDB and a test table inside for reuse in the tests."""
+
+    def __init__(self):
+        self.d = TempDir()
+        self.dir_path = self.d.name
+        self.name = 'test_genegis'
+        self.path = os.path.join(self.dir_path, "%s.gdb" % self.name)
+        self.input_fc = os.path.join(self.path, "test_csv_spatial")
+
+        # populate the feature with valid data
+        self.create_feature()
+
+    def create_feature(self):                
+        # create a spatial table to use for testing.
+        ClassifiedImport.main(input_table=consts.test_csv_doc, 
+                sr=None, output_loc=self.dir_path, 
+                output_gdb=self.name, output_fc=self.input_fc,
+                genetic=consts.genetic_columns, 
+                identification=consts.id_columns, location=consts.loc_columns, 
+                other=consts.other_columns, mode='script')
+        return
+
+fgdb = CoreFGDB()
 
 class TestExampleDataExists(unittest.TestCase):
 
@@ -41,22 +61,22 @@ class TestClassifiedImport(unittest.TestCase):
     mode=consts.settings.mode, protected_map=consts.protected_columns)
     """
     def setUp(self):
-        self.output_fc = os.path.join(gdb_path, "test_csv_spatial")
+        self.output_fc = os.path.join(fgdb.path, "test_csv_spatial")
 
     def testClassifiedImportAvailable(self, method=ClassifiedImport):
         self.assertTrue('main' in vars(method))
 
     def testClassifiedImportRun(self, method=ClassifiedImport):
         # clean up from any past runs
-        arcpy.Delete_management(gdb_path)
+        arcpy.Delete_management(fgdb.path)
 
         method.main(input_table=consts.test_csv_doc, 
-                sr=None, output_loc=output_dir, 
-                output_gdb=output_gdb, output_fc=self.output_fc,
+                sr=None, output_loc=fgdb.dir_path, 
+                output_gdb=fgdb.name, output_fc=self.output_fc,
                 genetic=consts.genetic_columns, 
                 identification=consts.id_columns, location=consts.loc_columns, 
                 other=consts.other_columns, mode='script')
-        self.assertTrue(os.path.exists(gdb_path))
+        self.assertTrue(os.path.exists(fgdb.path))
 
         # test that the input columns exist. Note that in the general case,
         # these column names may be remapped, but here we're using presets
@@ -73,14 +93,13 @@ class TestClassifiedImport(unittest.TestCase):
 
     def tearDown(self):
         # clean up
-        arcpy.Delete_management(gdb_path)
-        self.assertFalse(os.path.exists(gdb_path))
-
+        arcpy.Delete_management(fgdb.path)
+        self.assertFalse(os.path.exists(fgdb.path))
 
 class TestClassifiedImportFullDataset(unittest.TestCase):
     def setUp(self):
-        self.output_fc = os.path.join(gdb_path, "test_csv_spatial")
-        self.temp_srgd = os.path.join(output_dir, "SRGD_export.csv")
+        self.output_fc = os.path.join(fgdb.path, "test_csv_spatial")
+        self.temp_srgd = os.path.join(fgdb.dir_path, "SRGD_export.csv")
 
     def testClassifiedImportAvailable(self, method=ClassifiedImport):
         self.assertTrue('main' in vars(method))
@@ -92,12 +111,12 @@ class TestClassifiedImportFullDataset(unittest.TestCase):
                 w.write(f.read())
 
         method.main(input_table=self.temp_srgd,
-                sr=None, output_loc=output_dir, 
-                output_gdb=output_gdb, output_fc=self.output_fc,
+                sr=None, output_loc=fgdb.dir_path, 
+                output_gdb=fgdb.name, output_fc=self.output_fc,
                 genetic=consts.genetic_columns, 
                 identification=consts.id_columns, location=consts.loc_columns, 
                 other=consts.other_columns, mode='script')
-        self.assertTrue(os.path.exists(gdb_path))
+        self.assertTrue(os.path.exists(fgdb.path))
 
         # test that the input columns exist. Note that in the general case,
         # these column names may be remapped, but here we're using presets
@@ -105,13 +124,22 @@ class TestClassifiedImportFullDataset(unittest.TestCase):
         input_columns = ";".join([consts.genetic_columns, consts.id_columns, \
                 consts.loc_columns, consts.other_columns]).split(";")
         output_columns = [f.name for f in arcpy.ListFields(self.output_fc)]
+
         for column in input_columns:
             self.assertTrue(column in output_columns)
+
+        fields = ("OID@", "Sample_ID", "Occurrence_ID", 'L_Ev1_1')
+        where = '"Sample_ID" = 564'
+        with arcpy.da.SearchCursor(self.output_fc, fields, where) as cursor:
+            (oid, sample_id, occurence_id, hap_ev1) = cursor.next()
+
+            self.assertEqual(occurence_id, 'CRC:Fri Jan 23 00:00:00 EST 2004:DT1:1')
+            self.assertEqual(oid, 1316)
+            self.assertEqual(hap_ev1, 123)
 
         # delete our temp srgd file (extracted from source)
         os.remove(self.temp_srgd)
         self.assertFalse(os.path.exists(self.temp_srgd))
-
 
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
@@ -119,26 +147,14 @@ class TestClassifiedImportFullDataset(unittest.TestCase):
 
     def tearDown(self):
         # clean up
-        arcpy.Delete_management(gdb_path)
-        self.assertFalse(os.path.exists(gdb_path))
+        arcpy.Delete_management(fgdb.path)
+        self.assertFalse(os.path.exists(fgdb.path))
 
 class TestDistanceMatrix(unittest.TestCase):
 
     def setUp(self):
-        self.input_fc = "in_memory/temp"
-        scriptloc = os.path.dirname(os.path.realpath(__file__))
-        self.output = os.path.join(scriptloc, 'data', 'Test_DistanceMatrix')
-
-        # Use the SRGD_example_Spatial layer from genegis.mxd for testing
-        mxdpath = os.path.abspath(
-            os.path.join(scriptloc, os.path.pardir, 
-                         'Install', 'toolbox', 'genegis.mxd')
-        )
-        mxd = arcpy.mapping.MapDocument(mxdpath)
-        for lyr in arcpy.mapping.ListLayers(mxd):
-            if lyr.name == 'SRGD_example_Spatial':
-                arcpy.CopyFeatures_management(lyr, self.input_fc)
-                break
+        self.input_fc = fgdb.input_fc
+        self.output = os.path.join(consts.data_path, 'Test_DistanceMatrix')
 
     def testDistanceMatrixAvailable(self, method=DistanceMatrix):
         self.assertTrue('main' in vars(method))
@@ -224,32 +240,19 @@ class TestDistanceMatrix(unittest.TestCase):
         # clean up
         arcpy.Delete_management(self.output)
 
-
 class TestShortestDistancePaths(unittest.TestCase):
+    """ Test the shortest distance path script works, with
+        a shapefile output."""
 
     def setUp(self):
-        self.input_fc = "in_memory/temp"
-        scriptloc = os.path.dirname(os.path.realpath(__file__))
-        self.output_fc = os.path.join(scriptloc, 'data', 'Test_ShortestDistancePaths')
-
-        # Use the SRGD_example_Spatial layer from genegis.mxd for testing
-        mxdpath = os.path.abspath(
-            os.path.join(scriptloc, os.path.pardir, 
-                         'Install', 'toolbox', 'genegis.mxd')
-        )
-        mxd = arcpy.mapping.MapDocument(mxdpath)
-        for lyr in arcpy.mapping.ListLayers(mxd):
-            if lyr.name == 'SRGD_example_Spatial':
-                arcpy.CopyFeatures_management(lyr, self.input_fc)
-                break
+        self.input_fc = fgdb.input_fc
+        self.output_fc = os.path.join(fgdb.dir_path, 'Test_ShortestDistancePaths')
+        self.shape_fn = "{}.shp".format(self.output_fc)
 
     def testShortestDistancePathsAvailable(self, method=ShortestDistancePaths):
         self.assertTrue('main' in vars(method))
 
     def testShortestDistancePathsRun(self, method=ShortestDistancePaths):
-        # clean up from any past runs
-        arcpy.Delete_management(self.output_fc)
-
         parameters = {
             'input_fc': self.input_fc,
             'output_fc': self.output_fc,
@@ -270,25 +273,24 @@ class TestShortestDistancePaths(unittest.TestCase):
     def tearDown(self):
         arcpy.Delete_management(self.output_fc + '.shp')
 
-
 class TestQuotedMultilineInput(unittest.TestCase):
     
     def setUp(self):
-        self.output_fc = os.path.join(gdb_path, "test_multiline_spatial")
+        self.output_fc = os.path.join(fgdb.path, "test_multiline_spatial")
 
     def testClassifiedImportRun(self, method=ClassifiedImport):
         # include comment field in 'other' fields.
         other_columns = "Region;Comment"
 
         # clean up from any past runs
-        arcpy.Delete_management(gdb_path)
+        arcpy.Delete_management(fgdb.path)
 
         method.main(input_table=consts.test_csv_with_comment_field, 
-                sr=None, output_loc=output_dir, 
-                output_gdb=output_gdb, output_fc=self.output_fc,
+                sr=None, output_loc=fgdb.dir_path, 
+                output_gdb=fgdb.name, output_fc=self.output_fc,
                 genetic=consts.genetic_columns, identification=consts.id_columns, 
                 location=consts.loc_columns, other=consts.other_columns, mode='script')
-        self.assertTrue(os.path.exists(gdb_path))
+        self.assertTrue(os.path.exists(fgdb.path))
 
         # test our comment field is set
         self.assertTrue("Comment" in [f.name for f in arcpy.ListFields(self.output_fc)])
@@ -301,8 +303,8 @@ class TestQuotedMultilineInput(unittest.TestCase):
         
     def tearDown(self):
         # clean up
-        arcpy.Delete_management(gdb_path)
-        self.assertFalse(os.path.exists(gdb_path))
+        arcpy.Delete_management(fgdb.path)
+        self.assertFalse(os.path.exists(fgdb.path))
 
 
 # this test should be run after a fresh run of makeaddin to rebuild the .esriaddin file.
