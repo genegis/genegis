@@ -169,6 +169,7 @@ class TestDistanceMatrix(unittest.TestCase):
             'matrix_type': 'Square',
             'output_matrix': self.output,
         }
+
         method.main(mode='script', **parameters)
 
         # Calculate a "reference" distance matrix using geographiclib.
@@ -265,6 +266,16 @@ class TestShortestDistancePaths(unittest.TestCase):
         for ext in output_file_extensions:
             output_file = self.output_fc + ext
             self.assertTrue(arcpy.Exists(output_file))
+
+        # test that a sample value matches expected values
+        output_columns = [f.name for f in arcpy.ListFields(self.shape_fn)]
+        fields = ('ID', 'Source_ID', 'Dest_ID', 'Distance_i')
+        where = '"ID" = 272'
+        with arcpy.da.SearchCursor(self.shape_fn, fields, where) as cursor:
+            (fid, source_id, dest_id, dist_m) = cursor.next()
+            self.assertEqual(source_id, 17.0)
+            self.assertEqual(dest_id, 8.0)
+            self.assertAlmostEqual(dist_m, 3173.9605395)
 
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
