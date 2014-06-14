@@ -199,7 +199,6 @@ def formatDate(input_date):
             config.update('%s_columns' % var, val.strip())
 
         # done updating, reload the config so the settings propagate.
-        utils.add_install_path()
         reload(config)
 
     except Exception as e:
