@@ -175,7 +175,7 @@ class ClassifiedImport(object):
         identification.parameterType = 'Required'
         identification.direction = 'Input'
         identification.multiValue = True
-        identification.filter.list = ['Sample_ID', 'Individual_ID']
+        identification.filter.list = ['Individual_ID', 'Sample_ID']
 
         # location columns
         loc = arcpy.Parameter()
