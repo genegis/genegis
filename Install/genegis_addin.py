@@ -15,7 +15,6 @@ import config
 import utils
 
 # get the paths for our toolboxes
-imported_toolbox = os.path.join(local_path, "toolbox", "imported.tbx")
 genegis_toolbox = os.path.join(local_path, "toolbox", "genegis.pyt")
 
 #
