@@ -30,6 +30,28 @@ import sys
 import utils
 import config
 
+"""
+Enable local imports; redirect config calls to general config
+
+NOTE: tried to do this with it separated into a script 'add_install_path.py'
+      which works fine from a command-line context but doesn't fire from
+      ArcGIS interactively. This is likely related to the path-scanning it does
+      when trying to export to an .sd / arcgis server endpoint.
+"""
+def add_install_path():
+    local_path = os.path.dirname(__file__)
+    add_paths = [
+            os.path.join(local_path, '..', '..'), # Install
+            os.path.join(local_path, '..',), # Install/toolbox
+            os.path.join(local_path, '..', 'lib'), # Install/toolbox/lib
+            local_path # Install/toolbox/scripts
+    ]
+    for path in add_paths:
+        full_path = os.path.abspath(path)
+        sys.path.insert(0, full_path)
+
+add_install_path()
+
 def main(input_table=None, sr=None, output_loc=None,
     output_gdb=None, output_fc=None, genetic=None,
     identification=None, location=None, other=None,
