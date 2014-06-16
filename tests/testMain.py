@@ -7,15 +7,14 @@ import zipfile
 import gzip
 from geographiclib.geodesic import Geodesic
 
-from tempdir import TempDir
-
 import consts
 import utils
 
 # import our local directory so we can use the internal modules
-import_paths = ['../Install/toolbox', '../Install']
+import_paths = ['../Install/toolbox', '../Install', '../Install/toolbox/lib']
 utils.addLocalPaths(import_paths)
 
+from tempdir import TempDir
 from scripts import ClassifiedImport, DistanceMatrix, ShortestDistancePaths
 
 # A GDB for our test results
