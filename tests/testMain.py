@@ -159,8 +159,9 @@ class TestDistanceMatrix(unittest.TestCase):
         self.assertTrue('main' in vars(method))
 
     def testDistanceMatrixRun(self, method=DistanceMatrix):
-        # clean up from any past runs
-        arcpy.Delete_management(self.output)
+        if os.path.exists(self.output):
+            # clean up from any past runs
+            arcpy.Delete_management(self.output)
 
         parameters = {
             'input_fc': self.input_fc,
