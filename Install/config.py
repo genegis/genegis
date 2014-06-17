@@ -64,6 +64,25 @@ config_vars = {
                       # Python toolbox, not the command-line by default.
     'log_level': 'error'
 }
+# We've initialized all our configuration settings, now let's serialize them
+# in a usable spot.
+
+# make a configuration directory if needed
+config_dir = create_config(app_name)
+config_path = os.path.join(config_dir, "{}.cfg".format(app_name))
+# initialize a basic configuration file.
+if not os.path.exists(config_path):
+    create(config_path)
+
+log_path = os.path.join(config_dir, "{}.log".format(app_name))
+
+# clean up our temp path, if it exists
+for fn in glob.glob(os.path.join(config_dir, "*.{}.tmp".format(app_name))):
+    os.remove(fn)
+
+# push out the settings into an attributed object, can pull things 
+# back with 'settings.var_name'.
+settings = load(config_path, app_name)
 
 # NOTE: Settings in original file; reduce to config settings where possible.
 
@@ -77,6 +96,9 @@ allowed_formats = ['FeatureClass', 'FeatureDataset']
 all_layers = None
 
 spagedi_executable = "SPAGeDi-1.4c.exe"
+spagedi_executable_path = os.path.abspath( \
+    os.path.join(os.path.abspath(os.path.dirname(__file__)), \
+    "toolbox", "lib", "spagedi", spagedi_executable))
 
 # map search strings to variable groups, include 'protected'
 # column to explicitly define type for these columns
@@ -119,6 +141,7 @@ protected_columns = {}
 
 overwrite = True
 
+# finally, try our ArcPy specific imports.
 try:
     import arcpy
     arcpy.env.overwriteOutput = True
@@ -126,25 +149,5 @@ try:
     # is selected from the combobox.
     sr = arcpy.SpatialReference(int(settings.srid))
 
-except:
-    warnings.warn("Unable to import arcpy, disabling ArcPy settings.")
-
-# We've initialized all our configuration settings, now let's serialize them
-# in a usable spot.
-
-# make a configuration directory if needed
-config_dir = create_config(app_name)
-config_path = os.path.join(config_dir, "{}.cfg".format(app_name))
-# initialize a basic configuration file.
-if not os.path.exists(config_path):
-    create(config_path)
-
-log_path = os.path.join(config_dir, "{}.log".format(app_name))
-
-# clean up our temp path, if it exists
-for fn in glob.glob(os.path.join(config_dir, "*.{}.tmp".format(app_name))):
-    os.remove(fn)
-
-# push out the settings into an attributed object, can pull things 
-# back with 'settings.var_name'.
-settings = load(config_path, app_name)
+except Exception as e:
+    warnings.warn("{}, disabling ArcPy settings.".format(e))
