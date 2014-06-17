@@ -2,9 +2,6 @@ import csv
 import os
 import sys
 import time
-
-import arcpy
-import pythonaddins
 import dateutil.parser
 
 # enable local imports
@@ -13,6 +10,18 @@ sys.path.insert(0, local_path)
 
 # import local settings
 import config
+
+try:
+    import arcpy
+    import pythonaddins
+except:
+    """
+    The config import above thows a warning in this case,
+    just swallow it here and let this script import, since most of 
+    these utils don't depend on arcpy.
+    """
+    pass
+
 
 def toolDialog(toolbox, tool):
     """Error-handling wrapper around pythonaddins.GPToolDialog."""

@@ -1,6 +1,6 @@
-import arcpy
 import glob
 import os
+import warnings
 import ConfigParser
 from collections import OrderedDict
 
@@ -33,15 +33,21 @@ def load(config_path, app_name):
     cfg.read(config_path)
     return AttrDict(cfg._sections[app_name])
 
-app_name = 'geneGIS'
-# make a configuration directory if needed
-config_dir = os.path.join(os.environ['APPDATA'], app_name)
-config_path = os.path.join(config_dir, "{}.cfg".format(app_name))
-log_path = os.path.join(config_dir, "{}.log".format(app_name))
+def create_config(app_name):
+    """
+    Create an appropriate location for our configuration
+    settings.
+    """
+    if 'APPDATA' in os.environ:
+        config_base = os.environ['APPDATA']
+    elif 'XDG_CONFIG_HOME' in os.environ:
+        config_base = os.environ['XDF_CONFIG_HOME']
+    else:
+        config_base = os.path.join(os.environ['HOME'], '.config')
 
-# clean up our temp path, if it exists
-for fn in glob.glob(os.path.join(config_dir, "*.{}.tmp".format(app_name))):
-    os.remove(fn)
+    return os.path.join(config_base, app_name)
+
+app_name = 'geneGIS'
 
 config_vars = {
     'fc_path': None, # path to the imported feature class,
@@ -59,15 +65,7 @@ config_vars = {
     'log_level': 'error'
 }
 
-# initialize a basic configuration file.
-if not os.path.exists(config_path):
-    create(config_path)
-
-# push out the settings into an attributed object, can pull things 
-# back with 'settings.var_name'.
-settings = load(config_path, app_name)
-
-# XXX Settings in original file; reduce to core settings where possible.
+# NOTE: Settings in original file; reduce to config settings where possible.
 
 selected_layer = None
 selected_object = None
@@ -77,10 +75,6 @@ allowed_types = ["Point", "MultiPoint"]
 allowed_formats = ['FeatureClass', 'FeatureDataset']
 
 all_layers = None
-
-# default spatialReference id (WGS 84), updated when a layer
-# is selected from the combobox.
-sr = arcpy.SpatialReference(int(settings.srid))
 
 spagedi_executable = "SPAGeDi-1.4c.exe"
 
@@ -124,4 +118,33 @@ primary_results = None
 protected_columns = {}
 
 overwrite = True
-arcpy.env.overwriteOutput = True
+
+try:
+    import arcpy
+    arcpy.env.overwriteOutput = True
+    # default spatialReference id (WGS 84), updated when a layer
+    # is selected from the combobox.
+    sr = arcpy.SpatialReference(int(settings.srid))
+
+except:
+    warnings.warn("Unable to import arcpy, disabling ArcPy settings.")
+
+# We've initialized all our configuration settings, now let's serialize them
+# in a usable spot.
+
+# make a configuration directory if needed
+config_dir = create_config(app_name)
+config_path = os.path.join(config_dir, "{}.cfg".format(app_name))
+# initialize a basic configuration file.
+if not os.path.exists(config_path):
+    create(config_path)
+
+log_path = os.path.join(config_dir, "{}.log".format(app_name))
+
+# clean up our temp path, if it exists
+for fn in glob.glob(os.path.join(config_dir, "*.{}.tmp".format(app_name))):
+    os.remove(fn)
+
+# push out the settings into an attributed object, can pull things 
+# back with 'settings.var_name'.
+settings = load(config_path, app_name)

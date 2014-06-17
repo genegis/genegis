@@ -8,11 +8,20 @@ import binascii
 import itertools
 import traceback
 
-import arcpy
-
 # enable local imports; redirect config calls to general config
 import add_install_path
 import config
+
+try:
+    import arcpy
+
+except:
+    """
+    The config import above thows a warning in this case,
+    just swallow it here and let this script import, since most of 
+    these utils don't depend on arcpy.
+    """
+    pass
 
 class Loci(object):
     """ A basic class to store the Loci attributes we commonly use."""
