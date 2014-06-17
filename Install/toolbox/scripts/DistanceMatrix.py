@@ -84,9 +84,8 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, \
 
 def load_geodesic_dll():
     fn = None
-    dll_path = os.path.abspath(os.path.join( \
-            os.path.abspath(os.path.dirname(__file__)), "..", \
-            "lib", "geodesic.dll"))
+    # load the DLL path from the config settings.
+    dll_path = config.geodesic_dll_path
     if os.path.exists(dll_path):
         try:
             loaded_dll = ctypes.cdll.LoadLibrary(dll_path)

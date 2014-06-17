@@ -100,6 +100,10 @@ spagedi_executable_path = os.path.abspath( \
     os.path.join(os.path.abspath(os.path.dirname(__file__)), \
     "toolbox", "lib", "spagedi", spagedi_executable))
 
+geodesic_dll_path = os.path.abspath( \
+    os.path.join(os.path.abspath(os.path.dirname(__file__)), \
+    "toolbox", "lib", "geodesic", "geodesic.dll")) 
+
 # map search strings to variable groups, include 'protected'
 # column to explicitly define type for these columns
 group_expressions = [
