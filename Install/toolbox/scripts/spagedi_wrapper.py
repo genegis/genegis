@@ -176,17 +176,16 @@ class SpagediWrapper(object):
             command_file.write(file_string)
 
         # now, fire up SPAGeDi
-        spagedi_msg = """Now running SPAGeDi 1.4a (build 11-01-2013)
+        spagedi_msg = """Now running SPAGeDi 1.4c (build 17-07-2013)
    - a program for Spatial Pattern Analysis of Genetic Diversity
                Written by Olivier Hardy & Xavier Vekemans
                Contributions by Reed Cartwright"""
         utils.msg(spagedi_msg)
         time.sleep(2)
-        spagedi_executable_path = os.path.abspath( \
-                os.path.join(os.path.abspath(os.path.dirname(__file__)), \
-                "..", "lib", "spagedi", config.spagedi_executable))
+        # pull in the full location of the SPAGeDi binary
+        spagedi_exe = config.spagedi_executable_path
         shell_cmd = "{spagedi_exe} < {spagedi_commands}".format(
-                spagedi_exe=spagedi_executable_path,
+                spagedi_exe=spagedi_exe,
                 spagedi_commands=spagedi_commands)
         res = os.system(shell_cmd)
         return 0
