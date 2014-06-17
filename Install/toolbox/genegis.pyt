@@ -637,7 +637,7 @@ class SpagediFst(object):
 
         results = parameters[3].valueAsText
 
-        # temporary SPAGEDI output file
+        # temporary SPAGeDi output file
         spagedi_file_path = os.path.join(config.config_dir, "spagedi_data.txt")
 
         utils.msg("writing spagedi-formatted results...")

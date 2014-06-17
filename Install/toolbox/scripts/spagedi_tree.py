@@ -102,7 +102,7 @@ class TreeMaker(object):
 
 
 def spagedi_tree():
-    # Import layers of the Spagedi decision tree from JSON files
+    # Import layers of the SPAGeDi decision tree from JSON files
     layers = ['level_of_analyses', 'statistics', 'computational_options', 'output_options']
     tree = OrderedDict()
     for lyr in layers:

@@ -144,13 +144,13 @@ class SpagediWrapper(object):
    
         results = parameters[3].valueAsText
 
-        # temporary SPAGEDI output file
+        # temporary SPAGeDi output file
         if self.spagedi_file_path is not None:
             spagedi_file_path = self.spagedi_file_path
         else:
             spagedi_file_path = os.path.join(config.config_dir, "spagedi_data.txt")
 
-        utils.msg("writing spagedi-formatted results...")
+        utils.msg("writing SPAGeDi-formatted results...")
 
         # compute our spagedi file first
         ExportToSPAGeDi.main(
@@ -160,7 +160,7 @@ class SpagediWrapper(object):
             output_name=spagedi_file_path
         )
 
-        utils.msg("writing out spagedi commands...")
+        utils.msg("writing out SPAGeDi commands...")
 
         # now, generate an input file for SPAGeDi
         spagedi_commands = os.path.join(config.config_dir, "spagedi_commands.txt")
@@ -209,7 +209,7 @@ def prepare(sauce):
 
 def spagedi_user_inputs(T, sequence, defaults):
     """
-    Prompt the user through Spagedi's decision tree, then save the commands so
+    Prompt the user through SPAGeDi's decision tree, then save the commands so
     we can re-use them when we actually run Spagedi from the main workflow.
     """        
     print T.pop('headline')

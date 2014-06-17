@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Standalone script to test drive spagedi functionality.
+Standalone script to test drive SPAGeDi functionality.
 """
 import os, re, sys, time, platform, glob, getopt, traceback, subprocess
 from functools import wraps
