@@ -1,4 +1,7 @@
+# genegis.pyt: geneGIS genetic analysis in ArcGIS Python Toolbox.
 # -*- coding: utf-8 -*-
+# Created by: Shaun Walbridge
+#             Esri
 
 import os
 import re
@@ -63,7 +66,6 @@ def metadata(update=True):
         except Exception as e:
             pass
 
-
 class Toolbox(object):
     def __init__(self):
         self.label = u'geneGIS_Jan_2013'
@@ -91,7 +93,9 @@ class ClassifiedImport(object):
 
     def __init__(self):
         self.label = u'Import Data'
-        self.description = u'This tool allows the user to covert an input file (a text file or Excel spreadsheet formated with the SRGD specifications) to a feature class within a file geodatabase.'
+        self.description = u'This tool allows the user to covert an input file' \
+                + ' (a text file or Excel spreadsheet formated with the SRGD' \
+                + ' specifications) to a feature class within a file geodatabase.'
         self.canRunInBackground = False
         self.category = "Import"
         # perform some dynamic list filtering, in the case that we have a
@@ -107,15 +111,17 @@ class ClassifiedImport(object):
             'Location': 7,
             'Other': 8
         }
-        # one of the tools needs to have the metadata deletion call included in it. If it's done elsewhere
-        # in the script, the script state isn't correct and the ModTime and ModDate fields will remain.
+        # One of the tools needs to have the metadata deletion call included in it. 
+        # If it's done elsewhere in the script, the script state isn't correct and 
+        # the ModTime and ModDate fields will remain.
         metadata(update=False)
 
     def splitParamValues(self, parameters, column):
         return parameters[self.cols[column]].value.exportToString().split(";")
 
     def tempPath(self):
-        return os.path.join(config.config_dir, "{}.{}.tmp".format(os.getpid(), config.app_name))
+        return os.path.join(config.config_dir, "{}.{}.tmp".format(
+            os.getpid(), config.app_name))
 
     def getParameterInfo(self):
         # SRGD_Input_File
@@ -238,7 +244,7 @@ class ClassifiedImport(object):
             if input_table_name is not None and columns_init == 'True':
                 unchecked = {}
                 all_checked = []
-                # go through each of the dynamic cols, and check for any 'unchecked' elements.
+                # iterate over the dynamic cols, and check for any 'unchecked' elements.
                 for i, group in enumerate(dynamic_cols):
                     filter_list = parameters[self.cols[group]].filter.list
                     filter_values = self.splitParamValues(parameters, group)
@@ -280,7 +286,8 @@ class ClassifiedImport(object):
                             # record it so we can force a mapping on import.
                             if data_type is not None:
                                 if isinstance(data_type, str):
-                                    log_f.write("  it's a string: {}\n".format(data_type))
+                                    log_f.write("  it's a string: {}\n".format(
+                                        data_type))
                                     forced_type = data_type
                                 else: 
                                     # if we have multiple values in the data type,
@@ -289,18 +296,23 @@ class ClassifiedImport(object):
                                     data_sample = data[0][i]
                                     if preferred_type == 'Long':
                                         try:
-                                            log_f.write("  checking if this is an int: {}\n".format(data_sample))
+                                            log_f.write("  checking if this is" \
+                                                    + "an int: {}\n".format(
+                                                    data_sample))
                                             int(data_sample)
                                             forced_type = preferred_type
                                         except ValueError:
-                                            log_f.write("  got a value error, going with {}\n".format(data_type[1]))
+                                            log_f.write("  got a value error, " \
+                                                    + "going with {}\n".format(
+                                                    data_type[1]))
                                             # fall back to the default type
                                             forced_type = data_type[1]
 
                                 config.protected_columns[value] = (i + 1, forced_type)
 
                 # any remaining attributes should be included under 'Other'
-                log_f.write("we also ended up with unused values: {}\n".format(unused_values))
+                log_f.write("we also ended up with unused values: {}\n".format(
+                        unused_values))
                 results['Other'] += unused_values
 
                 # update the lists provided to the user
@@ -312,10 +324,12 @@ class ClassifiedImport(object):
                 with open(self.tempPath(), 'w') as col_f:
                     col_f.write('True')
 
-            if output_loc is not None and input_table_name is not None and output_gdb is not None:
+            if output_loc is not None and input_table_name is not None \
+                    and output_gdb is not None:
                 # derive the output feature class name if these two parameters are set
                 (label, ext) = os.path.splitext(os.path.basename(input_table_name))
-                output_fc_path = os.path.join(output_loc, "%s.gdb" % output_gdb, "%s_Spatial" % label)
+                output_fc_path = os.path.join(output_loc, "%s.gdb" % output_gdb, \
+                        "%s_Spatial" % label)
                 parameters[self.cols['output_fc']].value = output_fc_path
 
         return
@@ -337,8 +351,8 @@ class ClassifiedImport(object):
                     if orig_column != column:
                         modified_columns.append((orig_column, column))
                 modified_result = [" was modified to ".join(c) for c in modified_columns]
-                msg = "Headers were modified based on File Geodatabase field name restrictions:\n" \
-                      + "\n".join(modified_result)
+                msg = "Headers were modified based on File Geodatabase field name" \
+                        + "restrictions:\n\n".join(modified_result)
                 parameters[0].setWarningMessage(msg)
         return
 
@@ -364,7 +378,8 @@ class ClassifiedImport(object):
 class ExtractRasterByPoints(object):
     def __init__(self):
         self.label = u'Extract Raster Values To Points'
-        self.description = u'This tool allows extraction of one or more rasters at our sample locations.'
+        self.description = u'This tool allows extraction of one or more rasters " \
+                + "at our sample locations.'
         self.canRunInBackground = False
         self.category = "Analysis"
         self.cols = {
@@ -373,7 +388,9 @@ class ExtractRasterByPoints(object):
         }
 
     def getParameterInfo(self):
-        # FIXME: Doesn't run if the user hasn't selected a layer in the combobox. Either throw an error before they run the tool, or let them fill it out, but populate it if they've selected a layer.
+        # FIXME: Doesn't run if the user hasn't selected a layer in the combobox.
+        # Either throw an error before they run the tool, or let them fill it out,
+        # but populate it if they've selected a layer.
 
         # Raster Input
         input_raster = arcpy.Parameter()
@@ -387,7 +404,8 @@ class ExtractRasterByPoints(object):
         # Output Feature Class
         input_fc = arcpy.Parameter()
         input_fc.name = u'Input_Feature_Class'
-        input_fc.displayName = u'Feature Class (will add columns for extracted raster results)'
+        input_fc.displayName = u'Feature Class (will add columns for' \
+                + ' extracted raster results)'
         input_fc.direction = 'Input'
         input_fc.parameterType = 'Required'
         input_fc.datatype = dt.format('Feature Class')
@@ -416,7 +434,8 @@ class ExtractRasterByPoints(object):
 class ShortestDistancePaths(object):
     def __init__(self):
         self.label = u'Geographic Distance Paths'
-        self.description = u'Calculate the pairwise shortest distance paths between all observations'
+        self.description = u'Calculate the pairwise shortest distance paths' \
+                + 'between all observations, pairwise.'
         self.canRunInBackground = False
         self.category = "Analysis"
         self.cols = {
@@ -474,7 +493,8 @@ class ShortestDistancePaths(object):
 class DistanceMatrix(object):
     def __init__(self):
         self.label = u'Geographic Distance Matrix'
-        self.description = u'Calculate the geographic distance matrix between all locations'
+        self.description = u'Calculate the geographic distance matrix between' \
+                + ' all locations, pairwise.'
         self.canRunInBackground = False
         self.category = "Analysis"
         self.cols = {
@@ -654,12 +674,11 @@ class SpagediFst(object):
         utils.msg(spagedi_msg)
         time.sleep(2)
 
-        spagedi_executable_path = os.path.abspath( \
-                os.path.join(os.path.abspath(os.path.dirname(__file__)), \
-                "lib", "spagedi", config.spagedi_executable))
+        # pull in the full location of the SPAGeDi binary
+        spagedi_exe = config.spagedi_executable_path
 
         cmd = "{spagedi_exe} < {spagedi_commands}".format(
-                spagedi_exe=spagedi_executable_path,
+                spagedi_exe=spagedi_exe,
                 spagedi_commands=spagedi_commands)
         utils.msg("trying to run %s" % cmd)
 
@@ -676,7 +695,11 @@ class ExportGenAlEx(object):
 
     def __init__(self):
         self.label = u'Export to GenAlex_CodominantData'
-        self.description = u'This tool allows the user to export data to a comma separated text file that follows the required input format for GenAlEx (Peakall and Smouse 2006), a Microsoft Excel Add-In.\r\n\r\nGenAlEx is available from:\r\n\r\nhttp://www.anu.edu.au/BoZo/GenAlEx/\r\n'
+        self.description = u'This tool allows the user to export data to a ' \
+                + 'comma-separated text file that follows the required input' \
+                + ' format for GenAlEx (Peakall and Smouse 2006), a Microsoft' \
+                + ' Excel Add-In.\r\n\r\nGenAlEx is available from:\r\n\r\n' \
+                + 'http://www.anu.edu.au/BoZo/GenAlEx/\r\n'
         self.canRunInBackground = False
         self.category = "Export"
         self.cols = {
@@ -752,7 +775,10 @@ class ExportGenepop(object):
 
     def __init__(self):
         self.label = u'Export to Genepop'
-        self.description = u'This tool allows the user to export data to a text file that follows the required input format for Genepop (Raymond and Rousset 1995; Rousset 2008).  For more information see: \r\n\r\nhttp://genepop.curtin.edu.au/\r\n'
+        self.description = u'This tool allows the user to export data to a' \
+                + ' text file that follows the required input format for' \
+                + ' Genepop (Raymond and Rousset 1995; Rousset 2008). For' \
+                + ' more information see: \r\n\r\nhttp://genepop.curtin.edu.au/\r\n'
         self.canRunInBackground = False
         self.category = "Export"
         self.cols = {
@@ -828,7 +854,9 @@ class ExportSpagedi(object):
 
     def __init__(self):
         self.label = u'Export to SPAGeDi'
-        self.description = u'This tool allows the user to export data to a text file that follows the required input format for SPAGeDi (Hardy and Vekemans).'
+        self.description = u'This tool allows the user to export data to a text' \
+                + ' file that follows the required input format for' \
+                + ' SPAGeDi (Hardy and Vekemans).'
         self.canRunInBackground = False
         self.category = "Export"
         self.cols = {
@@ -901,7 +929,9 @@ class ExportAllelesInSpace(object):
 
     def __init__(self):
         self.label = u'Export to Alleles In Space'
-        self.description = u'This tool allows the user to export data to two text files, separate coordinate and genetic files, that follow the required input format for Alleles in Space (Miller)'
+        self.description = u'This tool allows the user to export data to two' \
+                + ' text files, separate coordinate and genetic files, that' \
+                + ' follow the required input format for Alleles in Space (Miller).'
         self.canRunInBackground = False
         self.category = "Export"
         self.cols = {
@@ -1073,7 +1103,8 @@ class SelectDataByAttributes(object):
         param_10.direction = 'Input'
         param_10.datatype = dt.format('Folder')
 
-        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
+        return [param_1, param_2, param_3, param_4, param_5, param_6, \
+                param_7, param_8, param_9, param_10]
 
     def isLicensed(self):
         return True
@@ -1196,7 +1227,7 @@ class MakeIndividualPaths(object):
         if source_fc.altered:
             if output_name.altered is False:
                 desc = arcpy.Describe(source_fc.value)
-                # path will be set, regardless if this is a layer or a fully specified path
+                # path is set, regardless if this is a layer or a fully specified path
                 source_fc_path = desc.path
                 if source_fc_path is not None: 
                     output_name.value = os.path.join(source_fc_path, "Paths")
