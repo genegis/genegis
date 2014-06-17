@@ -82,7 +82,7 @@ all_layers = None
 # is selected from the combobox.
 sr = arcpy.SpatialReference(int(settings.srid))
 
-spagedi_executable = "SPAGeDi-1.4.exe"
+spagedi_executable = "SPAGeDi-1.4c.exe"
 
 # map search strings to variable groups, include 'protected'
 # column to explicitly define type for these columns

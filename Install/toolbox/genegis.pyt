@@ -656,7 +656,7 @@ class SpagediFst(object):
 
         spagedi_executable_path = os.path.abspath( \
                 os.path.join(os.path.abspath(os.path.dirname(__file__)), \
-                "lib", config.spagedi_executable))
+                "lib", "spagedi", config.spagedi_executable))
 
         cmd = "{spagedi_exe} < {spagedi_commands}".format(
                 spagedi_exe=spagedi_executable_path,
