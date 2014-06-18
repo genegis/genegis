@@ -44,13 +44,101 @@ class CoreFGDB(object):
 
 fgdb = CoreFGDB()
 
-class TestExampleDataExists(unittest.TestCase):
+class TestExampleData(unittest.TestCase):
+    """ Ensure we can find our expected test datasets."""
 
+    # input SRGD files
     def testCsvExampleExists(self):
         self.assertTrue(os.path.exists(consts.test_csv_doc))
 
     def testCsvDocumentExists(self):
         self.assertTrue(os.path.exists(consts.test_csv_with_comment_field))
+
+    def testCsvFullExists(self):
+        self.assertTrue(os.path.exists(consts.test_csv_full))
+
+        # test that the file is the same data we expect.
+        sha1 = hashlib.sha1()
+        with open(consts.test_csv_full, 'rb') as f:
+            sha1.update(f.read())
+        self.assertTrue(sha1.hexdigest() == \
+                'a6637c760df88efa1f8013d4c91f37ae6f5e183d')
+
+    # test our existing FGDB source
+    def testFgdbExists(self):
+        self.assertTrue(arcpy.Exists(consts.test_fgdb))
+
+        desc = arcpy.Describe(consts.test_fgdb)
+        self.assertEqual(desc.dataType, 'Workspace')
+        self.assertEqual(desc.release, '3,0,0')
+        self.assertEqual(desc.workspaceFactoryProgId, \
+                u'esriDataSourcesGDB.FileGDBWorkspaceFactory.1')
+
+    def testFgdbFc(self):
+        fields = ['OBJECTID', 'Shape', 'Sample_ID', 'Individual_ID', 'Latitude',
+                'Longitude', 'Date_Time', 'Region', 'Sex', 'Haplotype', 'L_Ev1_1',
+                'L_Ev1_2', 'L_Ev104_1', 'L_Ev104_2', 'L_Ev14_1', 'L_Ev14_2',
+                'L_Ev21_1', 'L_Ev21_2', 'L_Ev37_1', 'L_Ev37_2', 'L_Ev94_1',
+                'L_Ev94_2', 'L_Ev96_1', 'L_Ev96_2', 'L_GATA28_1', 'L_GATA28_2',
+                'L_GATA417_1', 'L_GATA417_2', 'L_GT211_1', 'L_GT211_2', 'L_GT23_1',
+                'L_GT23_2', 'L_GT575_1', 'L_GT575_2', 'L_rw4_10_1', 'L_rw4_10_2',
+                'L_rw48_1', 'L_rw48_2', 'Occurrence_ID', 'Date_formatted']
+        self.assertTrue(arcpy.Exists(consts.test_fgdb_fc))
+
+        desc = arcpy.Describe(consts.test_fgdb_fc)
+        self.assertEqual(desc.dataType, 'FeatureClass')
+        self.assertEqual(desc.shapeType, 'Point')
+    
+        fc_fields = [f.name for f in desc.fields]
+        for field in fields:
+            self.assertTrue(field in fc_fields)
+    
+    def testFgdbRaster(self):
+        self.assertTrue(arcpy.Exists(consts.test_fgdb_raster))
+    
+        desc = arcpy.Describe(consts.test_fgdb_raster)
+        self.assertEqual(desc.dataType, 'RasterDataset')
+        self.assertEqual(desc.format, 'FGDBR')
+        self.assertEqual(desc.pixelType, 'S16') # 16-bit integer values
+        self.assertEqual(desc.width, 431)
+        self.assertEqual(desc.height, 415)
+        # test for an expected mean value
+        ar = arcpy.GetRasterProperties_management(consts.test_fgdb_raster, 'MEAN')
+        mean_value = float(ar.getOutput(0))
+        self.assertAlmostEqual(mean_value, -1582.89427780728)
+
+class TestQuotedMultilineInput(unittest.TestCase):
+    """ Test validation for complicated input SRGD files."""
+    def setUp(self):
+        self.output_fc = os.path.join(fgdb.path, "test_multiline_spatial")
+
+    def testClassifiedImportRun(self, method=ClassifiedImport):
+        # include comment field in 'other' fields.
+        other_columns = "Region;Comment"
+
+        # clean up from any past runs
+        arcpy.Delete_management(self.output_fc)
+
+        method.main(input_table=consts.test_csv_with_comment_field, 
+                sr=None, output_loc=fgdb.dir_path, 
+                output_gdb=fgdb.name, output_fc=self.output_fc,
+                genetic=consts.genetic_columns, identification=consts.id_columns, 
+                location=consts.loc_columns, other=consts.other_columns, mode='script')
+        self.assertTrue(os.path.exists(fgdb.path))
+
+        # test our comment field is set
+        self.assertTrue("Comment" in [f.name for f in arcpy.ListFields(self.output_fc)])
+        res = [r[0] for r in arcpy.da.SearchCursor(self.output_fc, ['Comment'])]
+
+        expected_value = 'This is a test comment field, which contains, among ' + \
+                'other things, "quoted statements", which are useful for testing ' + \
+                'the CSV parser.\n Now, a new line.'
+        self.assertTrue(res[0] == expected_value) 
+        
+    def tearDown(self):
+        # clean up
+        arcpy.Delete_management(self.output_fc)
+
 
 class TestClassifiedImport(unittest.TestCase):
 
@@ -151,62 +239,51 @@ class TestClassifiedImportFullDataset(unittest.TestCase):
         self.assertFalse(os.path.exists(fgdb.path))
 
 class TestDistanceMatrix(unittest.TestCase):
+    """ Test the distance matrix on our small sample data."""
 
     def setUp(self):
         self.input_fc = fgdb.input_fc
-        self.output = os.path.join(consts.data_path, 'Test_DistanceMatrix')
+        self.input_full_fc = consts.test_fgdb_fc
+        self.output_dists = os.path.join(consts.data_path, 'Test_DistanceMatrix')
 
-    def testDistanceMatrixAvailable(self, method=DistanceMatrix):
-        self.assertTrue('main' in vars(method))
-
-    def testDistanceMatrixRun(self, method=DistanceMatrix):
-        if os.path.exists(self.output):
-            # clean up from any past runs
-            arcpy.Delete_management(self.output)
-
-        parameters = {
-            'input_fc': self.input_fc,
-            'dist_unit': 'Kilometers',
-            'matrix_type': 'Square',
-            'output_matrix': self.output,
-        }
-
-        method.main(mode='script', **parameters)
-
+    def geographiclibDistances(self, input_fc):
         # Calculate a "reference" distance matrix using geographiclib.
         # This will be used to check the output of DistanceMatrix.py.
         input_fc_mem = 'in_memory/input_fc'
-        arcpy.CopyFeatures_management(self.input_fc, input_fc_mem)
+        arcpy.CopyFeatures_management(input_fc, input_fc_mem)
         WGS84 = arcpy.SpatialReference('WGS 1984')
         cursor = arcpy.da.SearchCursor(input_fc_mem, ['OID@', 'SHAPE@XY'],
                                        spatial_reference=WGS84)
         points = {}
         for row in cursor:
             points[row[0]] = (row[1][0], row[1][1])
-        ref_dist = {}
+        ref_dists = {}
         for from_fid, from_point in points.items():
-            ref_dist[from_fid] = {}
+            ref_dists[from_fid] = {}
             for to_fid, to_point in points.items():
                 if from_fid == to_fid:
-                    ref_dist[from_fid][to_fid] = 0
+                    ref_dists[from_fid][to_fid] = 0
                 else:
-                    ref_dist[from_fid][to_fid] = Geodesic.WGS84.Inverse(
+                    ref_dists[from_fid][to_fid] = Geodesic.WGS84.Inverse(
                         from_point[1], from_point[0], to_point[1], to_point[0]
                     )['s12'] / 1000.0
+        return ref_dists
 
-        # Sanity checks for the distance matrix:
-        # 1. It must exist
-        # 2. The first row must contain point indices 1, 2, 3, ...
-        # 3. The first entry in each row should contain its point index
-        # 4. The diagonal entries should all be 0
-        # 5. All entries should be positive
-        # 6. There should be the same number of rows and columns
-        # 7. The distances should be the same as reported by geographiclib
-        # 8. The matrix must be symmetric (distances a->b & b->a must be equal)
-        #
+    def compareDistances(self, ref_dists, output_dists):
+        """
+        Sanity checks for the distance matrix:
+         1. It must exist
+         2. The first row must contain point indices 1, 2, 3, ...
+         3. The first entry in each row should contain its point index
+         4. The diagonal entries should all be 0
+         5. All entries should be positive
+         6. There should be the same number of rows and columns
+         7. The distances should be the same as reported by geographiclib
+         8. The matrix must be symmetric (distances a->b & b->a must be equal)
+        """ 
         # Sanity check 1
-        self.assertTrue(arcpy.Exists(self.output))
-        with open(self.output, 'rU') as outfile:
+        self.assertTrue(arcpy.Exists(output_dists))
+        with open(output_dists, 'rU') as outfile:
             for i, line in enumerate(outfile):
                 row = line.strip().split(',')
                 # Sanity check 2
@@ -223,8 +300,8 @@ class TestDistanceMatrix(unittest.TestCase):
                     # Sanity check 7
                     # (distances rounded to the nearest 0.001 km)
                     for j, dist in enumerate(row[1:]):
-                        rounded_ref_dist = round(ref_dist[int(row[0])][j+1], 3)
-                        self.assertEqual(round(dist, 3), rounded_ref_dist)
+                        row_i = int(row[0])
+                        self.assertAlmostEqual(dist, ref_dist[row_i][j+1])
             # Sanity check 6
             self.assertEqual(i+1, len(row))
             # Sanity check 8
@@ -233,6 +310,49 @@ class TestDistanceMatrix(unittest.TestCase):
             ref_matrix = [dist.values() for row, dist in ref_dist.items()]
             ref_matrix_transpose = map(list, zip(*ref_matrix))
             self.assertEqual(ref_matrix, ref_matrix_transpose)
+ 
+    def testDistanceMatrixAvailable(self, method=DistanceMatrix):
+        self.assertTrue('main' in vars(method))
+
+    def testDistanceMatrixRunSmall(self, method=DistanceMatrix):
+        if os.path.exists(self.output_dists):
+            # clean up from any past runs
+            arcpy.Delete_management(self.output_dists)
+
+        parameters = {
+            'input_fc': self.input_fc,
+            'dist_unit': 'Kilometers',
+            'matrix_type': 'Square',
+            'output_matrix': self.output_dists,
+        }
+
+        method.main(mode='script', **parameters)
+
+         # first, gather up our geographiclib based distance matrix
+        ref_dists = self.geographiclibDistances(self.input_fc)
+        
+        # all the actual assertions happen within the comparison function
+        self.compareDistances(ref_dist, self.output_dists)
+
+    def testDistanceMatrixRunFull(self, method=DistanceMatrix):
+        if os.path.exists(self.output_dists):
+            # clean up from any past runs
+            arcpy.Delete_management(self.output_dists)
+
+        parameters = {
+            'input_fc': self.input_full_fc,
+            'dist_unit': 'Kilometers',
+            'matrix_type': 'Square',
+            'output_matrix': self.output_dists,
+        }
+
+        method.main(mode='script', **parameters)
+
+         # first, gather up our geographiclib based distance matrix
+        ref_dists = self.geographiclibDistances(self.input_full_fc)
+        
+        # all the actual assertions happen within the comparison function
+        self.compareDistances(ref_dist, self.output_dists)
 
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
@@ -240,15 +360,15 @@ class TestDistanceMatrix(unittest.TestCase):
 
     def tearDown(self):
         # clean up
-        arcpy.Delete_management(self.output)
+        arcpy.Delete_management(self.output_dists)
 
 class TestShortestDistancePaths(unittest.TestCase):
     """ Test the shortest distance path script works, with
         a shapefile output."""
 
     def setUp(self):
-        self.input_fc = fgdb.input_fc
-        self.output_fc = os.path.join(fgdb.dir_path, 'Test_ShortestDistancePaths')
+        self.input_fc = config.test_fgdb_fc 
+        self.output_fc = os.path.join(config.test_fgdb, 'Test_ShortestDistancePaths')
         self.shape_fn = "{}.shp".format(self.output_fc)
 
     def testShortestDistancePathsAvailable(self, method=ShortestDistancePaths):
@@ -285,39 +405,11 @@ class TestShortestDistancePaths(unittest.TestCase):
     def tearDown(self):
         arcpy.Delete_management(self.output_fc + '.shp')
 
-class TestQuotedMultilineInput(unittest.TestCase):
-    
+class TestExtractRasterValuesToPoints(unittest.TestCase):
+
     def setUp(self):
-        self.output_fc = os.path.join(fgdb.path, "test_multiline_spatial")
-
-    def testClassifiedImportRun(self, method=ClassifiedImport):
-        # include comment field in 'other' fields.
-        other_columns = "Region;Comment"
-
-        # clean up from any past runs
-        arcpy.Delete_management(fgdb.path)
-
-        method.main(input_table=consts.test_csv_with_comment_field, 
-                sr=None, output_loc=fgdb.dir_path, 
-                output_gdb=fgdb.name, output_fc=self.output_fc,
-                genetic=consts.genetic_columns, identification=consts.id_columns, 
-                location=consts.loc_columns, other=consts.other_columns, mode='script')
-        self.assertTrue(os.path.exists(fgdb.path))
-
-        # test our comment field is set
-        self.assertTrue("Comment" in [f.name for f in arcpy.ListFields(self.output_fc)])
-        res = [r[0] for r in arcpy.da.SearchCursor(self.output_fc, ['Comment'])]
-
-        expected_value = 'This is a test comment field, which contains, among ' + \
-                'other things, "quoted statements", which are useful for testing ' + \
-                'the CSV parser.\n Now, a new line.'
-        self.assertTrue(res[0] == expected_value) 
-        
-    def tearDown(self):
-        # clean up
-        arcpy.Delete_management(fgdb.path)
-        self.assertFalse(os.path.exists(fgdb.path))
-
+        self.input_fc = consts.test_fgdb_fc
+        self.input_raster = consts.test_fgdb_raster
 
 # this test should be run after a fresh run of makeaddin to rebuild the .esriaddin file.
 class TestAddin(unittest.TestCase):
