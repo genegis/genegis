@@ -1,0 +1,24 @@
+COMMON ERRORS IN DATA FILES
+- Be careful that the numbers of individuals and categories given (format numbers) are correct.
+- Use a point, not a coma, for decimal separator when defining distances or spatial coordinates.
+- Spatial coordinates must be given following an orthogonal system
+	(degree of longitude / latitude will not be interpreted correctly, use an UTM system instead).
+- Alleles must be identified by numbers, not letters.
+- Empty columns are not allowed. 
+	Missing alleles or genotypes must be specified by 0 (or 00 or 000 according to the number of digits per allele).
+- If one allele of a genotype is undefined, put 0 (or 00, or 000) on the right side. 
+	(if put on the left side the genotype would be interpreted as of a lower ploidy level.)
+- The list of genotypes must be followed by a line with the word END.
+- When defining spatial or genetic distances, be careful that the matrix size or the number of lines (column format) is correct.
+- When defining pairwise spatial distances, be careful that individual or population names are correct (case matter!) and all are distinct.
+	Note that population names vary according to the way populations are defined (check the manual).
+- When defining pairwise spatial distances, be careful that they are given for the correct level of analysis (individuals or populations).
+- When defining pairwise genetic distances between alleles, be careful that locus names are correct (case matter!).
+- If you get the message "End of file unexpected on line ... from file ...", check the first line of pairwise spatial distances (M... or C...) or genetic distances (locus names)
+- Statistics such as Nst or dm2 require a matrix with pairwise genetic distances between alleles.
+	Do not select these statistics otherwise.
+- Some worksheet or text editors might produce a file not readable by SPAGeDi according to the saving format,
+	in which case the error message is: "WARNING: cannot read the first line containing the 6 format numbers..."
+	'Tab delimited text' or 'DOS text' saving formats should work.
+
+SPECIFIC ERRORS FOUND DURING THE LAST LAUNCH OF SPAGeDi
