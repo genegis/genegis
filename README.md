@@ -55,4 +55,9 @@ Then, run nose from the top-level directory:
 
     $ nosetests
 
+Licensing
+---------
 
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0.  See LICENSING for details or visit
+> http://mozilla.org/MPL/2.0/.
