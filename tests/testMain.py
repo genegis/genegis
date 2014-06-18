@@ -3,8 +3,9 @@ import sys
 import unittest
 
 import arcpy
-import zipfile
 import gzip
+import hashlib
+import zipfile
 from geographiclib.geodesic import Geodesic
 
 import consts
