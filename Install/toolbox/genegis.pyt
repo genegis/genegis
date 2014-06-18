@@ -114,7 +114,7 @@ class ClassifiedImport(object):
         # One of the tools needs to have the metadata deletion call included in it. 
         # If it's done elsewhere in the script, the script state isn't correct and 
         # the ModTime and ModDate fields will remain.
-        metadata(update=False)
+        #metadata(update=False)
 
     def splitParamValues(self, parameters, column):
         return parameters[self.cols[column]].value.exportToString().split(";")
