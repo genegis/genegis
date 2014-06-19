@@ -11,7 +11,7 @@ from DistanceMatrix import run_geodesic_gp
 
 def load_geodesic_dll():
     fn = None
-    # load the DLL path from the config settings.
+    # load the DEBUG build of the DLL.
     dll_path = os.path.abspath( \
         os.path.join(os.path.abspath(os.path.dirname(__file__)), \
         '..', 'arcobjects', 'geodesic', 'Debug', 'geodesic.dll'))
@@ -28,11 +28,20 @@ def load_geodesic_dll():
         fn.restype = ctypes.c_int
     return fn
 
-#input_fc = sys.argv[1]
-#output_matrix = sys.argv[2]
-input_fc = 'z:/data/arcgis/addins/genegis/tests/data/test.gdb/SRGD_tiny_Spatial'
-output_matrix = 'z:/data/arcgis/addins/genegis/tests/data/sample_dist.csv'
-output_matrix_gp = 'z:/data/arcgis/addins/genegis/tests/data/sample_dist_gp.csv'
+input_fc = os.path.abspath(os.path.join(
+    os.path.abspath(os.path.dirname(__file__)),
+    '..', '..', '..', 'tests', 'data', 
+    'test.gdb', 'SRGD_tiny_Spatial'))
+
+output_matrix = os.path.abspath(os.path.join(
+    os.path.abspath(os.path.dirname(__file__)),
+    '..', '..', '..', 'tests', 'data', 
+    'dists_sample.csv')
+
+output_matrix_gp = os.path.abspath(os.path.join(
+    os.path.abspath(os.path.dirname(__file__)),
+    '..', '..', '..', 'tests', 'data', 
+    'dists_sample_gp.csv')
 
 geodesic_cpp_fn = load_geodesic_dll()
 if geodesic_cpp_fn is not None:
@@ -40,8 +49,6 @@ if geodesic_cpp_fn is not None:
     # To run this, we need the full path to the input, not just the
     # short one handed to us.
     input_fc_fullpath = os.path.join(desc.path, desc.file)
-
-    print input_fc_fullpath
 
     utils.msg("Loaded high-performance geodesic calculations, running...")
     returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix)
