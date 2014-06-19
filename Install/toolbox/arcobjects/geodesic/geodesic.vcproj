@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="geodesic"
 	ProjectGUID="{909466A8-0A9B-4DC7-BFBD-FCFE3F436817}"
+	RootNamespace="geodesic"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="0"
 	>
@@ -39,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\apps\arcgis\Desktop10.1\com"
+				AdditionalIncludeDirectories="C:\apps\arcgis\Desktop10.2\com"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CPLUSPLUS_EXPORTS;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,7 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="C:\apps\arcgis\Desktop10.1\com"
+				AdditionalLibraryDirectories="C:\apps\arcgis\Desktop10.2\com"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
