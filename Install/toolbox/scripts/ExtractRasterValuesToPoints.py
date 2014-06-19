@@ -32,21 +32,29 @@ This script requires the input feature layer to be selected on the geneGIS toolb
 
 This script was developed and tested on ArcGIS 10.1 and Python 2.7.
 '''
-
-import arcpy
 import os
 import sys
+
+import arcpy
+from arcpy.sa import ExtractMultiValuesToPoints
 
 # local imports
 import utils
 import config
 
-def main(input_raster=None, selected_layer=None, output_ft=None, 
+def main(input_raster=None, selected_layer=None, interpolate=None, 
          mode=config.settings.mode):
 
         utils.msg("Executing ExtractRasterValuesToPoints.")   
         arcpy.CheckOutExtension("Spatial")
-            
+
+        # was bilinear interpolation asked for? maps to
+        # 'bilinear_intepolate_values'.
+        if interpolate in ('BILINEAR', True):
+            bilinear = 'BILINEAR'
+        else:
+            bilinear = 'NONE'
+
         # create a value table, prefix all output rasters with 'R_'
         rasters = input_raster.split(";")
         value_table = []
@@ -57,7 +65,7 @@ def main(input_raster=None, selected_layer=None, output_ft=None,
             value_table.append([raster, label])
         utils.msg("generated value table: %s" % value_table)
         utils.msg("Running ExtractMultiValuesToPoints...")
-        arcpy.sa.ExtractMultiValuesToPoints(selected_layer, value_table, "NONE")
+        ExtractMultiValuesToPoints(selected_layer, value_table, bilinear)
         utils.msg("Values successfully extracted")  
           
 # when executing as a standalone script get parameters from sys

@@ -386,6 +386,7 @@ class ExtractRasterByPoints(object):
             'input_raster': 0,
             'input_fc': 1
         }
+        self.interp_opts = ['Exact Values Only', 'Interpolate Values']
 
     def getParameterInfo(self):
         # FIXME: Doesn't run if the user hasn't selected a layer in the combobox.
@@ -411,7 +412,17 @@ class ExtractRasterByPoints(object):
         input_fc.datatype = dt.format('Feature Class')
         #input_fc.value = selected_layer()
 
-        return [input_raster, input_fc]
+        # interpolate values
+        interpolate = arcpy.Parameter()
+        interpolate.name = u'Interpolate'
+        interpolate.displayName = 'Interpolate Values'
+        interpolate.direction = 'Input'
+        interpolate.parameterType = 'Required'
+        interpolate.datatype = dt.format('String')
+        interpolate.filter.list = self.interp_opts
+        interpolate.value = self.interp_opts[0]
+
+        return [input_raster, input_fc, interpolate]
 
     def isLicensed(self):
         return True
@@ -425,11 +436,16 @@ class ExtractRasterByPoints(object):
     def execute(self, parameters, messages):
         from scripts import ExtractRasterValuesToPoints
 
+        if parameters[2].valueAsText == 'Interpolate Values':
+            interpolate = 'BILINEAR'
+        else:
+            interpolate = 'NONE'
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters
         ExtractRasterValuesToPoints.main(
             input_raster=parameters[0].valueAsText,
-            selected_layer=parameters[1].valueAsText)
+            selected_layer=parameters[1].valueAsText,
+            interpolate=interpolate)
 
 class ShortestDistancePaths(object):
     def __init__(self):

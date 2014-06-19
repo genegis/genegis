@@ -16,7 +16,8 @@ import_paths = ['../Install/toolbox', '../Install', '../Install/toolbox/lib']
 utils.addLocalPaths(import_paths)
 
 from tempdir import TempDir
-from scripts import ClassifiedImport, DistanceMatrix, ShortestDistancePaths
+from scripts import ClassifiedImport, DistanceMatrix, ShortestDistancePaths, \
+        ExtractRasterValuesToPoints
 
 # A GDB for our test results
 class CoreFGDB(object):
@@ -408,8 +409,64 @@ class TestShortestDistancePaths(unittest.TestCase):
 class TestExtractRasterValuesToPoints(unittest.TestCase):
 
     def setUp(self):
-        self.input_fc = consts.test_fgdb_fc
+        self.input_fc = fgdb.input_fc
+        self.input_full_fc = consts.test_fgdb_fc
         self.input_raster = consts.test_fgdb_raster
+        self.raster_col = 'R_etopo1_downsampled_clipped'
+
+    def testExtractRasterValuesToPointsAvailable(self, \
+            method=ExtractRasterValuesToPoints):
+        self.assertTrue('main' in vars(method))
+
+    def testExtractRasterValuesToPointsNoInterpRun(self, \
+            method=ExtractRasterValuesToPoints):
+
+        # do this computation on an in-memory dataset,
+        # we don't want to modify the source data.
+        input_fc_mem = 'in_memory/input_fc'
+        arcpy.CopyFeatures_management(self.input_fc, input_fc_mem)
+        desc = arcpy.Describe(input_fc_mem)
+        self.assertEqual(desc.dataType, 'FeatureClass')
+        parameters = {
+            'input_raster': self.input_raster,
+            'selected_layer': input_fc_mem,
+            'interpolate': False
+        }
+        method.main(mode='script', **parameters)
+      
+        columns = [f.name for f in arcpy.ListFields(input_fc_mem)]
+        self.assertTrue(self.raster_col in columns)
+
+        with arcpy.da.SearchCursor(input_fc_mem, self.raster_col) as cursor:
+            raster_value = cursor.next()[0]
+            self.assertEqual(raster_value, -25)
+
+    def testExtractRasterValuesToPointsInterpRun(self, \
+            method=ExtractRasterValuesToPoints):
+        # do this computation on an in-memory dataset,
+        # we don't want to modify the source data.
+        input_fc_mem = 'in_memory/input_fc'
+        arcpy.CopyFeatures_management(self.input_fc, input_fc_mem)
+        desc = arcpy.Describe(input_fc_mem)
+        self.assertEqual(desc.dataType, 'FeatureClass')
+        parameters = {
+            'input_raster': self.input_raster,
+            'selected_layer': input_fc_mem,
+            'interpolate': True
+        }
+        method.main(mode='script', **parameters)
+      
+        columns = [f.name for f in arcpy.ListFields(input_fc_mem)]
+        self.assertTrue(self.raster_col in columns)
+
+        with arcpy.da.SearchCursor(input_fc_mem, self.raster_col) as cursor:
+            raster_value = cursor.next()[0]
+            self.assertEqual(raster_value, -15)
+
+    def testToolboxImport(self):
+        self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
+        self.assertTrue('ExtractRasterByPoints' in vars(self.toolbox))
+
 
 # this test should be run after a fresh run of makeaddin to rebuild the .esriaddin file.
 class TestAddin(unittest.TestCase):
