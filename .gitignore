@@ -190,3 +190,6 @@ Data/SRGD_SPLASH_20120614.csv
 
 # data source hacking at the gates of hell
 tests/data/schema.ini
+
+# ArcGIS FGDB lock files
+.sr.lock
