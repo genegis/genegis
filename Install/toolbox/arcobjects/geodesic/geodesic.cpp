@@ -10,11 +10,10 @@ extern "C"
 
     __declspec(dllexport) int CalculatePairwiseGeodesicDistances(const wchar_t* feature_class, const wchar_t* output_file)
     {
-        // FIXME: write to selected output file
         std::ofstream fs(output_file);
         if (!fs)
         {
-            std::cerr<<"Cannot open the output file."<<std::endl;
+            std::cerr << "Cannot open the output file." <<std::endl;
             return -1;
         }
         // Convert wchar_t*s to bstring
