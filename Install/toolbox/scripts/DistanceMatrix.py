@@ -17,7 +17,7 @@ import utils
 import config
 
 def main(input_fc=None, dist_unit=None, matrix_type=None, \
-        output_matrix=None, mode=config.settings.mode):
+        output_matrix=None, force_cpp=False, mode=config.settings.mode):
    
     # does the input fc exist?
     if not arcpy.Exists(input_fc):
@@ -43,7 +43,7 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, \
     row_count = int(arcpy.GetCount_management(input_fc).getOutput(0))
  
     geodesic_cpp_fn = load_geodesic_dll()
-    if geodesic_cpp_fn is not None and row_count > 200:
+    if geodesic_cpp_fn is not None and row_count > 200 or force_cpp:
         if is_spagedi:
             utils.msg("Unable to compute SPAGeDi compatible matrix for " + \
                     "large datasets, to be fixed.")
