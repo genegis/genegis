@@ -8,7 +8,7 @@
 extern "C"
 {
 
-    __declspec(dllexport) int CalculatePairwiseGeodesicDistances(const wchar_t* feature_class, const wchar_t* output_file)
+    __declspec(dllexport) int CalculatePairwiseGeodesicDistances(const wchar_t* feature_class, const wchar_t* output_file, const double unit_factor)
     {
         std::ofstream fs(output_file);
         if (!fs)
@@ -155,9 +155,11 @@ extern "C"
 						//ipPointTo->QueryCoords(&to_x, &to_y);
 						//fs << "dist from: (" << from_x << "," << from_y << ")" << 
 						//	" to (" << to_x << "," << to_y << ") with sr `" <<
-						//	spatialReference << "`." << std::endl;
+						//	spatialReference << "`, unit factor " << unit_factor << "." << std::endl;
 
                         geomServer->GetDistanceGeodesic(spatialReference, ipPointFrom, ipPointTo, linearUnit, &distance);
+						// rescale distance by the unit factor (current unit releative to meters)
+						distance = distance * unit_factor;
                     }
                 }
                 matrix[i][j] = distance;

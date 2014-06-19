@@ -344,19 +344,20 @@ class TestDistanceMatrix(unittest.TestCase):
         if os.path.exists(self.output_dists):
             # clean up from any past runs
             arcpy.Delete_management(self.output_dists)
-
+            
         # TODO: switch back to kilometers once we support other unit types.
         parameters = {
-            'input_fc': self.input_full_fc,
+            'input_fc': self.input_fc,
             'dist_unit': 'Meters', 
             'matrix_type': 'Square',
+            'force_cpp': True, # force our ArcObjects code to execute
             'output_matrix': self.output_dists,
         }
 
         method.main(mode='script', **parameters)
 
          # first, gather up our geographiclib based distance matrix
-        ref_dists = self.geographiclibDistances(self.input_full_fc, units='meters')
+        ref_dists = self.geographiclibDistances(self.input_fc, units='meters')
         
         # all the actual assertions happen within the comparison function
         self.compareDistances(ref_dists, self.output_dists)

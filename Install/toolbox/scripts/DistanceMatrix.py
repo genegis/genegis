@@ -57,7 +57,7 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, \
         # TODO: handle units in the C++ version.
         # TODO: handle SPAGeDi output in the C++ version.
         utils.msg("Loaded high-performance geodesic calculations, running...")
-        returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix)
+        returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix, unittfactor)
         if returncode == -1:
             utils.msg("Cannot open the output file.", mtype='error')
         elif returncode == -2:
@@ -94,7 +94,7 @@ def load_geodesic_dll():
             utils.msg(msg, mtype='error', exception=e)
             return None
         fn = loaded_dll.CalculatePairwiseGeodesicDistances
-        fn.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p]
+        fn.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_double]
         fn.restype = ctypes.c_int
     return fn                
 

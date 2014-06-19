@@ -24,7 +24,7 @@ def load_geodesic_dll():
             utils.msg(msg, mtype='error', exception=e)
             return None
         fn = loaded_dll.CalculatePairwiseGeodesicDistances
-        fn.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p]
+        fn.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_double]
         fn.restype = ctypes.c_int
     return fn
 
@@ -36,12 +36,12 @@ input_fc = os.path.abspath(os.path.join(
 output_matrix = os.path.abspath(os.path.join(
     os.path.abspath(os.path.dirname(__file__)),
     '..', '..', '..', 'tests', 'data', 
-    'dists_sample.csv')
+    'dists_sample.csv'))
 
 output_matrix_gp = os.path.abspath(os.path.join(
     os.path.abspath(os.path.dirname(__file__)),
     '..', '..', '..', 'tests', 'data', 
-    'dists_sample_gp.csv')
+    'dists_sample_gp.csv'))
 
 geodesic_cpp_fn = load_geodesic_dll()
 if geodesic_cpp_fn is not None:
@@ -51,7 +51,7 @@ if geodesic_cpp_fn is not None:
     input_fc_fullpath = os.path.join(desc.path, desc.file)
 
     utils.msg("Loaded high-performance geodesic calculations, running...")
-    returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix)
+    returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix, 1)
     if returncode == -1:
         utils.msg("Cannot open the output file.", mtype='error')
     elif returncode == -2:
