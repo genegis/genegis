@@ -247,7 +247,7 @@ class TestDistanceMatrix(unittest.TestCase):
         self.input_full_fc = consts.test_fgdb_fc
         self.output_dists = os.path.join(consts.data_path, 'Test_DistanceMatrix')
 
-    def geographiclibDistances(self, input_fc):
+    def geographiclibDistances(self, input_fc, units='kilometers'):
         # Calculate a "reference" distance matrix using geographiclib.
         # This will be used to check the output of DistanceMatrix.py.
         input_fc_mem = 'in_memory/input_fc'
@@ -265,9 +265,14 @@ class TestDistanceMatrix(unittest.TestCase):
                 if from_fid == to_fid:
                     ref_dists[from_fid][to_fid] = 0
                 else:
-                    ref_dists[from_fid][to_fid] = Geodesic.WGS84.Inverse(
+                    dist_raw = Geodesic.WGS84.Inverse(
                         from_point[1], from_point[0], to_point[1], to_point[0]
-                    )['s12'] / 1000.0
+                    )['s12']
+                    if units == 'kilometers':
+                        dist = dist_raw / 1000.0
+                    else:
+                        dist = dist_raw
+                    ref_dists[from_fid][to_fid] = dist
         return ref_dists
 
     def compareDistances(self, ref_dists, output_dists):
@@ -302,13 +307,13 @@ class TestDistanceMatrix(unittest.TestCase):
                     # (distances rounded to the nearest 0.001 km)
                     for j, dist in enumerate(row[1:]):
                         row_i = int(row[0])
-                        self.assertAlmostEqual(dist, ref_dist[row_i][j+1])
+                        self.assertAlmostEqual(dist, ref_dists[row_i][j+1], 3)
             # Sanity check 6
             self.assertEqual(i+1, len(row))
             # Sanity check 8
             # (using reference matrix, which we already verified is the same
             # as the matrix calculated by DistanceMatrix.py, in check 7)
-            ref_matrix = [dist.values() for row, dist in ref_dist.items()]
+            ref_matrix = [dist.values() for row, dist in ref_dists.items()]
             ref_matrix_transpose = map(list, zip(*ref_matrix))
             self.assertEqual(ref_matrix, ref_matrix_transpose)
  
@@ -333,16 +338,17 @@ class TestDistanceMatrix(unittest.TestCase):
         ref_dists = self.geographiclibDistances(self.input_fc)
         
         # all the actual assertions happen within the comparison function
-        self.compareDistances(ref_dist, self.output_dists)
+        self.compareDistances(ref_dists, self.output_dists)
 
     def testDistanceMatrixRunFull(self, method=DistanceMatrix):
         if os.path.exists(self.output_dists):
             # clean up from any past runs
             arcpy.Delete_management(self.output_dists)
 
+        # TODO: switch back to kilometers once we support other unit types.
         parameters = {
             'input_fc': self.input_full_fc,
-            'dist_unit': 'Kilometers',
+            'dist_unit': 'Meters', 
             'matrix_type': 'Square',
             'output_matrix': self.output_dists,
         }
@@ -350,10 +356,10 @@ class TestDistanceMatrix(unittest.TestCase):
         method.main(mode='script', **parameters)
 
          # first, gather up our geographiclib based distance matrix
-        ref_dists = self.geographiclibDistances(self.input_full_fc)
+        ref_dists = self.geographiclibDistances(self.input_full_fc, units='meters')
         
         # all the actual assertions happen within the comparison function
-        self.compareDistances(ref_dist, self.output_dists)
+        self.compareDistances(ref_dists, self.output_dists)
 
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)

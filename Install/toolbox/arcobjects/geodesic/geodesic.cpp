@@ -46,6 +46,7 @@ extern "C"
         IGeographicCoordinateSystemPtr pGCS;
         ISpatialReferenceFactoryPtr pSpatRefFactory(CLSID_SpatialReferenceEnvironment);
         ISpatialReferencePtr spatialReference;
+
         // use meters as default linear units
         IUnitPtr ipUnit;
         pSpatRefFactory->CreateUnit(esriSRUnit_Meter, &ipUnit);
@@ -81,6 +82,7 @@ extern "C"
             oids[i] = oid_val;
 
             ipRow->get_Shape(&ipGeometry);
+			
             IPointPtr ipPoint (ipGeometry);
             if (i == 0)
             {
@@ -89,7 +91,7 @@ extern "C"
                 if (gt != esriGeometryPoint)
                     return -4;
             }
-            // push the point onto our array of 
+            // push the point onto our array
             ipPointArray->Add(ipPoint);
 
             // initialize output matrix element for this point
@@ -97,7 +99,11 @@ extern "C"
             i++;
         }
 
-        // geometry server
+		// still have a poiner to the last referenced geometry, use
+		// this to set the computation spatial reference.
+		ipGeometry->get_SpatialReference(&spatialReference);
+        
+		// geometry server
         IGeometryServer2Ptr geomServer;
         geomServer.CreateInstance(CLSID_GeometryServerImpl);      
 
@@ -109,7 +115,7 @@ extern "C"
             //fs << "at distance calculation for row " << i << std::endl;
             IPointPtr ipPointFrom;
             IPointPtr ipPointTo;
-            //fs << coord_vals[i][1] << "," << coord_vals[i][2] << 
+		
             // "(typeid: " << typeid(coord_vals[i][2]).name() << std::endl;
             ipPointFrom.CreateInstance(CLSID_Point);
             ipPointTo.CreateInstance(CLSID_Point);
@@ -145,6 +151,13 @@ extern "C"
                     else
                     { 
                         //fs << "try to get geodesic distance..." << std::endl;
+					    //double from_x, from_y, to_x, to_y;
+			            //ipPointFrom->QueryCoords(&from_x, &from_y);
+						//ipPointTo->QueryCoords(&to_x, &to_y);
+						//fs << "dist from: (" << from_x << "," << from_y << ")" << 
+						//	" to (" << to_x << "," << to_y << ") with sr `" <<
+						//	spatialReference << "`." << std::endl;
+
                         geomServer->GetDistanceGeodesic(spatialReference, ipPointFrom, ipPointTo, linearUnit, &distance);
                     }
                 }
