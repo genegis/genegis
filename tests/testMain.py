@@ -3,6 +3,7 @@ import sys
 import unittest
 
 import arcpy
+import csv
 import gzip
 import hashlib
 import zipfile
@@ -17,7 +18,7 @@ utils.addLocalPaths(import_paths)
 
 from tempdir import TempDir
 from scripts import ClassifiedImport, DistanceMatrix, ShortestDistancePaths, \
-        ExtractRasterValuesToPoints
+        ExtractRasterValuesToPoints, ExportToSRGD
 
 # A GDB for our test results
 class CoreFGDB(object):
@@ -473,6 +474,49 @@ class TestExtractRasterValuesToPoints(unittest.TestCase):
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
         self.assertTrue('ExtractRasterByPoints' in vars(self.toolbox))
+
+# export data tools
+#
+
+class TestExportToSRGD(unittest.TestCase):
+
+    def setUp(self):
+        self.input_fc = fgdb.input_fc
+        self.output_csv = os.path.join(fgdb.dir_path, 'to_srgd.csv')
+
+    def testExportToSRGDAvailable(self, method=ExportToSRGD):
+        self.assertTrue('main' in vars(method))
+
+    def testExportToSRGDRun(self, method=ExportToSRGD):
+
+        desc = arcpy.Describe(self.input_fc)
+        self.assertEqual(desc.dataType, 'FeatureClass')
+        parameters = {
+            'input_fc': self.input_fc,
+            'output_csv': self.output_csv
+        }
+        method.main(mode='script', **parameters)
+     
+        self.assertTrue(os.path.exists(self.output_csv))
+
+        expected_header = ['Sample_ID', 'Individual_ID', 'Latitude', 'Longitude',
+                'Date_Time', 'Region', 'Sex', 'Haplotype', 'L_GATA417_1', 
+                'L_GATA417_2', 'L_Ev37_1', 'L_Ev37_2', 'L_Ev96_1', 'L_Ev96_2', 
+                'L_rw4_10_1', 'L_rw4_10_2', 'Date_formatted']
+        expected_data = ['1', '100', '11.0253', '-85.9176', '2005-03-09T11:39:00', 
+                'Cent America', 'M', 'E1', '206', '222', '208', '220', '157', '163',
+                '196', '198', '2005-03-09T11:39:00']
+
+        with open(self.output_csv, 'r') as f:
+            csv_in = csv.reader(f)
+            header = csv_in.next()
+            self.assertEqual(header, expected_header) 
+            row = csv_in.next()
+            self.assertEqual(row, expected_data)
+
+    def testToolboxImport(self):
+        self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
+        self.assertTrue('ExportSRGD' in vars(self.toolbox))
 
 
 # this test should be run after a fresh run of makeaddin to rebuild the .esriaddin file.
