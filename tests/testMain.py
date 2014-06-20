@@ -301,7 +301,11 @@ class TestDistanceMatrix(unittest.TestCase):
                 if i == 0:
                     self.assertListEqual(map(int, row[1:]), range(1, len(row)))
                 else:
-                    row = map(float, row)
+                    try:
+                        row = map(float, row)
+                    except ValueError:
+                        # something's gone wrong, show the erroneous row
+                        self.assertFalse(row)
                     # Sanity check 3
                     self.assertEqual(i, row[0])
                     # Sanity check 4
