@@ -1186,16 +1186,16 @@ class ExportSRGD(object):
         return
 
     def execute(self, parameters, messages):
-        input_feature = parameters[0].valueAsText
-        output_csv = parameters[1].valueAsText
         add_output = arcpy.env.addOutputsToMap
         arcpy.env.addOutputsToMap  = False
         # run export on this feature class.
         messages.addMessage("Running export...")
-        addin_utils.writeToSRGD(input_feature, output_csv)
-        messages.addMessage("Exported results saved to %s." % output_csv)
+
+        from scripts import ExportToSRGD
+        ExportToSRGD.main(
+            input_fc=parameters[0].valueAsText,
+            output_csv=parameters[1].valueAsText)
         arcpy.env.addOutputsToMap = add_output
-        time.sleep(4)
 
 class MakeIndividualPaths(object):
     def __init__(self):

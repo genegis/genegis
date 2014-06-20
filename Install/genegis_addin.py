@@ -79,9 +79,9 @@ class ExportSRGD(object):
             pythonaddins.MessageBox(msg, title)
         else: 
             #f.write("have a valid layer selected, %s\n" % fc)
-            output_path = pythonaddins.SaveDialog("Output SRGD file name", "SRGD_%s.csv" % fc)
-            #f.write("got output_path = `%s`\n" % output_path)
-            utils.writeToSRGD(fc, output_path)
+            output_path = pythonaddins.SaveDialog("Output SRGD file name", "{}.csv".format(fc))
+            from scripts import ExportToSRGD
+            ExportToSRGD.main(fc, output_path)
 
 # genetic analysis tools
 #
