@@ -8,7 +8,8 @@ import pythonaddins
 
 # enable local imports
 local_path = os.path.dirname(__file__)
-sys.path.insert(0, local_path)
+for path in [local_path, os.path.join(local_path, 'toolbox')]:
+    sys.path.insert(0, os.path.abspath(path))
 
 # import local settings
 import config
