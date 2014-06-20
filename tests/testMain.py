@@ -46,6 +46,8 @@ class CoreFGDB(object):
 
 fgdb = CoreFGDB()
 
+# data-oriented tests
+# 
 class TestExampleData(unittest.TestCase):
     """ Ensure we can find our expected test datasets."""
 
@@ -141,15 +143,12 @@ class TestQuotedMultilineInput(unittest.TestCase):
         # clean up
         arcpy.Delete_management(self.output_fc)
 
+# import tests
+#
 
 class TestClassifiedImport(unittest.TestCase):
+    """ Test importing a sample SRGD file to a geodatabase."""
 
-    """
-    ClassifiedImport.main(input_table=None, sr=None, output_loc=None,
-    output_gdb=None, output_fc=None, genetic=None,
-    identification=None, location=None, other=None,
-    mode=consts.settings.mode, protected_map=consts.protected_columns)
-    """
     def setUp(self):
         self.output_fc = os.path.join(fgdb.path, "test_csv_spatial")
 
@@ -187,6 +186,8 @@ class TestClassifiedImport(unittest.TestCase):
         self.assertFalse(os.path.exists(fgdb.path))
 
 class TestClassifiedImportFullDataset(unittest.TestCase):
+    """ Test importing a full sample dataset to a geodatabase."""
+
     def setUp(self):
         self.output_fc = os.path.join(fgdb.path, "test_csv_spatial")
         self.temp_srgd = os.path.join(fgdb.dir_path, "SRGD_export.csv")
@@ -239,6 +240,9 @@ class TestClassifiedImportFullDataset(unittest.TestCase):
         # clean up
         arcpy.Delete_management(fgdb.path)
         self.assertFalse(os.path.exists(fgdb.path))
+
+# geographic analysis tools
+#
 
 class TestDistanceMatrix(unittest.TestCase):
     """ Test the distance matrix on our small sample data."""
