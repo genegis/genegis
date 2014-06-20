@@ -252,7 +252,7 @@ class TestDistanceMatrix(unittest.TestCase):
         self.input_full_fc = consts.test_fgdb_fc
         self.output_dists = os.path.join(consts.data_path, 'Test_DistanceMatrix')
 
-    def geographiclibDistances(self, input_fc, units='kilometers'):
+    def geographiclibDistances(self, input_fc):
         # Calculate a "reference" distance matrix using geographiclib.
         # This will be used to check the output of DistanceMatrix.py.
         input_fc_mem = 'in_memory/input_fc'
@@ -270,13 +270,9 @@ class TestDistanceMatrix(unittest.TestCase):
                 if from_fid == to_fid:
                     ref_dists[from_fid][to_fid] = 0
                 else:
-                    dist_raw = Geodesic.WGS84.Inverse(
+                    dist = Geodesic.WGS84.Inverse(
                         from_point[1], from_point[0], to_point[1], to_point[0]
-                    )['s12']
-                    if units == 'kilometers':
-                        dist = dist_raw / 1000.0
-                    else:
-                        dist = dist_raw
+                    )['s12'] / 1000.0
                     ref_dists[from_fid][to_fid] = dist
         return ref_dists
 
@@ -330,10 +326,6 @@ class TestDistanceMatrix(unittest.TestCase):
         self.assertTrue('main' in vars(method))
 
     def testDistanceMatrixRunSmall(self, method=DistanceMatrix):
-        if os.path.exists(self.output_dists):
-            # clean up from any past runs
-            arcpy.Delete_management(self.output_dists)
-
         parameters = {
             'input_fc': self.input_fc,
             'dist_unit': 'Kilometers',
@@ -350,14 +342,9 @@ class TestDistanceMatrix(unittest.TestCase):
         self.compareDistances(ref_dists, self.output_dists)
 
     def testDistanceMatrixRunFull(self, method=DistanceMatrix):
-        if os.path.exists(self.output_dists):
-            # clean up from any past runs
-            arcpy.Delete_management(self.output_dists)
-            
-        # TODO: switch back to kilometers once we support other unit types.
         parameters = {
             'input_fc': self.input_fc,
-            'dist_unit': 'Meters', 
+            'dist_unit': 'Kilometers', 
             'matrix_type': 'Square',
             'force_cpp': True, # force our ArcObjects code to execute
             'output_matrix': self.output_dists,
@@ -366,7 +353,7 @@ class TestDistanceMatrix(unittest.TestCase):
         method.main(mode='script', **parameters)
 
          # first, gather up our geographiclib based distance matrix
-        ref_dists = self.geographiclibDistances(self.input_fc, units='meters')
+        ref_dists = self.geographiclibDistances(self.input_fc)
         
         # all the actual assertions happen within the comparison function
         self.compareDistances(ref_dists, self.output_dists)
@@ -376,8 +363,9 @@ class TestDistanceMatrix(unittest.TestCase):
         self.assertTrue('DistanceMatrix' in vars(self.toolbox))
 
     def tearDown(self):
-        # clean up
-        arcpy.Delete_management(self.output_dists)
+        if os.path.exists(self.output_dists):
+            # clean up from any past runs
+            arcpy.Delete_management(self.output_dists)
 
 class TestShortestDistancePaths(unittest.TestCase):
     """ Test the shortest distance path script works, with
