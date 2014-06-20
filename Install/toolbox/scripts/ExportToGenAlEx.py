@@ -47,8 +47,14 @@ from collections import OrderedDict
 import utils
 import config
 
-def main(input_features=None, where_clause='', order_by=None, 
+def main(input_features=None, id_field=None, where_clause='', order_by=None, 
         output_name=None, mode='toolbox'):
+
+    # try to set the id based on input, otherwise go off of the config.
+    if id_field is not None:
+        primary_id = id_field
+    else:
+        primary_id = config.settings.id_field
 
     # set mode based on how script is called.
     config.settings.mode = mode
@@ -114,7 +120,6 @@ def main(input_features=None, where_clause='', order_by=None,
     # query the input_features in ascending order; filtering as needed
     selected_columns = order_by
     pops = OrderedDict()
-    print "arcpy.da.SearchCursor({}, {}, {}, '', '', {})".format(input_features, selected_columns, where_clause, sql_clause)
     rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause, "", "", sql_clause)
     rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause)
     row_count = 0
@@ -151,14 +156,14 @@ def main(input_features=None, where_clause='', order_by=None,
         loc_b = config.settings.x_coord
     
     output_file.write("{0},{1},{2},{3},{4}\n".format(
-            config.settings.id_field, order_by, loci_labels, loc_a, loc_b))
+            primary_id, order_by, loci_labels, loc_a, loc_b))
 
     utils.msg("Header info written to text file")
 
     # Note the WhereClause: Because the SPLASH data has both photo-id and genetic 
     # records, but GenAlEx only uses genetic data, the WhereClause is used to ensure
     # only those records with genetic data are copied to the text file. 
-    selected_columns = loci.columns + [loc_a, loc_b, config.settings.id_field, order_by]
+    selected_columns = loci.columns + [loc_a, loc_b, primary_id, order_by]
 
     rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause, "", "", sql_clause)
     for row in rows:
@@ -188,6 +193,7 @@ if __name__ == '__main__':
     defaults_tuple = (
         ('input_features', 
         "C:\\geneGIS\\WorkingFolder\\test_20March.gdb\\SPLASH_Whales"),
+        ('id_field', 'Individual_ID'),
         ('where_clause', "'Individual_ID' <> ''"),
         ('order_by', 'Region'),
         ('output_name',  "C:\\geneGIS\\WorkingFolder\\GenAlEx_Codominant_Export")

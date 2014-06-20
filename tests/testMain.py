@@ -528,7 +528,8 @@ class TestExportToGenAlEx(unittest.TestCase):
         self.assertEqual(desc.dataType, 'FeatureClass')
         parameters = {
             'input_features': self.input_fc,
-            'order_by': "Region",
+            'id_field': 'Individual_ID',
+            'order_by': 'Region',
             'output_name': self.output_name
         }
 
