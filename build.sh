@@ -2,7 +2,7 @@
 echo "building Addin..."
 python ./makeaddin.py
 echo "signing Addin..."
-# "/c/Program Files (x86)/Common Files/ArcGIS/bin/ESRISignAddin.exe" c:\\data\\arcgis\\addins\\genegis\\genegis.esriaddin /c/ssh/id_rsa.ppk
+"/c/Program Files (x86)/Common Files/ArcGIS/bin/ESRISignAddin.exe" Z:\\data\\arcgis\\addins\\genegis\\genegis.esriaddin /c:Z:\\data\\arcgis\\addins\\cert.cer
 echo "Would you like to install the add-in? y/N"
 read input
 if [ "$input" == "y" ]; then
