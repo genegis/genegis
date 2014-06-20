@@ -567,7 +567,8 @@ class TestExportToGenAlEx(unittest.TestCase):
 # this test should be run after a fresh run of makeaddin to rebuild the .esriaddin file.
 class TestAddin(unittest.TestCase):
     def setUp(self):
-        self.addin_path = os.path.abspath(os.path.join('..', 'genegis.esriaddin'))
+        self.addin_path = os.path.abspath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), '..', 'genegis.esriaddin'))
         self.addin_zip = zipfile.ZipFile(self.addin_path, 'r')
 
     def testToolboxIsPresent(self):
