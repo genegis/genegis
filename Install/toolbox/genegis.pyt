@@ -48,7 +48,9 @@ def selected_layer():
             selected_layer = config.settings.fc_path
     return selected_layer
 
-# get rid of problematical tags for revision control.
+# Get rid of problematical tags for revision control. This hack is only
+# necessary when development is happening on 10.2.0 or earlier, 
+# I reported an issue for it (NIM093098) which was resolved in 10.2.1.
 def metadata(update=True):
     if not update:
         try:
