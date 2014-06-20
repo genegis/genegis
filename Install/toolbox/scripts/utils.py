@@ -327,9 +327,15 @@ def add_file_extension(input_name, expected_ext):
     return os.path.join(os.path.dirname(input_name), name_with_ext)
 
 def xstr(s):
-    # replace None values with empty strings
+    """ Replace None values with empty strings."""
     if s is None:
         return ''
+    return str(s)
+
+def zstr(s):
+    """ Replace None values with zeros."""
+    if s is None:
+        return '0'
     return str(s)
 
 # FIXME: duplicated from Install\utils.py

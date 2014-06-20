@@ -18,7 +18,7 @@ utils.addLocalPaths(import_paths)
 
 from tempdir import TempDir
 from scripts import ClassifiedImport, DistanceMatrix, ShortestDistancePaths, \
-        ExtractRasterValuesToPoints, ExportToSRGD
+        ExtractRasterValuesToPoints, ExportToGenAlEx, ExportToSRGD
 
 # A GDB for our test results
 class CoreFGDB(object):
@@ -522,6 +522,48 @@ class TestExportToSRGD(unittest.TestCase):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
         self.assertTrue('ExportSRGD' in vars(self.toolbox))
 
+class TestExportToGenAlEx(unittest.TestCase):
+
+    def setUp(self):
+        self.input_fc = consts.test_fgdb_tiny_fc 
+        self.output_name = os.path.join(fgdb.dir_path, 'to_genalex.csv')
+
+    def testExportToGenAlExAvailable(self, method=ExportToGenAlEx):
+        self.assertIn('main', vars(method))
+
+    def testExportToGenAlExRun(self, method=ExportToGenAlEx):
+
+        desc = arcpy.Describe(self.input_fc)
+        self.assertEqual(desc.dataType, 'FeatureClass')
+        parameters = {
+            'input_features': self.input_fc,
+            'order_by': "Region",
+            'output_name': self.output_name
+        }
+
+        method.main(mode='script', **parameters)
+        self.assertTrue(os.path.exists(self.output_name))
+
+        with open(self.output_name, 'r') as f:
+            csv_in = csv.reader(f)
+            # size row
+            self.assertEqual(csv_in.next(), ['4','3','1','3'])
+            # regions
+            self.assertEqual(csv_in.next(), ['','','','Cent America'])
+            # header
+            self.assertEqual(csv_in.next(), ['Individual_ID', 'Region', 'GATA417',
+                '', 'Ev37', '', 'Ev96', '', 'rw4_10', '', '', 'Latitude', 'Longitude'])
+            # skip to last row
+            csv_in.next()
+            csv_in.next()
+            # the values for the rw4_10 haplotype should both be '0', which is
+            # how GenAlEx handles NULL values.
+            self.assertEqual(csv_in.next(), ['102', 'Cent America', '207', '221',
+                '194', '198', '161', '163', '0', '0', '', '-83.7341', '8.708'])
+
+    def testToolboxImport(self):
+        self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
+        self.assertIn('ExportGenAlEx', vars(self.toolbox))
 
 # this test should be run after a fresh run of makeaddin to rebuild the .esriaddin file.
 class TestAddin(unittest.TestCase):
