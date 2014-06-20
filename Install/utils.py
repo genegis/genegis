@@ -109,11 +109,15 @@ def addLayerFromFile(file_name):
 def loadDefaultLayer(timeout=3600):
     # this is a hack -- if the class has been updated recently, refresh the list
     layer = None
-    if os.path.exists(config.settings.fc_path):
-        diff_in_sec = time.time() - os.path.getmtime(config.settings.fc_path)
-        if timeout is None or diff_in_sec <= timeout:
-            with open(config.fc_path_file) as f:
-                layer = loadLayer(f.read()) 
+    with open(config.log_path, 'a') as log:
+        log.write("loadDefaultLayer called. Current fc_path: {}\n".format(config.settings.fc_path))
+
+        if os.path.exists(config.settings.fc_path):
+            diff_in_sec = time.time() - os.path.getmtime(config.settings.fc_path)
+            log.write("  time since fc_path was modified: {}\n".format(diff_in_sec))
+            if timeout is None or diff_in_sec <= timeout:
+                log.write("  adding layer...\n")
+                layer = addLayerFromFile(config.settings.fc_path) 
     return layer  
 
 def extentPolygon(extent, source_layer=None):
