@@ -280,7 +280,7 @@ class CompareEncounters(object):
                 title = "Comparison Results" 
                 pythonaddins.MessageBox(msg, title)
             else:
-                pythonaddins.Messagebox("please select first set", "selection missing")
+                pythonaddins.Messagebox("Please select first set", "Selection Missing")
 
 class LayerCombo(object):
     """Implementation for genegis_layer_combo.combobox (Combobox)"""

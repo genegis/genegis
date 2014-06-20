@@ -16,7 +16,6 @@ import arcpy
 # enable local imports; allow importing both this directory and one above
 local_path = os.path.dirname(__file__)
 for path in [local_path, os.path.join(local_path, '..')]:
-    full_path = os.path.abspath(path)
     sys.path.insert(0, os.path.abspath(path))
 
 # addin specific configuration and utility functions
@@ -70,8 +69,8 @@ def metadata(update=True):
 
 class Toolbox(object):
     def __init__(self):
-        self.label = u'geneGIS_Jan_2013'
-        self.alias = ''
+        self.label = u'geneGIS: spatial analysis of genetic data'
+        self.alias = 'genegis'
         self.tools = [
             ClassifiedImport, # import data from SRGD file
             SelectDataByAttributes, # filter data

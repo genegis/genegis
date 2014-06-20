@@ -16,12 +16,11 @@ try:
     import pythonaddins
 except:
     """
-    The config import above thows a warning in this case,
+    The `import config` above thows a warning if ArcPy is unavailable,
     just swallow it here and let this script import, since most of 
-    these utils don't depend on arcpy.
+    these utils don't depend on ArcPy.
     """
     pass
-
 
 def toolDialog(toolbox, tool):
     """Error-handling wrapper around pythonaddins.GPToolDialog."""
@@ -39,7 +38,7 @@ def toolDialog(toolbox, tool):
     return result
 
 def selectedLayer():
-    # return the selected layer object, check that it's just points
+    """ Return the selected layer object, verify that it's point data."""
     layer = None
     if config.selected_layer:
         # our preference is to always use the selected_layer object, which is
@@ -49,10 +48,8 @@ def selectedLayer():
         # if no layer is set, default to the current layer in the TOC
         layer = pythonaddins.GetSelectedTOCLayerOrDataFrame()
 
-    #try:
     desc = arcpy.Describe(layer)
-    #except:
-    #    pass
+
     if layer is None or desc.datasetType not in config.allowed_formats:
         msg = "No layer selected! Please select a point layer from the table of contents."
         title = "No selected layer"
@@ -68,7 +65,7 @@ def selectedLayer():
     return layer
 
 def currentLayers():
-    # find layers in current map document
+    """ Find layers in current map document."""
     layers = []
     # inspect the layer list, find the first point layer
     mxd = arcpy.mapping.MapDocument("current")
@@ -90,13 +87,15 @@ def currentLayers():
     return layers
 
 def getLayerByName(name):
+    """ Find a layer object based on its name."""
     named_layer = None
     for layer in currentLayers():
         if layer.name == name:
             named_layer = layer
     return named_layer 
 
-def loadLayer(file_name):
+def addLayerFromFile(file_name):
+    """ Add a new layer to the current map document from a file."""
     layer = None
     layer = arcpy.mapping.Layer(file_name)
     if layer is not None:
