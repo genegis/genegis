@@ -380,8 +380,8 @@ class TestShortestDistancePaths(unittest.TestCase):
         a shapefile output."""
 
     def setUp(self):
-        self.input_fc = config.test_fgdb_fc 
-        self.output_fc = os.path.join(config.test_fgdb, 'Test_ShortestDistancePaths')
+        self.input_fc = fgdb.input_fc
+        self.output_fc = os.path.join(fgdb.dir_path, 'Test_ShortestDistancePaths')
         self.shape_fn = "{}.shp".format(self.output_fc)
 
     def testShortestDistancePathsAvailable(self, method=ShortestDistancePaths):
@@ -398,8 +398,7 @@ class TestShortestDistancePaths(unittest.TestCase):
         output_file_extensions = ('.cpg', '.dbf', '.prj', '.sbn',
                                   '.sbx', '.shp', '.shp.xml', '.shx')
         for ext in output_file_extensions:
-            output_file = self.output_fc + ext
-            self.assertTrue(arcpy.Exists(output_file))
+            self.assertTrue(arcpy.Exists(self.output_fc + ext))
 
         # test that a sample value matches expected values
         output_columns = [f.name for f in arcpy.ListFields(self.shape_fn)]
