@@ -3,7 +3,6 @@ import re
 import zipfile
 
 current_path = os.path.dirname(os.path.abspath(__file__))
-
 out_zip_name = os.path.join(current_path, 
                             os.path.basename(current_path) + ".esriaddin")
 
@@ -25,14 +24,15 @@ def looks_like_a_backup(filename):
     return is_backup
 
 zip_file = zipfile.ZipFile(out_zip_name, 'w', zipfile.ZIP_DEFLATED)
-for filename in ('config.xml', 'README.md', 'LICENSE', 'makeaddin.py'):
+# specifically select the top-level files for inclusion
+for filename in ('config.xml', 'README.md', 'LICENSE', 'AUTHORS', 'makeaddin.py'):
     zip_file.write(os.path.join(current_path, filename), filename)
-dirs_to_add = ['Images', 'Install']
+dirs_to_add = ['Images', 'Install', 'Data']
 for directory in dirs_to_add:
     for (path, dirs, files) in os.walk(os.path.join(current_path, directory)):
         skip = False
         for skip_path in skip_paths:
-            if path.find(skip_path) != -1:
+            if not path.find(skip_path) == -1:
                 skip = True
         if skip:
             # skip this directory
