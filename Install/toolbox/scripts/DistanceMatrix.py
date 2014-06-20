@@ -54,10 +54,9 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, \
         # short one handed to us.
         input_fc_fullpath = os.path.join(desc.path, desc.file)
 
-        # TODO: handle units in the C++ version.
         # TODO: handle SPAGeDi output in the C++ version.
         utils.msg("Loaded high-performance geodesic calculations, running...")
-        returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix, unittfactor)
+        returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix, unit_factor)
         if returncode == -1:
             utils.msg("Cannot open the output file.", mtype='error')
         elif returncode == -2:
