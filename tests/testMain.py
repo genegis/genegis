@@ -535,3 +535,7 @@ class TestAddin(unittest.TestCase):
 
 if __name__  == '__main__':
     unittest.main()
+    # we aren't using the context manager here, so manually delete our fgdb.
+    del(fgdb)
+
+
