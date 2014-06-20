@@ -18,8 +18,6 @@ def main(selected_pts=None, source_fc=None, output_name=None):
     sr = desc.spatialReference
 
     # get list of Inividual_IDs from selected_pts
-
-    #utils.msg("Getting list of Individuals")
     with arcpy.da.SearchCursor(selected_pts, config.settings.id_field) as cur:
         # write cursor to a list
         all_ids = [row[0] for row in cur if row[0] is not None]
