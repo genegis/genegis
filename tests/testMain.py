@@ -564,10 +564,19 @@ class TestAddin(unittest.TestCase):
         self.addin_path = os.path.abspath(os.path.join(
             os.path.dirname(os.path.abspath(__file__)), '..', 'genegis.esriaddin'))
         self.addin_zip = zipfile.ZipFile(self.addin_path, 'r')
+        self.names = self.addin_zip.namelist()
 
     def testToolboxIsPresent(self):
         toolbox_path = 'Install/toolbox/genegis.pyt' 
-        self.assertTrue(toolbox_path in self.addin_zip.namelist())
+        self.assertIn(toolbox_path, self.names)
+
+    def testClassifedImportIsPresent(self):
+        import_path = 'Install/toolbox/scripts/ClassifedImport.py'
+        self.assertIn(import_path, self.names)
+
+    def testGeodesicDllIsPresent(self):
+        dll_path = 'Install/toolbox/lib/geodesic/geodesic.dll'
+        self.assertIn(dll_path, self.names)
 
 if __name__  == '__main__':
     unittest.main()
