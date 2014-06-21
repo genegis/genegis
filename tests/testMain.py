@@ -571,7 +571,7 @@ class TestAddin(unittest.TestCase):
         self.assertIn(toolbox_path, self.names)
 
     def testClassifedImportIsPresent(self):
-        import_path = 'Install/toolbox/scripts/ClassifedImport.py'
+        import_path = 'Install/toolbox/scripts/ClassifiedImport.py'
         self.assertIn(import_path, self.names)
 
     def testGeodesicDllIsPresent(self):
