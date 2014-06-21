@@ -10,11 +10,11 @@ backup_patterns = {
     'PLUGIN_BACKUP_PATTERN': re.compile(".*_addin_[0-9]+[.]py$", re.IGNORECASE),
     'VIM_SWAP_PATTERN': re.compile(".*\.sw[op]$", re.IGNORECASE),
     'COMPLIED_PYTHON_PATTERN': re.compile(".*\.pyc$", re.IGNORECASE),
-    'TODO_PATTERN': re.compile('todo.txt')
+    'TODO_PATTERN': re.compile('todo.txt'),
+    'GIT': re.compile('.git$')
 }
 
-skip_base = ['Install\\toolbox\\arcobjects']
-skip_paths = [os.path.join(current_path, s) for s in skip_base]
+skip_paths  = ['Install/toolbox/arcobjects']
 
 def looks_like_a_backup(filename):
     is_backup = False
@@ -32,9 +32,10 @@ for directory in dirs_to_add:
     for (path, dirs, files) in os.walk(os.path.join(current_path, directory)):
         skip = False
         for skip_path in skip_paths:
-            if not path.find(skip_path) == -1:
+            if path.find(skip_path) != -1:
                 skip = True
         if skip:
+            print "skipping {}".format(path)
             # skip this directory
             continue
 
