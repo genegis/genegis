@@ -530,14 +530,15 @@ class TestExportToGenAlEx(unittest.TestCase):
             'input_features': self.input_fc,
             'id_field': 'Individual_ID',
             'order_by': 'Region',
-            'output_name': self.output_name
+            'output_name': self.output_name,
         }
 
         method.main(mode='script', **parameters)
         self.assertTrue(os.path.exists(self.output_name))
 
         with open(self.output_name, 'r') as f:
-            csv_in = csv.reader(f)
+            csv_in = csv.reader(f, dialect='excel', quotechar='"', quoting=csv.QUOTE_ALL)
+
             # size row
             self.assertEqual(csv_in.next(), ['4','3','1','3'])
             # regions

@@ -37,6 +37,7 @@
 # --------------------------------------------------------------------------
 
 import arcpy
+import csv
 import os
 import re
 import sys
@@ -87,10 +88,14 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
        
     try:    
         # Create and open the text file to which the data will be written
-        output_file = open(output_name, "w")
+        output_file = open(output_name, "wb")
     except Exception as e:
         utils.msg("Unable to open text file", mtype='error', exception=e)
-    
+  
+    # create a CSV writer
+    writer = csv.writer(output_file, dialect='excel',
+            quotechar='"', quoting=csv.QUOTE_ALL)
+
     utils.msg("Output file open and ready for data input")
             
     # Find our Loci columns. 
@@ -120,8 +125,8 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
     # query the input_features in ascending order; filtering as needed
     selected_columns = order_by
     pops = OrderedDict()
-    rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause, "", "", sql_clause)
-    rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause)
+    rows = arcpy.da.SearchCursor(input_features, selected_columns, 
+            where_clause, "", "", sql_clause)
     row_count = 0
     for row in rows:
         row_count += 1
@@ -132,18 +137,16 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
             pops[pop] = 1
 
     pop_counts = ",".join([utils.xstr(p) for p in pops.values()])
-    # Creating the GenAlEx header information required for the text file. 
-    output_file.write("{0},{1},{2},{3}\n".format(
-            loci.count,row_count,len(pops.keys()),pop_counts))
+    # Creating the GenAlEx header information required for the text file.
+    writer.writerow([loci.count, row_count, len(pops.keys()), pop_counts])
    
     # optional title, then a list of each population
-    output_file.write(",,,{0}\n".format(",".join(pops.keys())))
+    writer.writerow(['', '', ''] + pops.keys())
 
-    loci_labels = ""
+    loci_labels = []
     for (key, cols) in loci.fields.items():
-        loci_labels += key
-        loci_labels += ","*len(cols)
-        
+        loci_labels += [key] + [''] * (len(cols) - 1)
+
     # get the spatial reference of our input, determine the type
     desc = arcpy.Describe(input_features)
     sr = desc.spatialReference
@@ -155,9 +158,7 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
         loc_a = config.settings.y_coord
         loc_b = config.settings.x_coord
     
-    output_file.write("{0},{1},{2},{3},{4}\n".format(
-            primary_id, order_by, loci_labels, loc_a, loc_b))
-
+    writer.writerow([primary_id, order_by] + loci_labels + ['', loc_a, loc_b])
     utils.msg("Header info written to text file")
 
     # Note the WhereClause: Because the SPLASH data has both photo-id and genetic 
@@ -177,13 +178,14 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
                 col_pos = selected_columns.index(col)
                 result_row.append(row[col_pos])
         result_row = result_row + ["", loc_a_val, loc_b_val]
-        output_file.write(",".join([utils.zstr(s) for s in result_row]) + "\n")
+        writer.writerow([utils.zstr(s) for s in result_row])
 
     utils.msg("Exported results saved to %s." % output_name)
-    time.sleep(4)
-
     # Close Output text file
     output_file.close()
+
+    if mode == 'toolbox':
+        time.sleep(4)
 
     arcpy.env.addOutputsToMap = add_output
 

@@ -23,7 +23,7 @@ def main(input_fc=None, output_csv=None, mode=config.settings.mode):
         sys.exit()
 
     try:
-        with open(output_csv, 'w') as output_file:
+        with open(output_csv, 'wb') as output_file:
             writer = csv.writer(output_file, dialect='excel', \
                 quotechar='"', quoting=csv.QUOTE_ALL)
 
