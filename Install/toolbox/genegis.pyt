@@ -73,6 +73,7 @@ class Toolbox(object):
         self.alias = 'genegis'
         self.tools = [
             ClassifiedImport, # import data from SRGD file
+            SetKey,
             SelectDataByAttributes, # filter data
             # Geographic Analysis
             ExtractRasterByPoints, # extract values at point locations
@@ -788,12 +789,12 @@ class ExportGenAlEx(object):
         if input_features.valueAsText is not None:
             with open(config.log_path, 'a') as log:
                 log.write("{}:ExportToGenAlEx: input_features: {}, id_field: {}.".format(
-                    sys.argv[0], input_features.valueAsText), id_field.valueAsText)
+                    sys.argv[0], input_features.valueAsText, id_field.valueAsText))
                 
                 id_vals = []
                 for field in [f.name for f in arcpy.ListFields(input_features.valueAsText)]:
                     if re.search('_id$', field, re.IGNORECASE) or \
-                            field in settings.config.identification_columns:
+                            field in config.settings.identification_columns:
                         id_vals.append(field) 
 
                 id_field.filter.list = id_vals
