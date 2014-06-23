@@ -238,8 +238,8 @@ class TestClassifiedImportFullDataset(unittest.TestCase):
 
     def tearDown(self):
         # clean up
-        arcpy.Delete_management(fgdb.path)
-        self.assertFalse(os.path.exists(fgdb.path))
+        arcpy.Delete_management(self.temp_srgd)
+        self.assertFalse(os.path.exists(self.temp_srgd))
 
 # geographic analysis tools
 #
@@ -385,7 +385,6 @@ class TestShortestDistancePaths(unittest.TestCase):
             'output_fc': self.output_fc,
         }
         method.main(mode='script', **parameters)
-        arcpy.DeleteFeatures_management(self.input_fc)
 
         output_file_extensions = ('.cpg', '.dbf', '.prj', '.sbn',
                                   '.sbx', '.shp', '.shp.xml', '.shx')
@@ -407,7 +406,8 @@ class TestShortestDistancePaths(unittest.TestCase):
         self.assertTrue('ShortestDistancePaths' in vars(self.toolbox))
 
     def tearDown(self):
-        arcpy.Delete_management(self.output_fc + '.shp')
+        if os.path.exists(self.shape_fn):
+            arcpy.Delete_management(self.shape_fn)
 
 class TestExtractRasterValuesToPoints(unittest.TestCase):
 
