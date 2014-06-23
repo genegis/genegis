@@ -377,6 +377,72 @@ class ClassifiedImport(object):
 
         return
 
+class SetKey(object):
+    def __init__(self):
+        self.label = u'Set Data Layer and Key'
+        self.description = u'This tool allows the selection of the primary key" \
+                + " and data layer used for analysis steps.'
+        self.canRunInBackground = False
+        self.category = "Settings"
+        self.cols = {
+            'input_features': 0,
+            'id_field': 1
+        }
+
+    def getParameterInfo(self):
+        # Output Feature Class
+        input_features = arcpy.Parameter()
+        input_features.name = u'Data_Layer'
+        input_features.displayName = u'Data Layer'
+        input_features.direction = 'Input'
+        input_features.parameterType = 'Required'
+        input_features.datatype = dt.format('Feature Class')
+
+        # interpolate values
+        id_field = arcpy.Parameter()
+        id_field.name = u'Primary_Identification_Column'
+        id_field.displayName = 'Primary Identification Column'
+        id_field.direction = 'Input'
+        id_field.parameterType = 'Required'
+        id_field.datatype = dt.format('String')
+        return [input_features, id_field]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        input_features = parameters[self.cols['input_features']]
+        id_field = parameters[self.cols['id_field']]
+
+        # if we have a feature class, update the possible 'ID' columns.
+        if input_features.valueAsText is not None:
+            with open(config.log_path, 'a') as log:
+                log.write("{}:SetKey: input_features: {}, id_field: {}.".format(
+                    sys.argv[0], input_features.valueAsText, id_field.valueAsText))
+                
+                id_vals = []
+                for field in [f.name for f in arcpy.ListFields(input_features.valueAsText)]:
+                    if re.search('_id$', field, re.IGNORECASE) or \
+                            field in config.settings.identification_columns:
+                        id_vals.append(field) 
+
+                id_field.filter.list = id_vals
+                if config.settings.id_field in id_vals:
+                    id_field.value = config.settings.id_field
+        else:
+            selected = selected_layer()
+            if arcpy.exists(selected):
+                input_features.value = selected
+
+        return
+
+    def updateMessages(self, parameters):
+        return
+
+    def execute(self, parameters, messages):
+        # update the settings based on the users' selections.
+        pass
+
 class ExtractRasterByPoints(object):
     def __init__(self):
         self.label = u'Extract Raster Values To Points'
