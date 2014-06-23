@@ -286,7 +286,9 @@ class LayerCombo(object):
     """Implementation for genegis_layer_combo.combobox (Combobox)"""
     def __init__(self):
         self.layers = []
-        self.items = ['genetic_points']
+        # its a nice idea to include an item here, but confusing since there's no
+        # actual data to back it up.
+        self.items = [] 
         self.editable = True
         self.enabled = True
         self.dropdownWidth = "WWWWWWWWWWWWWWWWWWWW"
