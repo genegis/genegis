@@ -18,7 +18,7 @@ utils.addLocalPaths(import_paths)
 
 from tempdir import TempDir
 from scripts import ClassifiedImport, DistanceMatrix, ShortestDistancePaths, \
-        ExtractRasterValuesToPoints, ExportToGenAlEx, ExportToSRGD
+        ExtractRasterValuesToPoints, ExportToGenAlEx, ExportToSRGD, ExportToAIS
 
 # A GDB for our test results
 class CoreFGDB(object):
@@ -512,6 +512,47 @@ class TestExportToSRGD(unittest.TestCase):
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
         self.assertTrue('ExportSRGD' in vars(self.toolbox))
+
+class TestExportToAIS(unittest.TestCase):
+
+    def setUp(self):
+        self.input_features= fgdb.input_fc
+        self.output_coords = os.path.join(fgdb.dir_path, 'coords.txt')
+        self.output_genetics = os.path.join(fgdb.dir_path, 'genetics.txt')
+
+    def testExportToAISAvailable(self, method=ExportToAIS):
+        self.assertTrue('main' in vars(method))
+
+    def testExportToAISRun(self, method=ExportToAIS):
+
+        desc = arcpy.Describe(self.input_features)
+        self.assertEqual(desc.dataType, 'FeatureClass')
+        parameters = {
+            'input_features': self.input_features,
+            'id_field': 'Individual_ID',
+            'output_coords': self.output_coords,
+            'output_genetics': self.output_genetics
+        }
+        method.main(mode='script', **parameters)
+
+        self.assertTrue(os.path.exists(self.output_coords))
+        self.assertTrue(os.path.exists(self.output_genetics))
+
+        with open(self.output_coords, 'r') as f:
+            csv_in = csv.reader(f)
+            self.assertEqual(csv_in.next(), ['100', '11.0253', '-85.9176'])
+            self.assertEqual(csv_in.next(), ['101', '13.7851', '-90.2733'])
+
+        with open(self.output_genetics, 'r') as f:
+            csv_in = csv.reader(f)
+            header = csv_in.next()
+            self.assertEqual(header, ['4']) 
+            self.assertEqual(csv_in.next(), 
+                    ['100', '206\\222', '208\\220', '157\\163', '196\\198'])
+
+    def testToolboxImport(self):
+        self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
+        self.assertTrue('ExportAllelesInSpace' in vars(self.toolbox))
 
 class TestExportToGenAlEx(unittest.TestCase):
 

@@ -1067,8 +1067,8 @@ class ExportAllelesInSpace(object):
 
         # identification field
         id_field = arcpy.Parameter()
-        id_field.name = u'Sample ID Field'
-        id_field.displayName = u'Sample ID Field'
+        id_field.name = u'Primary Identification Field'
+        id_field.displayName = u'Primary Identification Field'
         id_field.parameterType = 'Required'
         id_field.direction = 'Input'
         id_field.datatype = dt.format('Field')

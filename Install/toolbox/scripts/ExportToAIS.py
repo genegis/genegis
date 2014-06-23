@@ -25,6 +25,9 @@ def main(input_features=None, id_field=None, where_clause=None, output_coords=No
         utils.msg("This tools only works with geographic or projected data.", mtype='error')
         sys.exit()
 
+    if not id_field:
+        id_field = config.settings.id_field
+
     # Find our Loci columns. 
     loci = utils.Loci(input_features)
     utils.msg("loci set: {0}".format(",".join(loci.names)))
@@ -33,7 +36,7 @@ def main(input_features=None, id_field=None, where_clause=None, output_coords=No
 Export occurred on {datetime}
 Coordinates are in {sr_name}, a {sr_type} coordinate system.""".format(
         input_features=input_features, datetime=datetime.now(), \
-        sr_name=sr.name, sr_type=sr.type)
+        sr_name=sr.name, sr_type=sr.type.lower())
 
     if sr.type == 'Geographic':
         # geographic data expected to be (lat, lon)
@@ -44,7 +47,7 @@ Coordinates are in {sr_name}, a {sr_type} coordinate system.""".format(
         loc_a = config.settings.x_coord
         loc_b = config.settings.y_coord
    
-    selected_columns = [config.settings.id_field, loc_a, loc_b] + loci.columns
+    selected_columns = [id_field, loc_a, loc_b] + loci.columns
     rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause)
 
     coordinate_rows = []
@@ -78,12 +81,12 @@ Coordinates are in {sr_name}, a {sr_type} coordinate system.""".format(
 
     try:
         # copy the final result back to disk.
-        utils.msg("Writing results to disk…")
+        utils.msg("Writing results to disk...")
 
         # Alleles in Space expects comma-delimited outputs
         sep = ","
 
-        with open(output_coords, 'w') as coords_file:
+        with open(output_coords, 'wb') as coords_file:
             for raw_row in coordinate_rows:
                 # convert all data to strings
                 row = [utils.xstr(s) for s in raw_row]
@@ -92,7 +95,7 @@ Coordinates are in {sr_name}, a {sr_type} coordinate system.""".format(
             coords_file.write(comments)
             utils.msg("Exported coordinates saved to %s." % output_coords)
 
-        with open(output_genetics, 'w') as genetics_file:
+        with open(output_genetics, 'wb') as genetics_file:
             # start the file with the number or loci
             genetics_file.write("{0}\n".format(loci.count))
             for raw_row in genetic_rows:
