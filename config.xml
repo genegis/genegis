@@ -4,11 +4,11 @@
   <Name>geneGIS</Name>
   <AddInID>{80845348-ba29-47c5-af34-e224df7c633b}</AddInID>
   <Description>Geographic context for genetic data</Description>
-  <Version>0.2</Version>
+  <Version>0.2.1</Version>
   <Image>Images\splash-movement-cropped.png</Image>
   <Author>geneGIS team</Author>
   <Company>OSU, Esri</Company>
-  <Date>06/15/2013</Date>
+  <Date>06/20/2014</Date>
 
 <Targets>
   <Target name="Desktop" version="10.1" />
