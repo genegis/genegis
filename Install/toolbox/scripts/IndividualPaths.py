@@ -12,7 +12,13 @@ add_outputs = arcpy.env.addOutputsToMap
 arcpy.env.addOutputsToMap = True
 arcpy.env.overwriteOutput = True
 
-def main(selected_pts=None, source_fc=None, output_name=None):
+def main(selected_pts=None, source_fc=None, output_name=None, mode='toolbox'):
+
+    # set mode based on how script is called.
+    config.settings.mode = mode
+    add_output = arcpy.env.addOutputsToMap
+    arcpy.env.addOutputsToMap = True
+
     # get the spatial reference of input
     desc = arcpy.Describe(selected_pts)
     sr = desc.spatialReference
@@ -130,5 +136,3 @@ if __name__ == '__main__':
     )
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(mode='script', **defaults)
-    main(**defaults)
-     #main(selected_pts, source_fc, output_name)
