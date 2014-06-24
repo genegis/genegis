@@ -408,6 +408,7 @@ class SetKey(object):
         id_field.direction = 'Input'
         id_field.parameterType = 'Required'
         id_field.datatype = dt.format('String')
+
         # overwrite enabled
         overwrite = arcpy.Parameter()
         overwrite.name = 'Allow_Overwrite'
