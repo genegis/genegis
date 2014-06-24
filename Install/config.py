@@ -14,7 +14,7 @@ def update(key, value):
     config.read(config_path)
     config.set(app_name, key, value)
     with open(config_path, 'wb') as config_file:
-        config.write(config_file)        
+        config.write(config_file)
 
 def create(config_path):
     # initialize a basic configuration file.
@@ -62,7 +62,8 @@ config_vars = {
                    # is WGS84 (SRID 4326), use it.
     'mode': 'toolbox', # default mode for tools. Expect tools to be run from a 
                       # Python toolbox, not the command-line by default.
-    'log_level': 'error'
+    'log_level': 'error',
+    'overwrite': False
 }
 # We've initialized all our configuration settings, now let's serialize them
 # in a usable spot.
@@ -80,9 +81,9 @@ log_path = os.path.join(config_dir, "{}.log".format(app_name))
 for fn in glob.glob(os.path.join(config_dir, "*.{}.tmp".format(app_name))):
     os.remove(fn)
 
-# push out the settings into an attributed object, can pull things 
-# back with 'settings.var_name'.
-settings = load(config_path, app_name)
+# settings as a function to force reloads.
+def settings():
+    return load(config_path, app_name)
 
 # NOTE: Settings in original file; reduce to config settings where possible.
 
@@ -143,15 +144,13 @@ primary_results = None
 # columns which have explicit data typing set
 protected_columns = {}
 
-overwrite = True
-
 # finally, try our ArcPy specific imports.
 try:
     import arcpy
     arcpy.env.overwriteOutput = True
     # default spatialReference id (WGS 84), updated when a layer
     # is selected from the combobox.
-    sr = arcpy.SpatialReference(int(settings.srid))
+    sr = arcpy.SpatialReference(int(settings().srid))
 
 except Exception as e:
     warnings.warn("{}, disabling ArcPy settings.".format(e))

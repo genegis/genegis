@@ -18,9 +18,10 @@ import platform
 # local imports
 import utils
 import config
+settings = config.settings()
 
 def main(input_features=None, where_clause=None, order_by=None, 
-        output_name=None, mode=config.settings.mode):
+        output_name=None, mode=settings.mode):
    
     # get the spatial reference of our input, determine the type
     desc = arcpy.Describe(input_features)
@@ -87,13 +88,13 @@ def main(input_features=None, where_clause=None, order_by=None,
         # latitude or Western longitude.
         xy_type = -2
         # geographic data expected to be (lat, lon)
-        loc_a = config.settings.y_coord
-        loc_b = config.settings.x_coord
+        loc_a = settings.y_coord
+        loc_b = settings.x_coord
     else:
         # two coordinates in a projected space
         xy_type = 2
-        loc_a = config.settings.x_coord
-        loc_b = config.settings.y_coord
+        loc_a = settings.x_coord
+        loc_b = settings.y_coord
    
     num_loci = loci.count
 
@@ -129,7 +130,7 @@ def main(input_features=None, where_clause=None, order_by=None,
     distances_row = [0]
 
     # 3rd line: column labels (<=15 characters).
-    base_cols = [config.settings.id_field, order_by, loc_a, loc_b] 
+    base_cols = [settings.id_field, order_by, loc_a, loc_b] 
     labels_row = base_cols + loci.columns
 
     # where_clause is used to ensure only those records with genetic data 

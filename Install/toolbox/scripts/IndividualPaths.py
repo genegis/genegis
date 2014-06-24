@@ -8,23 +8,30 @@ import utils
 import config
 import time
 
-add_outputs = arcpy.env.addOutputsToMap
-arcpy.env.addOutputsToMap = True
-arcpy.env.overwriteOutput = True
+settings = config.settings()
 
-def main(selected_pts=None, source_fc=None, output_name=None, mode='toolbox'):
+#def main(selected_pts=None, source_fc=None, output_name=None, mode='toolbox'):
+def main(source_fc=None, where_clause=None, id_field=None, output_name=None, mode='toolbox'):
+
+    # try to set the id based on input, otherwise go off of the config.
+    if id_field is not None:
+        primary_id = id_field
+    else:
+        primary_id = settings.id_field
 
     # set mode based on how script is called.
-    config.settings.mode = mode
+    settings.mode = mode
     add_output = arcpy.env.addOutputsToMap
     arcpy.env.addOutputsToMap = True
+
+    arcpy.env.overwriteOutput = settings.overwrite
 
     # get the spatial reference of input
     desc = arcpy.Describe(selected_pts)
     sr = desc.spatialReference
 
     # get list of Inividual_IDs from selected_pts
-    with arcpy.da.SearchCursor(selected_pts, config.settings.id_field) as cur:
+    with arcpy.da.SearchCursor(source_fc, id_field) as cur:
         # write cursor to a list
         all_ids = [row[0] for row in cur if row[0] is not None]
 

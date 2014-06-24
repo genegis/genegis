@@ -14,6 +14,7 @@ for path in [local_path, os.path.join(local_path, 'toolbox')]:
 # import local settings
 import config
 import utils
+settings = config.settings()
 
 # get the paths for our toolboxes
 genegis_toolbox = os.path.join(local_path, "toolbox", "genegis.pyt")
@@ -240,7 +241,7 @@ class CompareEncounters(object):
             first_pop = config.primary_results['indiv_stats']['unique']
             second_pop = res2['unique']
             #pythonaddins.MessageBox("got %i in pop1, %i in pop2" % (len(first_pop), len(second_pop)), "pop compare")
-            with arcpy.da.UpdateCursor(layer, [config.settings.id_field, field_name]) as cur:
+            with arcpy.da.UpdateCursor(layer, [settings.id_field, field_name]) as cur:
                 for row in cur:
                     indiv = row[0]
                     if indiv in first_pop and indiv in second_pop:

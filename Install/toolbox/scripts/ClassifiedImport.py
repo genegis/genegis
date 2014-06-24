@@ -51,6 +51,7 @@ def add_install_path():
         sys.path.insert(0, full_path)
 
 add_install_path()
+settings = config.settings()
 
 def main(input_table=None, sr=None, output_loc=None,
     output_gdb=None, output_fc=None, genetic=None,
@@ -58,9 +59,13 @@ def main(input_table=None, sr=None, output_loc=None,
     mode='toolbox', protected_map=config.protected_columns):
 
     # set mode based on how script is called.
-    config.settings.mode = mode
+    settings.mode = mode
     add_output = arcpy.env.addOutputsToMap
     arcpy.env.addOutputsToMap = True
+   
+   
+   
+   
 
     # First, create a geodatabase for all our future results.
     # TODO: can we generate this from a single value?
@@ -101,12 +106,13 @@ def main(input_table=None, sr=None, output_loc=None,
         utils.protect_columns(data_table, protected_map)
     else:
         data_table = input_table 
-    
+
     # write out our table, after additional validation.
     try:
-        arcpy.env.overwriteOutput = config.overwrite
-        
-        # generate table name based on input name
+        arcpy.env.overwriteOutput = settings.overwrite
+        utils.msg("overwrite set to {}".format(settings.overwrite)) 
+ 
+       # generate table name based on input name
         (label, ext) = os.path.splitext(os.path.basename(input_table))
       
         # Validate label will produce a valid table name from our input file
@@ -184,7 +190,7 @@ def formatDate(input_date):
     # Copy our features to a permanent layer
     try:
         # for this step, overwrite any existing results
-        arcpy.env.overwriteOutput = config.overwrite
+        arcpy.env.overwriteOutput = settings.overwrite
 
         # Process: Copy Features
         # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
@@ -219,9 +225,6 @@ def formatDate(input_date):
 
         for (var, val) in var_types.items():
             config.update('%s_columns' % var, val.strip())
-
-        # done updating, reload the config so the settings propagate.
-        reload(config)
 
     except Exception as e:
         msg = "Error creating output configuration file: %s" % config.config_path

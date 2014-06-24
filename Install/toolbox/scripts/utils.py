@@ -11,6 +11,7 @@ import traceback
 # enable local imports; redirect config calls to general config
 import add_install_path
 import config
+settings = config.settings()
 
 try:
     import arcpy
@@ -35,7 +36,7 @@ class Loci(object):
         # map loci fields to values
         loci = collections.OrderedDict()
         # optional: use this to also filter if the genetic columns are up to date
-        genetic_columns = config.settings.genetic_columns.split(";")
+        genetic_columns = settings.genetic_columns.split(";")
         loci_expr = '^l_(.*)_[0-9]+'
         for field in [f.name for f in arcpy.ListFields(input_features)]:
             match = re.match(loci_expr, field, re.IGNORECASE)
@@ -129,7 +130,7 @@ def msg(output_msg, mtype='message', exception=None):
         except:
             tbinfo = "No traceback reported."
 
-        if config.settings.mode == 'script':
+        if settings.mode == 'script':
             if exception:
                 # print the raw exception
                 print exception
@@ -142,7 +143,7 @@ def msg(output_msg, mtype='message', exception=None):
                 arcpy.AddError(exception)
             arcpy.AddError(arcpy_messages)
             arcpy.AddMessage("Python Error: ${tbinfo}".format(tbinfo=tbinfo))
-    elif config.settings.mode == 'script':
+    elif settings.mode == 'script':
         print output_msg
     else:
         if mtype == 'message':

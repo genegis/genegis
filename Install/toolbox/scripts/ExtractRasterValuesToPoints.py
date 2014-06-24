@@ -41,9 +41,10 @@ from arcpy.sa import ExtractMultiValuesToPoints
 # local imports
 import utils
 import config
+settings = config.settings()
 
 def main(input_raster=None, selected_layer=None, interpolate=None, 
-         mode=config.settings.mode):
+         mode=settings.mode):
 
         utils.msg("Executing ExtractRasterValuesToPoints.")   
         arcpy.CheckOutExtension("Spatial")

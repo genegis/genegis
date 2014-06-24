@@ -14,9 +14,10 @@ from datetime import datetime
 # local imports
 import utils
 import config
+settings = config.settings()
 
 def main(input_features=None, id_field=None, where_clause=None, output_coords=None, 
-        output_genetics=None, mode=config.settings.mode):
+        output_genetics=None, mode=settings.mode):
    
     # get the spatial reference of our input, determine the type
     desc = arcpy.Describe(input_features)
@@ -26,7 +27,7 @@ def main(input_features=None, id_field=None, where_clause=None, output_coords=No
         sys.exit()
 
     if not id_field:
-        id_field = config.settings.id_field
+        id_field = settings.id_field
 
     # Find our Loci columns. 
     loci = utils.Loci(input_features)
@@ -40,12 +41,12 @@ Coordinates are in {sr_name}, a {sr_type} coordinate system.""".format(
 
     if sr.type == 'Geographic':
         # geographic data expected to be (lat, lon)
-        loc_a = config.settings.y_coord
-        loc_b = config.settings.x_coord
+        loc_a = settings.y_coord
+        loc_b = settings.x_coord
     else:
         # two coordinates in a projected space
-        loc_a = config.settings.x_coord
-        loc_b = config.settings.y_coord
+        loc_a = settings.x_coord
+        loc_b = settings.y_coord
    
     selected_columns = [id_field, loc_a, loc_b] + loci.columns
     rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause)

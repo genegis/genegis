@@ -10,6 +10,7 @@ sys.path.insert(0, local_path)
 
 # import local settings
 import config
+settings = config.settings()
 
 try:
     import arcpy
@@ -110,14 +111,14 @@ def loadDefaultLayer(timeout=3600):
     # this is a hack -- if the class has been updated recently, refresh the list
     layer = None
     with open(config.log_path, 'a') as log:
-        log.write("loadDefaultLayer called. Current fc_path: {}\n".format(config.settings.fc_path))
+        log.write("loadDefaultLayer called. Current fc_path: {}\n".format(settings.fc_path))
 
-        if os.path.exists(config.settings.fc_path):
-            diff_in_sec = time.time() - os.path.getmtime(config.settings.fc_path)
+        if os.path.exists(settings.fc_path):
+            diff_in_sec = time.time() - os.path.getmtime(settings.fc_path)
             log.write("  time since fc_path was modified: {}\n".format(diff_in_sec))
             if timeout is None or diff_in_sec <= timeout:
                 log.write("  adding layer...\n")
-                layer = addLayerFromFile(config.settings.fc_path) 
+                layer = addLayerFromFile(settings.fc_path) 
     return layer  
 
 def extentPolygon(extent, source_layer=None):
@@ -154,8 +155,8 @@ def extentPolygon(extent, source_layer=None):
 def selectIndividuals(output_feature, display=False):
     res = {}
     fields = [f.name for f in arcpy.ListFields(output_feature)]
-    if config.settings.id_field in fields:
-        cur = arcpy.da.SearchCursor(output_feature, (config.settings.id_field))
+    if settings.id_field in fields:
+        cur = arcpy.da.SearchCursor(output_feature, (settings.id_field))
         individuals = [row[0] for row in cur]
         unique_individuals = set(individuals)
         res = {'indiv' : individuals, 'unique' : unique_individuals}

@@ -21,6 +21,7 @@ for path in [local_path, os.path.join(local_path, '..')]:
 # addin specific configuration and utility functions
 import utils as addin_utils
 import config
+settings = config.settings()
 
 # import utilities & config from our scripts as well
 from scripts import utils
@@ -43,8 +44,8 @@ def selected_layer():
         # check if we have a layer selected from the combo box
         if config.selected_layer is not None:
             selected_layer = config.selected_layer.dataSource
-        elif config.settings.fc_path != '':
-            selected_layer = config.settings.fc_path
+        elif settings.fc_path != '':
+            selected_layer = settings.fc_path
     return selected_layer
 
 # Get rid of problematical tags for revision control. This hack is only
@@ -379,17 +380,19 @@ class ClassifiedImport(object):
 
 class SetKey(object):
     def __init__(self):
-        self.label = u'Set Data Layer and Key'
+        self.label = u'Modify defaults'
         self.description = u'This tool allows the selection of the primary key" \
                 + " and data layer used for analysis steps.'
         self.canRunInBackground = False
         self.category = "Settings"
         self.cols = {
             'input_features': 0,
-            'id_field': 1
+            'id_field': 1,
+            'overwrite': 2
         }
 
     def getParameterInfo(self):
+        
         # Output Feature Class
         input_features = arcpy.Parameter()
         input_features.name = u'Data_Layer'
@@ -860,12 +863,12 @@ class ExportGenAlEx(object):
                 id_vals = []
                 for field in [f.name for f in arcpy.ListFields(input_features.valueAsText)]:
                     if re.search('_id$', field, re.IGNORECASE) or \
-                            field in config.settings.identification_columns:
+                            field in settings.identification_columns:
                         id_vals.append(field) 
 
                 id_field.filter.list = id_vals
-                if config.settings.id_field in id_vals:
-                    id_field.value = config.settings.id_field
+                if settings.id_field in id_vals:
+                    id_field.value = settings.id_field
         return
 
     def updateMessages(self, parameters):
@@ -1073,7 +1076,7 @@ class ExportAllelesInSpace(object):
         id_field.direction = 'Input'
         id_field.datatype = dt.format('Field')
         id_field.parameterDependencies=[input_features.name]
-        id_field.value = config.settings.id_field
+        id_field.value = settings.id_field
 
         # Where_Clause
         where_clause = arcpy.Parameter()

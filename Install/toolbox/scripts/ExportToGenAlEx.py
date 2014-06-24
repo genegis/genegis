@@ -48,6 +48,8 @@ from collections import OrderedDict
 import utils
 import config
 
+settings = config.settings()
+
 def main(input_features=None, id_field=None, where_clause='', order_by=None, 
         output_name=None, mode='toolbox'):
 
@@ -55,10 +57,10 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
     if id_field is not None:
         primary_id = id_field
     else:
-        primary_id = config.settings.id_field
+        primary_id = settings.id_field
 
     # set mode based on how script is called.
-    config.settings.mode = mode
+    settings.mode = mode
     add_output = arcpy.env.addOutputsToMap
     arcpy.env.addOutputsToMap = True
 
@@ -151,12 +153,12 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
     desc = arcpy.Describe(input_features)
     sr = desc.spatialReference
     if sr.type == 'Projected':
-        loc_a = config.settings.x_coord
-        loc_b = config.settings.y_coord
+        loc_a = settings.x_coord
+        loc_b = settings.y_coord
     if sr.type == 'Geographic':
         # geographic data expected to be (lat, lon)
-        loc_a = config.settings.y_coord
-        loc_b = config.settings.x_coord
+        loc_a = settings.y_coord
+        loc_b = settings.x_coord
     
     writer.writerow([primary_id, order_by] + loci_labels + ['', loc_a, loc_b])
     utils.msg("Header info written to text file")

@@ -12,11 +12,12 @@ import time
 # local imports
 import utils
 import config
+settings = config.settings()
 
 def formatDate(input_date):
     return input_date.strftime("%Y-%m-%d %H:%M:%S"). replace(" ", "T")
 
-def main(input_fc=None, output_csv=None, mode=config.settings.mode):
+def main(input_fc=None, output_csv=None, mode=settings.mode):
 
     if not arcpy.Exists(input_fc):
         utils.msg("Input, {} doesn't exist.".format(input_fc))

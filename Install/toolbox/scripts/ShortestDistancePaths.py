@@ -23,8 +23,9 @@ import sys
 import utils
 import config
 import time
+settings = config.settings()
 
-def main(input_fc=None, output_fc=None, closest=False, mode=config.settings.mode):
+def main(input_fc=None, output_fc=None, closest=False, mode=settings.mode):
     
     # convert 'closest' string value
     closest_count = ""

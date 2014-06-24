@@ -15,9 +15,10 @@ from collections import OrderedDict
 # local imports
 import utils
 import config
+settings = config.settings()
 
 def main(input_fc=None, dist_unit=None, matrix_type=None, \
-        output_matrix=None, force_cpp=False, mode=config.settings.mode):
+        output_matrix=None, force_cpp=False, mode=settings.mode):
    
     # does the input fc exist?
     if not arcpy.Exists(input_fc):

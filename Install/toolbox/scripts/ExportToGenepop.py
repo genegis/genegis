@@ -37,6 +37,7 @@ from datetime import datetime
 # local imports
 import utils
 import config
+settings = config.settings()
 
 def normalize(allele):
     val = str(allele)
@@ -45,7 +46,7 @@ def normalize(allele):
     return val
 
 def main(input_features=None, where_clause=None, order_by=None,  output_name=None,
-         mode=config.settings.mode):
+         mode=settings.mode):
 
     utils.msg("Executing ExportToGenepop.")
 
@@ -79,7 +80,7 @@ def main(input_features=None, where_clause=None, order_by=None,  output_name=Non
         sql_clause = (None, "ORDER BY {0} ASC".format(order_by))
 
         # query the input_features in ascending order; filtering as needed
-        selected_columns = [config.settings.id_field, order_by] + loci.columns
+        selected_columns = [settings.id_field, order_by] + loci.columns
         if haplotypes.defined:
             selected_columns += [haplotypes.column]
 
