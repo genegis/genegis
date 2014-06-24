@@ -401,14 +401,21 @@ class SetKey(object):
         input_features.parameterType = 'Required'
         input_features.datatype = dt.format('Feature Class')
 
-        # interpolate values
+        # primary identification column
         id_field = arcpy.Parameter()
         id_field.name = u'Primary_Identification_Column'
         id_field.displayName = 'Primary Identification Column'
         id_field.direction = 'Input'
         id_field.parameterType = 'Required'
         id_field.datatype = dt.format('String')
-        return [input_features, id_field]
+        # overwrite enabled
+        overwrite = arcpy.Parameter()
+        overwrite.name = 'Allow_Overwrite'
+        overwrite.displayName = 'Allow Overwrite'
+        overwrite.direction = 'Input'
+        overwrite.parameterType = 'Required'
+        overwrite.datatype = dt.format('Boolean')
+        return [input_features, id_field, overwrite]
 
     def isLicensed(self):
         return True
@@ -416,25 +423,42 @@ class SetKey(object):
     def updateParameters(self, parameters):
         input_features = parameters[self.cols['input_features']]
         id_field = parameters[self.cols['id_field']]
+        overwrite = parameters[self.cols['overwrite']]
+
+        settings = config.settings()
+        # we're on our initial run, populate
+        if not input_features.altered:
+            if arcpy.Exists(settings.fc_path):
+                input_features.value = settings.fc_path
+
+        if not id_field.altered:
+            if settings.id_field is not None:
+                id_field.value = settings.id_field
+
+        if not overwrite.altered:
+            if settings.overwrite is not None:
+                if bool(settings.overwrite):
+                    overwrite.value = settings.overwrite
 
         # if we have a feature class, update the possible 'ID' columns.
         if input_features.valueAsText is not None:
             with open(config.log_path, 'a') as log:
-                log.write("{}:SetKey: input_features: {}, id_field: {}.".format(
-                    sys.argv[0], input_features.valueAsText, id_field.valueAsText))
+                log.write("SetKey: input_features: {}, id_field: {}, overwrite: {}.\n".format(
+                        input_features.valueAsText, id_field.valueAsText, \
+                        overwrite.valueAsText))
                 
                 id_vals = []
                 for field in [f.name for f in arcpy.ListFields(input_features.valueAsText)]:
                     if re.search('_id$', field, re.IGNORECASE) or \
-                            field in config.settings.identification_columns:
+                            field in settings.identification_columns:
                         id_vals.append(field) 
 
                 id_field.filter.list = id_vals
-                if config.settings.id_field in id_vals:
-                    id_field.value = config.settings.id_field
+                if not id_field.altered:
+                    id_field.value = settings.id_field
         else:
             selected = selected_layer()
-            if arcpy.exists(selected):
+            if arcpy.Exists(selected):
                 input_features.value = selected
 
         return
@@ -444,7 +468,17 @@ class SetKey(object):
 
     def execute(self, parameters, messages):
         # update the settings based on the users' selections.
-        pass
+        input_features = parameters[self.cols['input_features']].valueAsText
+        id_field = parameters[self.cols['id_field']].valueAsText
+        overwrite = parameters[self.cols['overwrite']].valueAsText
+        settings = config.settings()
+
+        if not input_features == settings.fc_path:
+            config.update('fc_path', input_features)
+        if not id_field == settings.id_field:
+            config.update('id_field', id_field)
+        if not overwrite == settings.overwrite:
+            config.update('overwrite', overwrite)
 
 class ExtractRasterByPoints(object):
     def __init__(self):
