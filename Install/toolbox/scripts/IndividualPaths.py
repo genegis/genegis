@@ -10,14 +10,11 @@ import time
 
 settings = config.settings()
 
-#def main(selected_pts=None, source_fc=None, output_name=None, mode='toolbox'):
-def main(source_fc=None, where_clause=None, id_field=None, output_name=None, mode='toolbox'):
+def main(input_fc=None, where_clause=None, id_field=None, output_name=None, mode='toolbox'):
 
     # try to set the id based on input, otherwise go off of the config.
-    if id_field is not None:
-        primary_id = id_field
-    else:
-        primary_id = settings.id_field
+    if id_field is None:
+        id_field = settings.id_field
 
     # set mode based on how script is called.
     settings.mode = mode
@@ -27,11 +24,11 @@ def main(source_fc=None, where_clause=None, id_field=None, output_name=None, mod
     arcpy.env.overwriteOutput = settings.overwrite
 
     # get the spatial reference of input
-    desc = arcpy.Describe(selected_pts)
+    desc = arcpy.Describe(input_fc)
     sr = desc.spatialReference
 
-    # get list of Inividual_IDs from selected_pts
-    with arcpy.da.SearchCursor(source_fc, id_field) as cur:
+    # get list of Inividual_IDs from input_fc
+    with arcpy.da.SearchCursor(input_fc, id_field) as cur:
         # write cursor to a list
         all_ids = [row[0] for row in cur if row[0] is not None]
 
@@ -79,7 +76,7 @@ def main(source_fc=None, where_clause=None, id_field=None, output_name=None, mod
     #sql_where = 'Individual_ID IN ' + str(individuals)
     sql_order = (None, 'ORDER BY "{}", "Date_Formatted"'.format(id_field))
     explode = False
-    with arcpy.da.SearchCursor(source_fc, fields, where_clause, sr, explode,
+    with arcpy.da.SearchCursor(input_fc, fields, where_clause, sr, explode,
             sql_order) as id_cursor:
         row = id_cursor.next()
         # store first row values
@@ -130,14 +127,13 @@ def main(source_fc=None, where_clause=None, id_field=None, output_name=None, mod
     # TODO: apply symbology?
     
     # restore add outputs state
-    arcpy.env.addOutputsToMap = add_outputs
+    arcpy.env.addOutputsToMap = add_output
 
 # when executing as a standalone script get parameters from sys
 if __name__ == '__main__':
     # Defaults when no configuration is provided
     defaults_tuple = (
-        ('selected_pts', "C:\\geneGIS\\WorkingFolder\\geneGISv8.gdb\\Selection"),
-        ('source_fc', "C:\\geneGIS\\WorkingFolder\\geneGISv8.gdb\\Encounter"),
+        ('input_fc', "C:\\geneGIS\\WorkingFolder\\geneGISv8.gdb\\Encounter"),
         ('output_name', "TestPath")
     )
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)

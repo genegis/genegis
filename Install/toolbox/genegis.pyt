@@ -1337,20 +1337,20 @@ class MakeIndividualPaths(object):
         self.canRunInBackground = False
         self.category = "Analysis"
         self.cols = {
-            'selected_pts': 0,
-            'source_fc': 1,
+            'input_fc': 0,
+            'where_clause': 1,
             'id_field': 2,
             'output_name': 3
         }
 
     def getParameterInfo(self):
         # Data source
-        source_fc = arcpy.Parameter()
-        source_fc.name = u'Source_Feature_Class'
-        source_fc.displayName = u'Source features (to link with selected individuals)'
-        source_fc.direction = 'Input'
-        source_fc.parameterType = 'Required'
-        source_fc.datatype = dt.format('Feature Layer')
+        input_fc = arcpy.Parameter()
+        input_fc.name = u'Source_Feature_Class'
+        input_fc.displayName = u'Source features (to link with selected individuals)'
+        input_fc.direction = 'Input'
+        input_fc.parameterType = 'Required'
+        input_fc.datatype = dt.format('Feature Layer')
 
         # Where_Clause
         where_clause = arcpy.Parameter()
@@ -1377,27 +1377,27 @@ class MakeIndividualPaths(object):
         output_name.parameterType = 'Required'
         output_name.datatype = dt.format('String')
 
-        return [source_fc, where_clause, id_field, output_name]
+        return [input_fc, where_clause, id_field, output_name]
 
     def isLicensed(self):
         return True
 
     def updateParameters(self, parameters):
-        source_fc = parameters[self.cols['source_fc']]
+        input_fc = parameters[self.cols['input_fc']]
         id_field = parameters[self.cols['id_field']]
         output_name = parameters[self.cols['output_name']]
-        if source_fc.altered:
+        if input_fc.altered:
             if output_name.altered is False:
                 desc = arcpy.Describe(source_fc.value)
                 # path is set, regardless if this is a layer or a fully specified path
-                source_fc_path = desc.path
-                if source_fc_path is not None: 
-                    output_name.value = os.path.join(source_fc_path, "Paths")
+                input_fc_path = desc.path
+                if input_fc_path is not None: 
+                    output_name.value = os.path.join(input_fc_path, "Paths")
 
         # if we have a feature class, update the possible 'ID' columns.
-        if source_fc.valueAsText is not None:
+        if input_fc.valueAsText is not None:
             id_vals = []
-            for field in [f.name for f in arcpy.ListFields(source_fc.valueAsText)]:
+            for field in [f.name for f in arcpy.ListFields(input_fc.valueAsText)]:
                 if re.search('_id$', field, re.IGNORECASE) or \
                         field in settings.identification_columns:
                     id_vals.append(field) 
@@ -1414,7 +1414,7 @@ class MakeIndividualPaths(object):
         from scripts import IndividualPaths
 
         IndividualPaths.main(
-            source_fc=parameters[0].valueAsText,
+            input_fc=parameters[0].valueAsText,
             where_clause=parameters[1].valueAsText,
             id_field=parameters[2].valueAsText,
             output_name=parameters[2].valueAsText)

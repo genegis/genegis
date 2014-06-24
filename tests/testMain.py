@@ -4,6 +4,7 @@ import unittest
 
 import arcpy
 import csv
+import datetime
 import gzip
 import hashlib
 import zipfile
@@ -18,7 +19,8 @@ utils.addLocalPaths(import_paths)
 
 from tempdir import TempDir
 from scripts import ClassifiedImport, DistanceMatrix, ShortestDistancePaths, \
-        ExtractRasterValuesToPoints, ExportToGenAlEx, ExportToSRGD, ExportToAIS
+        ExtractRasterValuesToPoints, ExportToGenAlEx, ExportToSRGD, ExportToAIS, \
+        IndividualPaths
 
 # A GDB for our test results
 class CoreFGDB(object):
@@ -403,6 +405,47 @@ class TestShortestDistancePaths(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.shape_fn):
             arcpy.Delete_management(self.shape_fn)
+
+class TestIndividualPaths(unittest.TestCase):
+    """Individual paths -- make a set of paths for selected individuals."""
+
+    def setUp(self):
+        self.input_fc = fgdb.input_fc_mem
+        self.output_fc = os.path.join(fgdb.path, 'Test_IndividualPaths')
+
+    def testShortestDistancePathsAvailable(self, method=IndividualPaths):
+        self.assertTrue('main' in vars(method))
+
+    def testShortestDistancePathsRun(self, method=IndividualPaths):
+        parameters = {
+            'input_fc': self.input_fc,
+            'output_name': self.output_fc,
+        }
+        method.main(mode='script', **parameters)
+
+        self.assertTrue(arcpy.Exists(self.output_fc))
+
+        # test that a sample value matches expected values
+        output_columns = [f.name for f in arcpy.ListFields(self.output_fc)]
+        fields = ('Individual_ID', 'From_Point', 'To_Point', 'StartDate', 'EndDate', 
+                'Distance_km')
+
+        with arcpy.da.SearchCursor(self.output_fc, fields) as cursor:
+            (iid, from_pt, to_pt, start_date, end_date, dist) = cursor.next()
+            self.assertEqual(iid, 115)
+            self.assertEqual(from_pt, 16)
+            self.assertEqual(to_pt, 17)
+            self.assertEqual(start_date, datetime.datetime(2004, 2, 20, 8, 49))
+            self.assertEqual(end_date, datetime.datetime(2004, 2, 20, 9, 15))
+            self.assertEqual(dist, 0.0)
+
+        arcpy.Delete_management(self.output_fc)
+        self.assertFalse(arcpy.Exists(self.output_fc))
+
+    def testToolboxImport(self):
+        self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
+        self.assertTrue('MakeIndividualPaths' in vars(self.toolbox))
+
 
 class TestExtractRasterValuesToPoints(unittest.TestCase):
 
