@@ -37,7 +37,7 @@ def main(source_fc=None, where_clause=None, id_field=None, output_name=None, mod
 
     # eliminate duplicate IDs
     indiv_sort = sorted(set(all_ids))
-    #format list for a SQL WHERE clause
+    # format list for a SQL WHERE clause
     individuals = tuple(indiv_sort)
 
     out_path = os.path.dirname(output_name)
@@ -75,13 +75,12 @@ def main(source_fc=None, where_clause=None, id_field=None, output_name=None, mod
     ins_cursor = arcpy.da.InsertCursor(layer, f_names)
 
     # open search cursor to find all Encounters for the identified individuals
-    fields = ["OBJECTID", "SHAPE@XY", "Individual_ID", "Date_Formatted"]
+    fields = ["OBJECTID", "SHAPE@XY", id_field, "Date_Formatted"]
     #sql_where = 'Individual_ID IN ' + str(individuals)
-    sql_order = (None, 'ORDER BY "Individual_ID", "Date_Formatted"')
-    sql_where = ""
+    sql_order = (None, 'ORDER BY "{}", "Date_Formatted"'.format(id_field))
     explode = False
-    with arcpy.da.SearchCursor(source_fc, fields, sql_where, sr, explode,
-                                sql_order) as id_cursor:
+    with arcpy.da.SearchCursor(source_fc, fields, where_clause, sr, explode,
+            sql_order) as id_cursor:
         row = id_cursor.next()
         # store first row values
         from_id = row[0]

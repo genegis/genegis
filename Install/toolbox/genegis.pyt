@@ -1305,18 +1305,11 @@ class MakeIndividualPaths(object):
         self.cols = {
             'selected_pts': 0,
             'source_fc': 1,
-            'output_name': 2
+            'id_field': 2,
+            'output_name': 3
         }
 
     def getParameterInfo(self):
-        # Input Features
-        selected_pts = arcpy.Parameter()
-        selected_pts.name = u'Selected_Feature_Class'
-        selected_pts.displayName = u'Selected Individuals'
-        selected_pts.direction = 'Input'
-        selected_pts.parameterType = 'Required'
-        selected_pts.datatype = dt.format('Feature Layer')
-
         # Data source
         source_fc = arcpy.Parameter()
         source_fc.name = u'Source_Feature_Class'
@@ -1324,6 +1317,23 @@ class MakeIndividualPaths(object):
         source_fc.direction = 'Input'
         source_fc.parameterType = 'Required'
         source_fc.datatype = dt.format('Feature Layer')
+
+        # Where_Clause
+        where_clause = arcpy.Parameter()
+        where_clause.name = u'Where_Clause'
+        where_clause.displayName = u'Where Clause'
+        where_clause.parameterType = 'Optional'
+        where_clause.direction = 'Output'
+        where_clause.datatype = dt.format('SQL Expression')
+        where_clause.parameterDependencies= [source_fc.name]
+
+        # primary identification column
+        id_field = arcpy.Parameter()
+        id_field.name = u'Primary_Identification_Column'
+        id_field.displayName = 'Primary Identification Column'
+        id_field.direction = 'Input'
+        id_field.parameterType = 'Required'
+        id_field.datatype = dt.format('String')
 
         # Output feature name
         output_name = arcpy.Parameter()
@@ -1333,13 +1343,14 @@ class MakeIndividualPaths(object):
         output_name.parameterType = 'Required'
         output_name.datatype = dt.format('String')
 
-        return [selected_pts, source_fc, output_name]
+        return [source_fc, where_clause, id_field, output_name]
 
     def isLicensed(self):
         return True
 
     def updateParameters(self, parameters):
         source_fc = parameters[self.cols['source_fc']]
+        id_field = parameters[self.cols['id_field']]
         output_name = parameters[self.cols['output_name']]
         if source_fc.altered:
             if output_name.altered is False:
@@ -1348,6 +1359,18 @@ class MakeIndividualPaths(object):
                 source_fc_path = desc.path
                 if source_fc_path is not None: 
                     output_name.value = os.path.join(source_fc_path, "Paths")
+
+        # if we have a feature class, update the possible 'ID' columns.
+        if source_fc.valueAsText is not None:
+            id_vals = []
+            for field in [f.name for f in arcpy.ListFields(source_fc.valueAsText)]:
+                if re.search('_id$', field, re.IGNORECASE) or \
+                        field in settings.identification_columns:
+                    id_vals.append(field) 
+
+            id_field.filter.list = id_vals
+            if settings.id_field in id_vals:
+                id_field.value = settings.id_field
         return
 
     def updateMessages(self, parameters):
@@ -1357,6 +1380,7 @@ class MakeIndividualPaths(object):
         from scripts import IndividualPaths
 
         IndividualPaths.main(
-            selected_pts=parameters[0].valueAsText,
-            source_fc=parameters[1].valueAsText,
+            source_fc=parameters[0].valueAsText,
+            where_clause=parameters[1].valueAsText,
+            id_field=parameters[2].valueAsText,
             output_name=parameters[2].valueAsText)
