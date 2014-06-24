@@ -29,11 +29,13 @@ class CoreFGDB(object):
         self.dir_path = self.d.name
         self.name = 'test_genegis'
         self.path = os.path.join(self.dir_path, "%s.gdb" % self.name)
-        self.input_fc = os.path.join(self.path, "test_csv_spatial")
+        self.input_fc = os.path.join(self.path, "test_spatial")
+        self.input_fc_mem = 'in_memory/test_spatial'
 
         # populate the feature with valid data
         self.create_feature()
-
+        self.feature_to_mem()
+ 
     def create_feature(self):                
         # create a spatial table to use for testing.
         ClassifiedImport.main(input_table=consts.test_csv_doc, 
@@ -43,6 +45,9 @@ class CoreFGDB(object):
                 identification=consts.id_columns, location=consts.loc_columns, 
                 other=consts.other_columns, mode='script')
         return
+
+    def feature_to_mem(self):
+        arcpy.CopyFeatures_management(self.input_fc, self.input_fc_mem)
 
 fgdb = CoreFGDB()
 
@@ -120,9 +125,6 @@ class TestQuotedMultilineInput(unittest.TestCase):
         # include comment field in 'other' fields.
         other_columns = "Region;Comment"
 
-        # clean up from any past runs
-        arcpy.Delete_management(self.output_fc)
-
         method.main(input_table=consts.test_csv_with_comment_field, 
                 sr=None, output_loc=fgdb.dir_path, 
                 output_gdb=fgdb.name, output_fc=self.output_fc,
@@ -150,7 +152,7 @@ class TestClassifiedImport(unittest.TestCase):
     """ Test importing a sample SRGD file to a geodatabase."""
 
     def setUp(self):
-        self.output_fc = os.path.join(fgdb.path, "test_csv_spatial")
+        self.output_fc = os.path.join(fgdb.path, "test_classified_import_spatial")
 
     def testClassifiedImportAvailable(self, method=ClassifiedImport):
         self.assertTrue('main' in vars(method))
@@ -189,7 +191,7 @@ class TestClassifiedImportFullDataset(unittest.TestCase):
     """ Test importing a full sample dataset to a geodatabase."""
 
     def setUp(self):
-        self.output_fc = os.path.join(fgdb.path, "test_csv_spatial")
+        self.output_fc = os.path.join(fgdb.path, "test_full_import_spatial")
         self.temp_srgd = os.path.join(fgdb.dir_path, "SRGD_export.csv")
 
     def testClassifiedImportAvailable(self, method=ClassifiedImport):
@@ -228,10 +230,6 @@ class TestClassifiedImportFullDataset(unittest.TestCase):
             self.assertEqual(oid, 1316)
             self.assertEqual(hap_ev1, 123)
 
-        # delete our temp srgd file (extracted from source)
-        os.remove(self.temp_srgd)
-        self.assertFalse(os.path.exists(self.temp_srgd))
-
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
         self.assertTrue('ClassifiedImport' in vars(self.toolbox))
@@ -248,17 +246,14 @@ class TestDistanceMatrix(unittest.TestCase):
     """ Test the distance matrix on our small sample data."""
 
     def setUp(self):
-        self.input_fc = fgdb.input_fc
-        self.input_full_fc = consts.test_fgdb_fc
+        self.input_fc = fgdb.input_fc_mem
         self.output_dists = os.path.join(consts.data_path, 'Test_DistanceMatrix')
 
     def geographiclibDistances(self, input_fc):
         # Calculate a "reference" distance matrix using geographiclib.
         # This will be used to check the output of DistanceMatrix.py.
-        input_fc_mem = 'in_memory/input_fc'
-        arcpy.CopyFeatures_management(input_fc, input_fc_mem)
         WGS84 = arcpy.SpatialReference('WGS 1984')
-        cursor = arcpy.da.SearchCursor(input_fc_mem, ['OID@', 'SHAPE@XY'],
+        cursor = arcpy.da.SearchCursor(input_fc, ['OID@', 'SHAPE@XY'],
                                        spatial_reference=WGS84)
         points = {}
         for row in cursor:
@@ -337,11 +332,11 @@ class TestDistanceMatrix(unittest.TestCase):
 
          # first, gather up our geographiclib based distance matrix
         ref_dists = self.geographiclibDistances(self.input_fc)
-        
+       
         # all the actual assertions happen within the comparison function
         self.compareDistances(ref_dists, self.output_dists)
 
-    def testDistanceMatrixRunFull(self, method=DistanceMatrix):
+    def testDistanceMatrixRunArcObjects(self, method=DistanceMatrix):
         parameters = {
             'input_fc': self.input_fc,
             'dist_unit': 'Kilometers', 
@@ -372,7 +367,7 @@ class TestShortestDistancePaths(unittest.TestCase):
         a shapefile output."""
 
     def setUp(self):
-        self.input_fc = fgdb.input_fc
+        self.input_fc = fgdb.input_fc_mem
         self.output_fc = os.path.join(fgdb.dir_path, 'Test_ShortestDistancePaths')
         self.shape_fn = "{}.shp".format(self.output_fc)
 
@@ -412,7 +407,7 @@ class TestShortestDistancePaths(unittest.TestCase):
 class TestExtractRasterValuesToPoints(unittest.TestCase):
 
     def setUp(self):
-        self.input_fc = fgdb.input_fc
+        self.input_fc = fgdb.input_fc_mem
         self.input_full_fc = consts.test_fgdb_fc
         self.input_raster = consts.test_fgdb_raster
         self.raster_col = 'R_etopo1_downsampled_clipped'
@@ -423,46 +418,41 @@ class TestExtractRasterValuesToPoints(unittest.TestCase):
 
     def testExtractRasterValuesToPointsNoInterpRun(self, \
             method=ExtractRasterValuesToPoints):
-
         # do this computation on an in-memory dataset,
         # we don't want to modify the source data.
-        input_fc_mem = 'in_memory/input_fc'
-        arcpy.CopyFeatures_management(self.input_fc, input_fc_mem)
-        desc = arcpy.Describe(input_fc_mem)
+        desc = arcpy.Describe(self.input_fc)
         self.assertEqual(desc.dataType, 'FeatureClass')
         parameters = {
             'input_raster': self.input_raster,
-            'selected_layer': input_fc_mem,
+            'selected_layer': self.input_fc,
             'interpolate': False
         }
         method.main(mode='script', **parameters)
       
-        columns = [f.name for f in arcpy.ListFields(input_fc_mem)]
+        columns = [f.name for f in arcpy.ListFields(self.input_fc)]
         self.assertTrue(self.raster_col in columns)
 
-        with arcpy.da.SearchCursor(input_fc_mem, self.raster_col) as cursor:
+        with arcpy.da.SearchCursor(self.input_fc, self.raster_col) as cursor:
             raster_value = cursor.next()[0]
-            self.assertEqual(raster_value, -25)
+            self.assertEqual(raster_value, -15)
 
     def testExtractRasterValuesToPointsInterpRun(self, \
             method=ExtractRasterValuesToPoints):
         # do this computation on an in-memory dataset,
         # we don't want to modify the source data.
-        input_fc_mem = 'in_memory/input_fc'
-        arcpy.CopyFeatures_management(self.input_fc, input_fc_mem)
-        desc = arcpy.Describe(input_fc_mem)
+        desc = arcpy.Describe(self.input_fc)
         self.assertEqual(desc.dataType, 'FeatureClass')
         parameters = {
             'input_raster': self.input_raster,
-            'selected_layer': input_fc_mem,
+            'selected_layer': self.input_fc,
             'interpolate': True
         }
         method.main(mode='script', **parameters)
       
-        columns = [f.name for f in arcpy.ListFields(input_fc_mem)]
+        columns = [f.name for f in arcpy.ListFields(self.input_fc)]
         self.assertTrue(self.raster_col in columns)
 
-        with arcpy.da.SearchCursor(input_fc_mem, self.raster_col) as cursor:
+        with arcpy.da.SearchCursor(self.input_fc, self.raster_col) as cursor:
             raster_value = cursor.next()[0]
             self.assertEqual(raster_value, -15)
 
@@ -476,7 +466,7 @@ class TestExtractRasterValuesToPoints(unittest.TestCase):
 class TestExportToSRGD(unittest.TestCase):
 
     def setUp(self):
-        self.input_fc = fgdb.input_fc
+        self.input_fc = fgdb.input_fc_mem
         self.output_csv = os.path.join(fgdb.dir_path, 'to_srgd.csv')
 
     def testExportToSRGDAvailable(self, method=ExportToSRGD):
@@ -516,7 +506,7 @@ class TestExportToSRGD(unittest.TestCase):
 class TestExportToAIS(unittest.TestCase):
 
     def setUp(self):
-        self.input_features= fgdb.input_fc
+        self.input_features = fgdb.input_fc_mem
         self.output_coords = os.path.join(fgdb.dir_path, 'coords.txt')
         self.output_genetics = os.path.join(fgdb.dir_path, 'genetics.txt')
 
