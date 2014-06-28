@@ -51,7 +51,7 @@ if geodesic_cpp_fn is not None:
     input_fc_fullpath = os.path.join(desc.path, desc.file)
 
     utils.msg("Loaded high-performance geodesic calculations, running...")
-    returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix, 1)
+    returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix, 1, 1)
     if returncode == -1:
         utils.msg("Cannot open the output file.", mtype='error')
     elif returncode == -2:

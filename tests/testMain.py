@@ -273,7 +273,7 @@ class TestDistanceMatrix(unittest.TestCase):
                     ref_dists[from_fid][to_fid] = dist
         return ref_dists
 
-    def compareDistances(self, ref_dists, output_dists):
+    def compareDistances(self, ref_dists, output_dists, sep=','):
         """
         Sanity checks for the distance matrix:
          1. It must exist
@@ -289,7 +289,7 @@ class TestDistanceMatrix(unittest.TestCase):
         self.assertTrue(arcpy.Exists(output_dists))
         with open(output_dists, 'rU') as outfile:
             for i, line in enumerate(outfile):
-                row = line.strip().split(',')
+                row = line.strip().split(sep)
                 # Sanity check 2
                 if i == 0:
                     self.assertListEqual(map(int, row[1:]), range(1, len(row)))
@@ -326,8 +326,8 @@ class TestDistanceMatrix(unittest.TestCase):
         parameters = {
             'input_fc': self.input_fc,
             'dist_unit': 'Kilometers',
-            'matrix_type': 'Square',
-            'output_matrix': self.output_dists,
+            'matrix_type': 'square',
+            'output_matrix': self.output_dists
         }
 
         method.main(mode='script', **parameters)
@@ -342,9 +342,9 @@ class TestDistanceMatrix(unittest.TestCase):
         parameters = {
             'input_fc': self.input_fc,
             'dist_unit': 'Kilometers', 
-            'matrix_type': 'Square',
+            'matrix_type': 'square',
             'force_cpp': True, # force our ArcObjects code to execute
-            'output_matrix': self.output_dists,
+            'output_matrix': self.output_dists
         }
 
         method.main(mode='script', **parameters)
@@ -354,6 +354,30 @@ class TestDistanceMatrix(unittest.TestCase):
         
         # all the actual assertions happen within the comparison function
         self.compareDistances(ref_dists, self.output_dists)
+
+    def testDistanceMatrixRunArcObjectsSpagedi(self, method=DistanceMatrix):
+        parameters = {
+            'input_fc': self.input_fc,
+            'dist_unit': 'Kilometers', 
+            'matrix_type': 'spagedi',
+            'force_cpp': True, # force our ArcObjects code to execute
+            'output_matrix': self.output_dists
+        }
+
+        method.main(mode='script', **parameters)
+
+        with open(self.output_dists, 'rU') as dists:
+            lines = dists.readlines()
+            header = lines[0].split("\t")
+            self.assertEqual(len(header), 19)
+            self.assertEqual(header[0], 'M17')
+
+        # first, gather up our geographiclib based distance matrix
+        ref_dists = self.geographiclibDistances(self.input_fc)
+        
+        # all the actual assertions happen within the comparison function
+        self.compareDistances(ref_dists, self.output_dists, '\t')
+
 
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)

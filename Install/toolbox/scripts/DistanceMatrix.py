@@ -33,9 +33,7 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, \
         utils.msg("Output units: {0}".format(dist_unit))
         (unit_abbr, unit_name, unit_factor) = config.distance_units[dist_unit]
 
-    if matrix_type == 'Square':
-        is_spagedi = False
-    elif matrix_type == 'Square (SPAGeDi formatted)':
+    if matrix_type == 'spagedi':
         is_spagedi = True
     else:
         is_spagedi = False
@@ -45,19 +43,15 @@ def main(input_fc=None, dist_unit=None, matrix_type=None, \
  
     geodesic_cpp_fn = load_geodesic_dll()
     if geodesic_cpp_fn is not None and row_count > 200 or force_cpp:
-        if is_spagedi:
-            utils.msg("Unable to compute SPAGeDi compatible matrix for " + \
-                    "large datasets, to be fixed.")
-            sys.exit()
-
         desc = arcpy.Describe(input_fc)
         # To run this, we need the full path to the input, not just the 
         # short one handed to us.
         input_fc_fullpath = os.path.join(desc.path, desc.file)
 
-        # TODO: handle SPAGeDi output in the C++ version.
         utils.msg("Loaded high-performance geodesic calculations, running...")
-        returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix, unit_factor)
+        returncode = geodesic_cpp_fn(input_fc_fullpath, output_matrix, 
+                unit_factor, is_spagedi)
+
         if returncode == -1:
             utils.msg("Cannot open the output file.", mtype='error')
         elif returncode == -2:
@@ -94,7 +88,7 @@ def load_geodesic_dll():
             utils.msg(msg, mtype='error', exception=e)
             return None
         fn = loaded_dll.CalculatePairwiseGeodesicDistances
-        fn.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_double]
+        fn.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_double, ctypes.c_bool]
         fn.restype = ctypes.c_int
     return fn                
 

@@ -8,7 +8,7 @@
 extern "C"
 {
 
-    __declspec(dllexport) int CalculatePairwiseGeodesicDistances(const wchar_t* feature_class, const wchar_t* output_file, const double unit_factor)
+    __declspec(dllexport) int CalculatePairwiseGeodesicDistances(const wchar_t* feature_class, const wchar_t* output_file, const double unit_factor, const bool is_spagedi)
     {
         std::ofstream fs(output_file);
         if (!fs)
@@ -165,24 +165,34 @@ extern "C"
                 matrix[i][j] = distance;
             }
         }
+        // two possible output formats: 'standard' and 'SPAGeDi'.
+
+		const char sep = is_spagedi ? '\t' : ',';
+
+		if (is_spagedi) {
+			fs << "M" << featureCount << sep;
+		}
 
         // write header row
         for (int h = 0; h < featureCount; h++)
         {
-            fs << "," << oids[h];
+            fs << sep << oids[h];
         }
         fs << std::endl;
 
         // write out results
         for (int i = 0; i < featureCount; i++) 
         {
-            fs << oids[i] << ",";
+            fs << oids[i] << sep;
             for (int j = 0; j < featureCount - 1; j++) 
             {
-                fs << std::fixed << matrix[i][j] << ",";
+                fs << std::fixed << matrix[i][j] << sep;
             }
             fs << std::fixed << matrix[i][featureCount - 1] << std::endl;
         }
+		if (is_spagedi) {
+			fs << "END" << std::endl;
+		}
         fs.close();
         return 0;
     }

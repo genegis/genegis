@@ -681,11 +681,16 @@ class DistanceMatrix(object):
 
     def execute(self, parameters, messages):
         from scripts import DistanceMatrix
+        
+        if parametesr[2].valueAsText == 'Square (SPAGeDi formatted)':
+            matrix_type = 'spagedi'
+        else:
+            matrix_type = 'square'
 
         DistanceMatrix.main(
             input_fc=parameters[0].valueAsText,
             dist_unit=parameters[1].valueAsText,
-            matrix_type=parameters[2].valueAsText,
+            matrix_type=matrix_type,
             output_matrix=parameters[3].valueAsText)
 
 """ Genetic Analysis """
