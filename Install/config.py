@@ -4,6 +4,8 @@ import warnings
 import ConfigParser
 from collections import OrderedDict
 
+# TODO this really should be a class.
+
 class AttrDict(dict):
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
@@ -12,7 +14,7 @@ class AttrDict(dict):
 def update(key, value):
     config = ConfigParser.SafeConfigParser()
     config.read(config_path)
-    config.set(app_name, key, value)
+    config.set(app_name, key, str(value))
     with open(config_path, 'wb') as config_file:
         config.write(config_file)
 
@@ -31,7 +33,15 @@ def create(config_path):
 def load(config_path, app_name):
     cfg = ConfigParser.SafeConfigParser()
     cfg.read(config_path)
-    return AttrDict(cfg._sections[app_name])
+    # read out attributes
+    attrs = AttrDict(cfg._sections[app_name])
+    # check for any missing values. This can happen
+    # when we add variables.
+    for (var, val) in config_vars.items():
+        if var not in attrs.keys():
+            update(var, val)
+            attrs[var] = val 
+    return attrs
 
 def create_config(app_name):
     """
