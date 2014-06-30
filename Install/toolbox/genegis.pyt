@@ -1365,7 +1365,7 @@ class MakeIndividualPaths(object):
         where_clause.parameterType = 'Optional'
         where_clause.direction = 'Output'
         where_clause.datatype = dt.format('SQL Expression')
-        where_clause.parameterDependencies= [source_fc.name]
+        where_clause.parameterDependencies = [input_fc.name]
 
         # primary identification column
         id_field = arcpy.Parameter()
