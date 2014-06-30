@@ -71,6 +71,9 @@ class Loci(object):
         return loci.keys()
 
 class Haplotype(object):
+    """ Track our Haplotype column, and provide a few useful summarizations
+        of the data contained within."""
+
     def __init__(self, input_features):
         self.column = self.haplotype_column(input_features)
         self.defined = self.defined()
@@ -79,6 +82,7 @@ class Haplotype(object):
         self.indexed = self.haplotype_indexed()
 
     def haplotype_column(self, input_features):
+        """ The column name containin the haplotype data."""
         haplo_col = None
         haplo_expr = '^haplotype|dlphap$'
         for field in [f.name for f in arcpy.ListFields(input_features)]:
@@ -88,12 +92,14 @@ class Haplotype(object):
         return haplo_col
 
     def defined(self):
+        """ Is a haplotype column defined?"""
         defined = False
         if self.column is not None:
             defined = True
         return defined
 
     def haplotype_data(self, input_features):
+        """ Counts of each haplotype type."""
         # TODO: this currently just looks up all the data,
         # better yet we should generate a table on import and keep it updated
         # when edits are made to the input table.
@@ -104,9 +110,11 @@ class Haplotype(object):
         return haplo_data
 
     def haplotype_names(self):
+        """ Distinct haplotype names found."""
         return self.counter.keys()
 
     def haplotype_indexed(self):
+        """ A mapping of haplotype name to integers for interchange."""
         # map sorted haplotypes to integers; equivalent to Shepherd's approach
         sorted_cols = sorted(self.names)
         # 1: A+, 2: E1, ...
