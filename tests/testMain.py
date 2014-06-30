@@ -8,6 +8,7 @@ import datetime
 import gzip
 import hashlib
 import zipfile
+from collections import Counter
 from geographiclib.geodesic import Geodesic
 
 import consts
@@ -20,7 +21,7 @@ utils.addLocalPaths(import_paths)
 from tempdir import TempDir
 from scripts import ClassifiedImport, DistanceMatrix, ShortestDistancePaths, \
         ExtractRasterValuesToPoints, ExportToGenAlEx, ExportToSRGD, ExportToAIS, \
-        IndividualPaths
+        IndividualPaths, utils as script_utils
 
 # A GDB for our test results
 class CoreFGDB(object):
@@ -146,6 +147,52 @@ class TestQuotedMultilineInput(unittest.TestCase):
     def tearDown(self):
         # clean up
         arcpy.Delete_management(self.output_fc)
+
+# class tests
+class TestLoci(unittest.TestCase):
+
+    def setUp(self):
+        self.input_features = consts.test_fgdb_fc
+        self.loci_names = ['Ev1', 'Ev104', 'Ev14', 'Ev21', 'Ev37', 'Ev94', 'Ev96',
+                'GATA28', 'GATA417', 'GT211', 'GT23', 'GT575', 'rw4_10', 'rw48']
+        self.loci_columns = ['L_Ev1_1', 'L_Ev1_2', 'L_Ev104_1', 'L_Ev104_2', 'L_Ev14_1',
+                'L_Ev14_2', 'L_Ev21_1', 'L_Ev21_2', 'L_Ev37_1', 'L_Ev37_2', 'L_Ev94_1',
+                'L_Ev94_2', 'L_Ev96_1', 'L_Ev96_2', 'L_GATA28_1', 'L_GATA28_2',
+                'L_GATA417_1', 'L_GATA417_2', 'L_GT211_1', 'L_GT211_2',
+                'L_GT23_1', 'L_GT23_2', 'L_GT575_1', 'L_GT575_2', 'L_rw4_10_1',
+                'L_rw4_10_2', 'L_rw48_1', 'L_rw48_2']
+
+    def testClassExists(self):
+        self.assertTrue('Loci' in dir(script_utils))
+
+    def testLociClass(self):
+        loci = script_utils.Loci(self.input_features)
+
+        self.assertTrue(loci.defined)
+        self.assertEqual(loci.names, self.loci_names)
+        self.assertEqual(loci.count, 14)
+        self.assertEqual(loci.columns, self.loci_columns)
+
+class TestHaplotype(unittest.TestCase):
+
+    def setUp(self):
+        self.input_features = consts.test_fgdb_fc
+        self.haplotype_names = ['F1', 'F2', 'F3', 'F4', 'F6', 'F8', 'E10', 'E13',
+                'A-', 'A3', 'E5', 'E4', 'E7', 'E6', 'E1', 'A+', 'E3']
+        self.counts = Counter({'F2': 57, 'E1': 34, 'E4': 12, 'A+': 9, 'F3': 8, 'E13': 7,
+                'F1': 6, 'A3': 5, 'E6': 4, 'F6': 3, 'E10': 3, 'A-': 3, 'E5': 3, 'E7': 2,
+                'E3': 2, 'F4': 1, 'F8': 1})
+
+    def testClassExists(self):
+        self.assertTrue('Haplotype' in dir(script_utils))
+
+    def testLociClass(self):
+        haplotype = script_utils.Haplotype(self.input_features)
+
+        self.assertTrue(haplotype.defined)
+        self.assertEqual(haplotype.column, 'Haplotype')
+        self.assertEqual(haplotype.names, self.haplotype_names)
+        self.assertEqual(haplotype.counter, self.counts)
 
 # import tests
 #
