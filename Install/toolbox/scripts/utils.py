@@ -33,6 +33,7 @@ class Loci(object):
         self.names = self.loci_names()
 
     def loci_fields(self, input_features):
+        """ Actual loci field names, e.g. L_Ev23_1."""
         # map loci fields to values
         loci = collections.OrderedDict()
         # optional: use this to also filter if the genetic columns are up to date
@@ -48,17 +49,24 @@ class Loci(object):
                     loci[name] = [field] 
         return loci
 
+    def defined(self):
+        """ Are any loci fields defined?"""
+        defined = False
+        if self.column is not None:
+            defined = True
+        return defined
+
     def loci_count(self):
-        # distinct loci count
-        loci = self.fields
-        return len(loci.keys())
+        """ Number of distinct loci containing fields."""
+        return len(self.fields.keys())
 
     def loci_columns(self):
-        # all column names containing loci      
+        """ All column names containing loci."""
         loci = self.fields
         return list(itertools.chain(*loci.values())) 
 
     def loci_names(self):
+        """ Loci names, e.g. Ev23."""
         loci = self.fields
         return loci.keys()
 
