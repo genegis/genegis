@@ -38,14 +38,14 @@ class CoreFGDB(object):
         # populate the feature with valid data
         self.create_feature()
         self.feature_to_mem()
- 
-    def create_feature(self):                
+
+    def create_feature(self):
         # create a spatial table to use for testing.
-        ClassifiedImport.main(input_table=consts.test_csv_doc, 
-                sr=None, output_loc=self.dir_path, 
+        ClassifiedImport.main(input_table=consts.test_csv_doc,
+                sr=None, output_loc=self.dir_path,
                 output_gdb=self.name, output_fc=self.input_fc,
-                genetic=consts.genetic_columns, 
-                identification=consts.id_columns, location=consts.loc_columns, 
+                genetic=consts.genetic_columns,
+                identification=consts.id_columns, location=consts.loc_columns,
                 other=consts.other_columns, mode='script')
         return
 
@@ -55,7 +55,7 @@ class CoreFGDB(object):
 fgdb = CoreFGDB()
 
 # data-oriented tests
-# 
+#
 class TestExampleData(unittest.TestCase):
     """ Ensure we can find our expected test datasets."""
 
@@ -100,14 +100,14 @@ class TestExampleData(unittest.TestCase):
         desc = arcpy.Describe(consts.test_fgdb_fc)
         self.assertEqual(desc.dataType, 'FeatureClass')
         self.assertEqual(desc.shapeType, 'Point')
-    
+
         fc_fields = [f.name for f in desc.fields]
         for field in fields:
             self.assertTrue(field in fc_fields)
-    
+
     def testFgdbRaster(self):
         self.assertTrue(arcpy.Exists(consts.test_fgdb_raster))
-    
+
         desc = arcpy.Describe(consts.test_fgdb_raster)
         self.assertEqual(desc.dataType, 'RasterDataset')
         self.assertEqual(desc.format, 'FGDBR')
@@ -128,10 +128,10 @@ class TestQuotedMultilineInput(unittest.TestCase):
         # include comment field in 'other' fields.
         other_columns = "Region;Comment"
 
-        method.main(input_table=consts.test_csv_with_comment_field, 
-                sr=None, output_loc=fgdb.dir_path, 
+        method.main(input_table=consts.test_csv_with_comment_field,
+                sr=None, output_loc=fgdb.dir_path,
                 output_gdb=fgdb.name, output_fc=self.output_fc,
-                genetic=consts.genetic_columns, identification=consts.id_columns, 
+                genetic=consts.genetic_columns, identification=consts.id_columns,
                 location=consts.loc_columns, other=consts.other_columns, mode='script')
         self.assertTrue(os.path.exists(fgdb.path))
 
@@ -142,8 +142,8 @@ class TestQuotedMultilineInput(unittest.TestCase):
         expected_value = 'This is a test comment field, which contains, among ' + \
                 'other things, "quoted statements", which are useful for testing ' + \
                 'the CSV parser.\n Now, a new line.'
-        self.assertTrue(res[0] == expected_value) 
-        
+        self.assertTrue(res[0] == expected_value)
+
     def tearDown(self):
         # clean up
         arcpy.Delete_management(self.output_fc)
@@ -210,11 +210,11 @@ class TestClassifiedImport(unittest.TestCase):
         # clean up from any past runs
         arcpy.Delete_management(fgdb.path)
 
-        method.main(input_table=consts.test_csv_doc, 
-                sr=None, output_loc=fgdb.dir_path, 
+        method.main(input_table=consts.test_csv_doc,
+                sr=None, output_loc=fgdb.dir_path,
                 output_gdb=fgdb.name, output_fc=self.output_fc,
-                genetic=consts.genetic_columns, 
-                identification=consts.id_columns, location=consts.loc_columns, 
+                genetic=consts.genetic_columns,
+                identification=consts.id_columns, location=consts.loc_columns,
                 other=consts.other_columns, mode='script')
         self.assertTrue(os.path.exists(fgdb.path))
 
@@ -253,10 +253,10 @@ class TestClassifiedImportFullDataset(unittest.TestCase):
                 w.write(f.read())
 
         method.main(input_table=self.temp_srgd,
-                sr=None, output_loc=fgdb.dir_path, 
+                sr=None, output_loc=fgdb.dir_path,
                 output_gdb=fgdb.name, output_fc=self.output_fc,
-                genetic=consts.genetic_columns, 
-                identification=consts.id_columns, location=consts.loc_columns, 
+                genetic=consts.genetic_columns,
+                identification=consts.id_columns, location=consts.loc_columns,
                 other=consts.other_columns, mode='script')
         self.assertTrue(os.path.exists(fgdb.path))
 
@@ -331,7 +331,7 @@ class TestDistanceMatrix(unittest.TestCase):
          6. There should be the same number of rows and columns
          7. The distances should be the same as reported by geographiclib
          8. The matrix must be symmetric (distances a->b & b->a must be equal)
-        """ 
+        """
         # Sanity check 1
         self.assertTrue(arcpy.Exists(output_dists))
         with open(output_dists, 'rU') as outfile:
@@ -365,7 +365,7 @@ class TestDistanceMatrix(unittest.TestCase):
             ref_matrix = [dist.values() for row, dist in ref_dists.items()]
             ref_matrix_transpose = map(list, zip(*ref_matrix))
             self.assertEqual(ref_matrix, ref_matrix_transpose)
- 
+
     def testDistanceMatrixAvailable(self, method=DistanceMatrix):
         self.assertTrue('main' in vars(method))
 
@@ -381,14 +381,14 @@ class TestDistanceMatrix(unittest.TestCase):
 
          # first, gather up our geographiclib based distance matrix
         ref_dists = self.geographiclibDistances(self.input_fc)
-       
+
         # all the actual assertions happen within the comparison function
         self.compareDistances(ref_dists, self.output_dists)
 
     def testDistanceMatrixRunArcObjects(self, method=DistanceMatrix):
         parameters = {
             'input_fc': self.input_fc,
-            'dist_unit': 'Kilometers', 
+            'dist_unit': 'Kilometers',
             'matrix_type': 'square',
             'force_cpp': True, # force our ArcObjects code to execute
             'output_matrix': self.output_dists
@@ -398,14 +398,14 @@ class TestDistanceMatrix(unittest.TestCase):
 
          # first, gather up our geographiclib based distance matrix
         ref_dists = self.geographiclibDistances(self.input_fc)
-        
+
         # all the actual assertions happen within the comparison function
         self.compareDistances(ref_dists, self.output_dists)
 
     def testDistanceMatrixRunArcObjectsSpagedi(self, method=DistanceMatrix):
         parameters = {
             'input_fc': self.input_fc,
-            'dist_unit': 'Kilometers', 
+            'dist_unit': 'Kilometers',
             'matrix_type': 'spagedi',
             'force_cpp': True, # force our ArcObjects code to execute
             'output_matrix': self.output_dists
@@ -421,7 +421,7 @@ class TestDistanceMatrix(unittest.TestCase):
 
         # first, gather up our geographiclib based distance matrix
         ref_dists = self.geographiclibDistances(self.input_fc)
-        
+
         # all the actual assertions happen within the comparison function
         self.compareDistances(ref_dists, self.output_dists, '\t')
 
@@ -498,7 +498,7 @@ class TestIndividualPaths(unittest.TestCase):
 
         # test that a sample value matches expected values
         output_columns = [f.name for f in arcpy.ListFields(self.output_fc)]
-        fields = ('Individual_ID', 'From_Point', 'To_Point', 'StartDate', 'EndDate', 
+        fields = ('Individual_ID', 'From_Point', 'To_Point', 'StartDate', 'EndDate',
                 'Distance_km')
 
         with arcpy.da.SearchCursor(self.output_fc, fields) as cursor:
@@ -542,7 +542,7 @@ class TestExtractRasterValuesToPoints(unittest.TestCase):
             'interpolate': False
         }
         method.main(mode='script', **parameters)
-      
+
         columns = [f.name for f in arcpy.ListFields(self.input_fc)]
         self.assertTrue(self.raster_col in columns)
 
@@ -562,7 +562,7 @@ class TestExtractRasterValuesToPoints(unittest.TestCase):
             'interpolate': True
         }
         method.main(mode='script', **parameters)
-      
+
         columns = [f.name for f in arcpy.ListFields(self.input_fc)]
         self.assertTrue(self.raster_col in columns)
 
@@ -595,21 +595,21 @@ class TestExportToSRGD(unittest.TestCase):
             'output_csv': self.output_csv
         }
         method.main(mode='script', **parameters)
-     
+
         self.assertTrue(os.path.exists(self.output_csv))
 
         expected_header = ['Sample_ID', 'Individual_ID', 'Latitude', 'Longitude',
-                'Date_Time', 'Region', 'Sex', 'Haplotype', 'L_GATA417_1', 
-                'L_GATA417_2', 'L_Ev37_1', 'L_Ev37_2', 'L_Ev96_1', 'L_Ev96_2', 
+                'Date_Time', 'Region', 'Sex', 'Haplotype', 'L_GATA417_1',
+                'L_GATA417_2', 'L_Ev37_1', 'L_Ev37_2', 'L_Ev96_1', 'L_Ev96_2',
                 'L_rw4_10_1', 'L_rw4_10_2', 'Date_formatted']
-        expected_data = ['1', '100', '11.0253', '-85.9176', '2005-03-09T11:39:00', 
+        expected_data = ['1', '100', '11.0253', '-85.9176', '2005-03-09T11:39:00',
                 'Cent America', 'M', 'E1', '206', '222', '208', '220', '157', '163',
                 '196', '198', '2005-03-09T11:39:00']
 
         with open(self.output_csv, 'r') as f:
             csv_in = csv.reader(f)
             header = csv_in.next()
-            self.assertEqual(header, expected_header) 
+            self.assertEqual(header, expected_header)
             row = csv_in.next()
             self.assertEqual(row, expected_data)
 
@@ -650,8 +650,8 @@ class TestExportToAIS(unittest.TestCase):
         with open(self.output_genetics, 'r') as f:
             csv_in = csv.reader(f)
             header = csv_in.next()
-            self.assertEqual(header, ['4']) 
-            self.assertEqual(csv_in.next(), 
+            self.assertEqual(header, ['4'])
+            self.assertEqual(csv_in.next(),
                     ['100', '206\\222', '208\\220', '157\\163', '196\\198'])
 
     def testToolboxImport(self):
@@ -661,7 +661,7 @@ class TestExportToAIS(unittest.TestCase):
 class TestExportToGenAlEx(unittest.TestCase):
 
     def setUp(self):
-        self.input_fc = consts.test_fgdb_tiny_fc 
+        self.input_fc = consts.test_fgdb_tiny_fc
         self.output_name = os.path.join(fgdb.dir_path, 'to_genalex.csv')
 
     def testExportToGenAlExAvailable(self, method=ExportToGenAlEx):
@@ -712,7 +712,7 @@ class TestAddin(unittest.TestCase):
         self.names = self.addin_zip.namelist()
 
     def testToolboxIsPresent(self):
-        toolbox_path = 'Install/toolbox/genegis.pyt' 
+        toolbox_path = 'Install/toolbox/genegis.pyt'
         self.assertIn(toolbox_path, self.names)
 
     def testClassifedImportIsPresent(self):
