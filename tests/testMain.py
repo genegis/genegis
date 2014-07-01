@@ -21,7 +21,7 @@ utils.addLocalPaths(import_paths)
 from tempdir import TempDir
 from scripts import ClassifiedImport, DistanceMatrix, ShortestDistancePaths, \
         ExtractRasterValuesToPoints, ExportToGenAlEx, ExportToSRGD, ExportToAIS, \
-        IndividualPaths, utils as script_utils
+        ExportToGenepop, IndividualPaths, utils as script_utils
 
 # A GDB for our test results
 class CoreFGDB(object):
@@ -702,6 +702,63 @@ class TestExportToGenAlEx(unittest.TestCase):
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
         self.assertIn('ExportGenAlEx', vars(self.toolbox))
+
+class TestExportToGenepop(unittest.TestCase):
+
+    def setUp(self):
+        self.input_fc = fgdb.input_fc
+        #self.input_fc = consts.test_fgdb_tiny_fc
+        self.output_name = os.path.join(fgdb.dir_path, 'to_genepop.txt')
+
+    def testExportToGenepopAvailable(self, method=ExportToGenepop):
+        self.assertIn('main', vars(method))
+
+    def testExportToGenepop(self, method=ExportToGenepop):
+        desc = arcpy.Describe(self.input_fc)
+        self.assertEqual(desc.dataType, 'FeatureClass')
+        parameters = {
+            'input_features': self.input_fc,
+            'id_field': 'Individual_ID',
+            'order_by': 'Region',
+            'output_name': self.output_name,
+        }
+
+        method.main(mode='script', **parameters)
+        self.assertTrue(os.path.exists(self.output_name))
+
+        columns = ['GATA417', 'Ev37', 'Ev96', 'rw4_10', 'Haplotype']
+        with open(self.output_name, 'rU') as f:
+            lines = f.readlines()
+
+            # this file is plain text, has a comment row, a header row, then a
+            # line labeled 'pop' followed by all records of that population, with
+            # another 'pop' designating a new population.
+            for (i, raw_line) in enumerate(lines):
+                line = raw_line.strip()
+                # header
+                if i == 1:
+                    self.assertEqual(line.split(","), columns)
+
+                # first 'pop' identified
+                if i == 2:
+                    self.assertEqual(line.lower(), 'pop')
+
+                # first data row
+                if i == 3:
+                    row = line.split(",")
+                    label = row[0].strip()
+                    self.assertEqual(label, '100-CA_OR')
+
+                    expected = ['206222', '208220', '157163', '196198', '002']
+                    data = row[1].strip().split(" ")
+                    # all values but last are diploid loci
+                    for (j, col) in enumerate(data):
+                        self.assertEqual(col, expected[j])
+
+    def testToolboxImport(self):
+        self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
+        self.assertIn('ExportGenepop', vars(self.toolbox))
+
 
 # this test should be run after a fresh run of makeaddin to rebuild the .esriaddin file.
 class TestAddin(unittest.TestCase):
