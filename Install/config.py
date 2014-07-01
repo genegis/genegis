@@ -73,7 +73,7 @@ config_vars = {
     'mode': 'toolbox', # default mode for tools. Expect tools to be run from a 
                       # Python toolbox, not the command-line by default.
     'log_level': 'error',
-    'overwrite': False
+    'overwrite': True
 }
 # We've initialized all our configuration settings, now let's serialize them
 # in a usable spot.
