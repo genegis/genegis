@@ -10,7 +10,7 @@ test_csv_with_comment_field = os.path.join(data_path, 'SRGD_with_comment_field.c
 test_csv_full = os.path.join(data_path, 'SRGD_export_demodna.csv.gz')
 
 # A File Geodatabasee with an imported SRGD file and test raster.
-test_fgdb = os.path.join(data_path, 'test.gdb')
+test_fgdb = os.path.join(data_path, 'example.gdb')
 test_fgdb_fc = os.path.join(test_fgdb, 'SRGD_export_demodna_Spatial')
 test_fgdb_tiny_fc = os.path.join(test_fgdb, 'SRGD_tiny_Spatial')
 test_fgdb_raster = os.path.join(test_fgdb, 'etopo1_downsampled_clipped')
