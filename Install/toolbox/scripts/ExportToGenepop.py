@@ -41,23 +41,24 @@ settings = config.settings()
 
 def normalize(allele):
     val = str(allele)
-    if allele == '' or int(allele) == 0:
+    if allele == '' or allele is None or int(allele) == 0:
         val = "000"
     return val
 
-def main(input_features=None, where_clause=None, order_by=None,  output_name=None,
-         mode=settings.mode):
+def main(input_features=None, id_field=None, where_clause=None, order_by=None, 
+        output_name=None, mode=settings.mode):
 
     utils.msg("Executing ExportToGenepop.")
+
+    # try to set the id based on input, otherwise go off of the config.
+    if id_field is not None:
+        primary_id = id_field
+    else:
+        primary_id = settings.id_field
 
     # Create and open the Output text file to which the data will be written
     with open(output_name, "w") as output_file:
         utils.msg("Opened `%s` for writing." % output_name)
-
-        # Create the Genepop header information required for the text file.
-        comment_line = "Export to Genepop from the feature class `{input_features}`. Export occurred on {datetime}.\n".format(input_features=input_features, datetime=datetime.now())
-        output_file.write(comment_line)
-        utils.msg("comment: %s" % comment_line)
 
         # Find our Loci columns. 
         loci = utils.Loci(input_features)
@@ -71,7 +72,8 @@ def main(input_features=None, where_clause=None, order_by=None,  output_name=Non
             # map haplotypes to a two digit number with leading zero
             haplo_formatted = [(h[1], "{0:03d}".format(h[0])) for h in haplotypes.indexed]
             haplo_formatted_label = [" to ".join(h) for h in haplo_formatted] 
-            utils.msg("Haplotype mappings used: {0}".format(", ".join(haplo_formatted_label)))
+            utils.msg("Haplotype mappings used: {0}".format(
+                    ", ".join(haplo_formatted_label)))
             haplo_lookup = dict(haplo_formatted)
             # if no haplotype is found, leave an empty value
             haplo_lookup[None] = '000'
@@ -84,7 +86,8 @@ def main(input_features=None, where_clause=None, order_by=None,  output_name=Non
         if haplotypes.defined:
             selected_columns += [haplotypes.column]
 
-        rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause, "", "", sql_clause)
+        rows = arcpy.da.SearchCursor(input_features, selected_columns, 
+                where_clause, "", "", sql_clause)
         current_group = ""
 
         for (i, row) in enumerate(rows):
@@ -93,8 +96,15 @@ def main(input_features=None, where_clause=None, order_by=None,  output_name=Non
             label = "{0}-{1},".format(id_field, group).replace(" ", "_")
             
             if i == 0:
+                # Create the Genepop header information required for the text file.
+                comment_line = "geneGIS: Export to Genepop from the feature class " + \
+                        "`{input_features}`.".format(input_features=input_features) + \
+                        " Export occurred on {datetime}.\n".format(datetime=datetime.now())
+                utils.msg("Comment: %s" % comment_line)
+
                 # write header row
-                header = "{0}{1}".format(" " * len(label), ",".join(loci.names))
+                header = comment_line
+                header += "{0}{1}".format(" " * len(label), ",".join(loci.names))
                 if haplotypes.defined:
                     header += ",{0}".format(haplotypes.column)
                 header += '\n'
@@ -117,5 +127,23 @@ def main(input_features=None, where_clause=None, order_by=None,  output_name=Non
                 haplo = row[-1]
                 result_row.append(haplo_lookup[haplo])
             output_file.write(" ".join(result_row) + "\n")
+
     utils.msg("Exported results saved to %s." % output_name)
-    time.sleep(4)
+
+    if mode == 'toolbox':
+        time.sleep(4)
+
+if __name__ == '__main__':
+    # Defaults when no configuration is provided
+    # TODO: change these to be test-based.
+    defaults_tuple = (
+        ('input_features', 
+        "C:\\geneGIS\\WorkingFolder\\test_20March.gdb\\SPLASH_Whales"),
+        ('id_field', 'Individual_ID'),
+        ('where_clause', "'Individual_ID' <> ''"),
+        ('order_by', 'Region'),
+        ('output_name',  "C:\\geneGIS\\WorkingFolder\\Genepop_Export.txt")
+    )
+
+    defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
+    main(mode='script', **defaults)

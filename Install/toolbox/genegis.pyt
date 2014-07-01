@@ -938,11 +938,13 @@ class ExportGenepop(object):
                 + ' more information see: \r\n\r\nhttp://genepop.curtin.edu.au/\r\n'
         self.canRunInBackground = False
         self.category = "Export"
+
         self.cols = {
             'input_features': 0,
-            'where_clause': 1,
-            'order_by': 2,
-            'output_name': 3
+            'id_field': 1,
+            'where_clause': 2,
+            'order_by': 3,
+            'output_name': 4
         }
 
     def getParameterInfo(self):
@@ -953,6 +955,14 @@ class ExportGenepop(object):
         input_features.parameterType = 'Required'
         input_features.direction = 'Input'
         input_features.datatype = dt.format('Feature Layer')
+
+        # Primary ID field.
+        id_field = arcpy.Parameter()
+        id_field.name = u'Primary_Identification_Field'
+        id_field.displayName = 'Primary Identification Field'
+        id_field.parameterType = 'Required'
+        id_field.direction = 'Input'
+        id_field.datatype = dt.format('String')
 
         # Where_Clause
         where_clause = arcpy.Parameter()
@@ -980,14 +990,34 @@ class ExportGenepop(object):
         output_name.direction = 'Output'
         output_name.datatype = dt.format('File')
 
-        return [input_features, where_clause, order_by, output_name]
+        return [input_features, id_field, where_clause, order_by, output_name]
 
     def isLicensed(self):
         return True
 
     def updateParameters(self, parameters):
+        input_features = parameters[self.cols['input_features']]
+        id_field = parameters[self.cols['id_field']]
         output_name = parameters[self.cols['output_name']]
+
+        # force the file extension to be .txt
         output_name.value = utils.set_file_extension(output_name, 'txt')
+
+        # if we have a feature class, update the possible 'ID' columns.
+        if input_features.valueAsText is not None:
+            with open(config.log_path, 'a') as log:
+                log.write("{}:ExportToGenepop: input_features: {}, id_field: {}.".format(
+                    sys.argv[0], input_features.valueAsText, id_field.valueAsText))
+                
+                id_vals = []
+                for field in [f.name for f in arcpy.ListFields(input_features.valueAsText)]:
+                    if re.search('_id$', field, re.IGNORECASE) or \
+                            field in settings.identification_columns:
+                        id_vals.append(field) 
+
+                id_field.filter.list = id_vals
+                if settings.id_field in id_vals:
+                    id_field.value = settings.id_field
         return
 
     def updateMessages(self, parameters):
@@ -1002,9 +1032,10 @@ class ExportGenepop(object):
         arcpy.env.addOutputsToMap  = False
         ExportToGenepop.main(
             input_features=parameters[0].valueAsText,
-            where_clause=parameters[1].valueAsText,
-            order_by=parameters[2].valueAsText,
-            output_name=parameters[3].valueAsText)
+            id_field=parameters[1].valueAsText,
+            where_clause=parameters[2].valueAsText,
+            order_by=parameters[3].valueAsText,
+            output_name=parameters[4].valueAsText)
         arcpy.env.addOutputsToMap  = add_output
     
 class ExportSpagedi(object):
