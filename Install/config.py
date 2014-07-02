@@ -73,8 +73,14 @@ config_vars = {
     'mode': 'toolbox', # default mode for tools. Expect tools to be run from a 
                       # Python toolbox, not the command-line by default.
     'log_level': 'error',
-    'overwrite': True
+    'overwrite': True,
+    'data_dir': os.path.abspath(os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            '../Data'))
 }
+# have to update afterward so data_dir is set.
+config_vars['example_gdb'] = os.path.join(config_vars['data_dir'], 'example.gdb')
+
 # We've initialized all our configuration settings, now let's serialize them
 # in a usable spot.
 

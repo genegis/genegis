@@ -129,12 +129,15 @@ def parameters_from_args(defaults_tuple=None, sys_args=None):
     """Provided a set of tuples for default values, return a list of mapped
        variables."""
     defaults = collections.OrderedDict(defaults_tuple)
-    if defaults_tuple is not None:
+    if defaults is not None:
         args = len(sys_args) - 1
         for i, key in enumerate(defaults.keys()):
             idx = i + 1
             if idx <= args:
                 defaults[key] = sys_args[idx]
+            else:
+                msg("Missing argument {}, using default `{}`".format(
+                        key, defaults[key]))
     return defaults
 
 def msg(output_msg, mtype='message', exception=None):

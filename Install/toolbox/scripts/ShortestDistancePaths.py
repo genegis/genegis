@@ -145,6 +145,7 @@ def main(input_fc=None, output_fc=None, closest=False, mode=settings.mode):
         # copy the final result back to disk.
         if output_fc_mem != output_fc:
             utils.msg("Writing results to disk...")
+            output_fc = os.path.abspath(output_fc)
             arcpy.CopyFeatures_management(output_fc_mem, output_fc)
 
         utils.msg("Created shortest distance paths successfully: {0}".format(output_fc))
@@ -162,26 +163,10 @@ def main(input_fc=None, output_fc=None, closest=False, mode=settings.mode):
 
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':
-
     # Defaults when no configuration is provided
-    # TODO: change these to be test-based.
-    input_fc = "in_memory/temp"
-    scriptloc = os.path.dirname(os.path.realpath(__file__))
-    output_fc = os.path.abspath(
-        os.path.join(scriptloc, os.path.pardir, os.path.pardir, 'TestOutputFC')
-    )
-    mxdpath = os.path.abspath(
-        os.path.join(scriptloc, os.path.pardir, 'genegis.mxd')
-    )
-    mxd = arcpy.mapping.MapDocument(mxdpath)
-    for lyr in arcpy.mapping.ListLayers(mxd):
-        if lyr.name == 'SRGD_example_Spatial':
-            arcpy.CopyFeatures_management(lyr, input_fc)
-            break
-    defaults = {
-        'input_fc': input_fc,
-        'output_fc': output_fc,
-    }
-    # defaults = utils.parameters_from_args(defaults_list, sys.argv)
+    defaults_tuple = (
+        ('input_fc', os.path.join(settings.example_gdb, "SRGD_example_Spatial")),
+        ('output_fc', "example_shortest_distance_paths.shp"),
+    ) 
+    defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(mode='script', **defaults)
-    arcpy.DeleteFeatures_management(input_fc)

@@ -193,15 +193,13 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
 
 if __name__ == '__main__':
     # Defaults when no configuration is provided
-    # TODO: change these to be test-based.
+    input_features = os.path.join(settings.example_gdb, "SRGD_example_Spatial")
     defaults_tuple = (
-        ('input_features', 
-        "C:\\geneGIS\\WorkingFolder\\test_20March.gdb\\SPLASH_Whales"),
+        ('input_features', input_features),
         ('id_field', 'Individual_ID'),
         ('where_clause', "'Individual_ID' <> ''"),
         ('order_by', 'Region'),
-        ('output_name',  "C:\\geneGIS\\WorkingFolder\\GenAlEx_Codominant_Export")
+        ('output_name',  "GenAlEx_Codominant_Export.csv")
     )
-
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(mode='script', **defaults)

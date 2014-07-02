@@ -183,23 +183,12 @@ def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi)
 
 # when executing as a standalone script get parameters from sys
 if __name__ == '__main__':
-
     # Defaults when no configuration is provided
-    # TODO: change these to be test-based.
-    input_fc = "in_memory/temp"
-    scriptloc = os.path.dirname(os.path.realpath(__file__))
-    mxdpath = os.path.abspath(os.path.join(scriptloc, os.path.pardir, 'genegis.mxd'))
-    mxd = arcpy.mapping.MapDocument(mxdpath)
-    for lyr in arcpy.mapping.ListLayers(mxd):
-        if lyr.name == 'SRGD_example_Spatial':
-            arcpy.CopyFeatures_management(lyr, input_fc)
-            break
-    defaults = {
-        'input_fc': input_fc,
-        'dist_unit': 'Kilometers',
-        'matrix_type': 'Square',
-        'output_matrix': "TestFC",
-    }
-    # defaults = utils.parameters_from_args(defaults_list, sys.argv)
+    defaults_tuple = (
+        ('input_fc', os.path.join(settings.example_gdb, "SRGD_example_Spatial")),
+        ('dist_unit', 'Kilometers'),
+        ('matrix_type', 'Square'),
+        ('output_matrix', 'example_distances.csv')
+    )
+    defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(mode='script', **defaults)
-    arcpy.DeleteFeatures_management(input_fc)

@@ -71,13 +71,11 @@ def main(input_raster=None, selected_layer=None, interpolate=None,
           
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':
-
     # Defaults when no configuration is provided
-    # TODO: change these to be test-based.
     defaults_tuple = (
-        ('input_table',
-        "C:\\geneGIS\\WorkingFolder\\SRGD_Photo_GeneSPLASH_CentAM_CA_OR_Feb12_v3.csv"),
-        ('sr', config.sr.exportToString()),
+        ('input_raster', os.path.join(settings.example_gdb, "etopop1_downsampled_clipped")),
+        ('selected_layer', os.path.join(settings.example_gdb, "SRGD_example_Spatial")),
+        ('interpolate', False)
     )
 
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)

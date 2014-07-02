@@ -70,7 +70,12 @@ def main(input_table=None, sr=None, output_loc=None,
     # First, create a geodatabase for all our future results.
     # TODO: can we generate this from a single value?
     gdb_path = os.path.abspath(os.path.join(output_loc, output_gdb + '.gdb'))
-    
+
+    # if the user is calling this from the command-line, they won't have necessarily
+    # entered a full path for the FC output. Infer it from the input instead.
+    if output_fc.lower().find('gdb') == -1:
+        output_fc =  os.path.join(gdb_path, output_fc)
+
     # check if we received a value spatial reference -- if not, use WGS84.
     if sr in ('', None):
         # default spatial reference can be redefined.
@@ -163,6 +168,9 @@ def formatDate(input_date):
 
     # Convert the table to a temporary spatial feature
     try:
+        if location is None:
+            raise Exception("Required location columns not set.")
+
         # A temporary XY Layer needed to create the feature class.
         # NOTE: This table is deleted when the script finishes
         temporary_layer = input_csv + '_xy_temp'
@@ -176,21 +184,22 @@ def formatDate(input_date):
         else:
             (y, x) = loc_parts[:2]
 
-        # Process: Make XY Event Layer.  This layer is temporary and will be 
+        # Process: Make XY Event Layer.  This layer is temporary and will be
         # deleted upon script completion.
-        # SYNTAX: arcpy.MakeXYEventLayer_management(table, in_x_field, 
+        # SYNTAX: arcpy.MakeXYEventLayer_management(table, in_x_field,
         #           in_y_field, out_layer, {spatial_reference}, {in_z_field})
         arcpy.MakeXYEventLayer_management(input_csv, x, y, temporary_layer, sr)
     except Exception as e:
         utils.msg("Error making XY Event Layer", mtype='error', exception=e)
         sys.exit()
-    
+
     utils.msg("XY event layer successfully created.")
-  
+
+
     # Copy our features to a permanent layer
     try:
         # for this step, overwrite any existing results
-        arcpy.env.overwriteOutput = settings.overwrite
+        arcpy.env.overwriteOutput = True
 
         # Process: Copy Features
         # SYNTAX: CopyFeatures_management (in_features, out_feature_class, {config_keyword}, {spatial_grid_1}, {spatial_grid_2}, {spatial_grid_3})
@@ -207,23 +216,31 @@ def formatDate(input_date):
     # addin environment, dump out the settings to our shared configuration file.
     try:
         config.update('fc_path', output_fc.strip())
-        config.update('x_coord', x) 
-        config.update('y_coord', y) 
+        config.update('x_coord', x)
+        config.update('y_coord', y)
 
-        var_types = {'identification': identification,
+        var_types = {
+                'identification': identification,
                 'genetic': genetic,
                 'location': location,
-                'other': other}
-    
+                'other': other
+        }
+
+        if identification is None:
+            raise Exception("Required Identification columns not entered.")
+
         # the first ID field should be used as the default key.
         id_cols = identification.split(";")
         id_field = id_cols[0]
         for (i, col) in enumerate(id_cols):
+            # FIXME this will always set individual_id to the primary key.
             if col.lower() == 'individual_id':
                 id_field = id_cols[i]
         config.update('id_field', id_field)
 
         for (var, val) in var_types.items():
+            if val is None:
+                val = ''
             config.update('%s_columns' % var, val.strip())
 
     except Exception as e:
@@ -244,17 +261,15 @@ def formatDate(input_date):
 if __name__=='__main__':
 
     # Defaults when no configuration is provided
-    # TODO: change these to be test-based.
     defaults_tuple = (
-        ('input_table',
-        "C:\\geneGIS\\WorkingFolder\\SRGD_Photo_GeneSPLASH_CentAM_CA_OR_Feb12_v3.csv"),
+        ('input_table', os.path.join(settings.data_dir, "SRGD_example.csv")),
         ('sr', config.sr.exportToString()),
-        ('output_loc', "C:\\geneGIS\\WorkingFolder"),
-        ('output_gdb', "PG_SPLASH_Subset2"),
+        ('output_loc', os.path.abspath(os.path.dirname(__file__))),
+        ('output_gdb', "example_import"),
         ('output_fc', "TestFC"),
         ('genetic', None),
-        ('identification', None),
-        ('location', None),
+        ('identification', "Individual_ID;Sample_ID"),
+        ('location', "Latitude;Longitude"),
         ('other', None)
     )
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)

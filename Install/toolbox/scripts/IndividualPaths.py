@@ -12,6 +12,8 @@ settings = config.settings()
 
 def main(input_fc=None, where_clause=None, id_field=None, output_name=None, mode='toolbox'):
 
+    # FIXME: only works on feature classes. should be able to output shapefiles.
+
     # try to set the id based on input, otherwise go off of the config.
     if id_field is None:
         id_field = settings.id_field
@@ -37,21 +39,18 @@ def main(input_fc=None, where_clause=None, id_field=None, output_name=None, mode
     # format list for a SQL WHERE clause
     individuals = tuple(indiv_sort)
 
-    out_path = os.path.dirname(output_name)
+    out_path = os.path.abspath(os.path.dirname(output_name))
     out_name = os.path.basename(output_name)
 
     geometry_type = 'POLYLINE'
     template = ""
     has_m = 'DISABLED'
     has_z = 'DISABLED'
+
     # create the new FeatureClass
-     
     layer = arcpy.CreateFeatureclass_management(out_path, out_name,
             geometry_type, template, has_m, has_z, sr)
-    if not arcpy.Exists(layer):
-        #utils.msg("Layer not created for some reason?")
-        #sys.exit()
-        pass
+
     # field list for insert cursor
     f_names = []
     f_names.append("SHAPE@")
@@ -133,8 +132,10 @@ def main(input_fc=None, where_clause=None, id_field=None, output_name=None, mode
 if __name__ == '__main__':
     # Defaults when no configuration is provided
     defaults_tuple = (
-        ('input_fc', "C:\\geneGIS\\WorkingFolder\\geneGISv8.gdb\\Encounter"),
-        ('output_name', "TestPath")
+        ('input_fc', os.path.join(settings.example_gdb, "SRGD_example_Spatial")),
+        ('where_clause', ''),
+        ('id_field', 'Individual_ID'),
+        ('output_name', os.path.join(settings.example_gdb, "example_individual_paths"))
     )
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(mode='script', **defaults)

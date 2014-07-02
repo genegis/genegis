@@ -64,11 +64,10 @@ def main(input_fc=None, output_csv=None, mode=settings.mode):
 
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':
-    input_fc = "C:\\geneGIS\\test.gdb\\test_Spatial"
-    output_csv = "C:\\geneGIS\\spagedi_export.txt"
+    # Defaults when no configuration is provided
     defaults_tuple = (
-        ('input_fc', input_fc),
-        ('output_csv',  output_csv),
+        ('input_fc', os.path.join(settings.example_gdb, "SRGD_example_Spatial")),
+        ('output_csv',  "example_SRGD_export.csv")
     )    
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(mode='script', **defaults)

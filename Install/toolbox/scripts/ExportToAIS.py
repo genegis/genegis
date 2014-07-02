@@ -7,6 +7,7 @@
 # Export data to the Alleles in Space format.
 
 import arcpy
+import os
 import sys
 import time
 from datetime import datetime
@@ -117,14 +118,12 @@ Coordinates are in {sr_name}, a {sr_type} coordinate system.""".format(
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':
     # Defaults when no configuration is provided
-    # TODO: change these to be test-based.
     defaults_tuple = (
-        ('input_features', "C:\\geneGIS\\test.gdb\\test_Spatial"),
+        ('input_features', os.path.join(settings.example_gdb, "SRGD_example_spatial")),
         ('id_field',  "Individual_ID"),
         ('where_clause', ""),
-        ('output_coords', ''),
-        ('output_genetics', '')
+        ('output_coords', 'coords.txt'),
+        ('output_genetics', 'genetics.txt')
     )
- 
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(mode='script', **defaults)

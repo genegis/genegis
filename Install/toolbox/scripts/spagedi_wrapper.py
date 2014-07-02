@@ -23,6 +23,8 @@ from scripts import utils
 from datatype import datatype
 dt = datatype.DataType()
 
+settings = config.settings()
+
 def error_handler(task=""):
     def decorate(task_func):
         @wraps(task_func)
@@ -198,13 +200,10 @@ def prepare(sauce):
     """
     if os.path.isfile(sauce['output_file']):
         os.remove(sauce['output_file'])
-    scriptloc = os.path.dirname(os.path.realpath(__file__))
-    mxdpath = os.path.abspath(os.path.join(scriptloc, os.path.pardir, 'genegis.mxd'))
-    mxd = arcpy.mapping.MapDocument(mxdpath)
-    for lyr in arcpy.mapping.ListLayers(mxd):
-        if lyr.name == 'SRGD_example_Spatial':
-            arcpy.CopyFeatures_management(lyr, sauce['input_fc'])
-            return sauce
+    # Use our simple example data layer.
+    input_fc = os.path.join(settings.example_gdb, "SRGD_example_Spatial")
+    arcpy.CopyFeatures_management(input_fc, sauce['input_fc'])
+    return sauce
 
 def spagedi_user_inputs(T, sequence, defaults):
     """
