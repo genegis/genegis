@@ -196,7 +196,7 @@ def parse_table(input_file):
     data = None
     dialect = None
     try:
-        with open(input_file, 'rb') as input_table:
+        with open(input_file, 'rU') as input_table:
             # sample the first 4k of the file
             sample = input_table.read(4096)
             sniffer = csv.Sniffer()
