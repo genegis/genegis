@@ -355,7 +355,7 @@ class ClassifiedImport(object):
                         modified_columns.append((orig_column, column))
                 modified_result = [" was modified to ".join(c) for c in modified_columns]
                 msg = "Headers were modified based on File Geodatabase field name" \
-                        + "restrictions:\n\n".join(modified_result)
+                        + " restrictions: \n\n{}".format("\n".join(modified_result))
                 parameters[0].setWarningMessage(msg)
         return
 
