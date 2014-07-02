@@ -4,18 +4,18 @@
 # Created by: Dori Dick
 #             College of Earth, Ocean and Atmospheric Sciences
 #             Oregon State Univeristy
-# 
-# Description: This script converts spatially reference genetic data from a 
-# simple flat file format to a Feature Class viewable in ArcGIS 10.  
 #
-# Required Inputs: Spatially referenced genetic data formatted according to 
-# the SRGD.csv file format. This data can be for indentifed individuals or 
+# Description: This script converts spatially reference genetic data from a
+# simple flat file format to a Feature Class viewable in ArcGIS 10.
+#
+# Required Inputs: Spatially referenced genetic data formatted according to
+# the SRGD.csv file format. This data can be for indentifed individuals or
 # for genetic samples.
 #
-# Optional Inputs: 
+# Optional Inputs:
 #   - If known, a spatial reference for the point data (recommended)
 #
-# Script Outputs: 
+# Script Outputs:
 #   - a new File Geodatabase
 #   - a new feature class located within the File Geodatabase
 #
@@ -62,10 +62,6 @@ def main(input_table=None, sr=None, output_loc=None,
     settings.mode = mode
     add_output = arcpy.env.addOutputsToMap
     arcpy.env.addOutputsToMap = True
-   
-   
-   
-   
 
     # First, create a geodatabase for all our future results.
     # TODO: can we generate this from a single value?
@@ -93,7 +89,7 @@ def main(input_table=None, sr=None, output_loc=None,
     except Exception as e:
         utils.msg("Error creating file geodatabase", mtype='error', exception=e)
         sys.exit()
-        
+
     # TODO: WE NEED TO DO A FULL CLASSIFICATION OF THE INPUT AND MANUALLY BUILD UP THE LAYER...
     # We'll have two columns per locus, need to import correctly
 
@@ -103,23 +99,23 @@ def main(input_table=None, sr=None, output_loc=None,
     # do we have a text-based file?
     file_type = utils.file_type(input_table)
     if file_type == 'Text':
-        # Generate a temporary copy of the input CSV which corrects it for 
+        # Generate a temporary copy of the input CSV which corrects it for
         # ArcGIS, stripping invalid column label characters.
         data_table = utils.validate_table(input_table)
 
         # TODO: use field mapping to handle the date-time field?
         utils.protect_columns(data_table, protected_map)
     else:
-        data_table = input_table 
+        data_table = input_table
 
     # write out our table, after additional validation.
     try:
         arcpy.env.overwriteOutput = settings.overwrite
-        utils.msg("overwrite set to {}".format(settings.overwrite)) 
- 
+        utils.msg("overwrite set to {}".format(settings.overwrite))
+
        # generate table name based on input name
         (label, ext) = os.path.splitext(os.path.basename(input_table))
-      
+
         # Validate label will produce a valid table name from our input file
         validated_label = arcpy.ValidateTableName(label)
 
@@ -132,16 +128,16 @@ def main(input_table=None, sr=None, output_loc=None,
             temp_dir = os.path.dirname(input_table)
             temp_path = os.path.join(temp_dir, data_table)
             os.remove(temp_path)
- 
+
     except Exception as e:
         utils.msg("Error converting table %s to GDB" % input_table, mtype='error', exception=e)
         sys.exit()
 
     input_csv = os.path.join(gdb_path, validated_label)
     utils.msg("Table successfully imported: \n %s" % input_csv)
-    fields = [f.name.lower() for f in arcpy.ListFields(input_csv)] 
+    fields = [f.name.lower() for f in arcpy.ListFields(input_csv)]
 
-    # intially, our date column is imported as text to prevent ArcGIS 
+    # intially, our date column is imported as text to prevent ArcGIS
     # from inadvertently munging it. Add a formatted date column.
     try:
         # TODO: make date field defined elsewhere.
@@ -174,7 +170,7 @@ def formatDate(input_date):
         # A temporary XY Layer needed to create the feature class.
         # NOTE: This table is deleted when the script finishes
         temporary_layer = input_csv + '_xy_temp'
-          
+
         # 'location', ArcGIS passes semicolon separated values
         loc_parts = location.split(";")
 
@@ -248,7 +244,7 @@ def formatDate(input_date):
         utils.msg(msg, mtype='error', exception=e)
         sys.exit()
 
-    # clean up: remove intermediate steps. 
+    # clean up: remove intermediate steps.
     try:
         arcpy.Delete_management(temporary_layer)
     except Exception as e:

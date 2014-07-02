@@ -19,7 +19,7 @@ try:
 except:
     """
     The config import above thows a warning in this case,
-    just swallow it here and let this script import, since most of 
+    just swallow it here and let this script import, since most of
     these utils don't depend on arcpy.
     """
     pass
@@ -46,7 +46,7 @@ class Loci(object):
                 if loci.has_key(name):
                     loci[name].append(field)
                 else:
-                    loci[name] = [field] 
+                    loci[name] = [field]
         return loci
 
     def defined(self):
@@ -63,7 +63,7 @@ class Loci(object):
     def loci_columns(self):
         """ All column names containing loci."""
         loci = self.fields
-        return list(itertools.chain(*loci.values())) 
+        return list(itertools.chain(*loci.values()))
 
     def loci_names(self):
         """ Loci names, e.g. Ev23."""
@@ -186,7 +186,7 @@ def file_type(filename):
         expected_type = known_types[ext]
     else:
         raise UnknownType
-    return expected_type 
+    return expected_type
 
 def parse_table(input_file):
     """ Parse a text table (usually CSV) determine its type,
@@ -196,11 +196,11 @@ def parse_table(input_file):
     data = None
     dialect = None
     try:
-        with open(input_file, 'rb') as input_table: 
+        with open(input_file, 'rb') as input_table:
             # sample the first 4k of the file
             sample = input_table.read(4096)
             sniffer = csv.Sniffer()
-        
+
             if not sniffer.has_header(sample):
                 # require the input to have a valid header
                 raise MissingCSVHeader
@@ -208,7 +208,7 @@ def parse_table(input_file):
                 dialect = sniffer.sniff(sample)
                 # reset reading
                 input_table.seek(0)
-                # for reading, rely on dialect parsing to correctly dermine 
+                # for reading, rely on dialect parsing to correctly dermine
                 # the input file's traits (e.g. proper quoting).
                 table = csv.reader(input_table, dialect=dialect)
 
@@ -218,7 +218,7 @@ def parse_table(input_file):
                 for row in table:
                     data.append(row)
     except Exception as e:
-        raise e        
+        raise e
     return (header, data, dialect)
 
 # TODO: ADD TEST CASES FOR:
@@ -227,7 +227,7 @@ def parse_table(input_file):
 
 def validate_table(input_file):
     (header, data, dialect) = parse_table(input_file)
-     
+
     # Handle multiple columns with the same name
     validated_header = []
     # Generate a list of columns which have duplicate names.
@@ -241,8 +241,8 @@ def validate_table(input_file):
             label = label + "_" + str(duplicate_positions[col])
             duplicate_positions[col] += 1
         validated_header.append(label)
-   
-    # set up output file name 
+
+    # set up output file name
     temp_dir = os.path.dirname(input_file)
     (label, ext) = os.path.splitext(os.path.basename(input_file))
 
@@ -274,8 +274,8 @@ def validate_column_label(column):
      - 64 character field names
      - can't use reserved words [http://support.microsoft.com/kb/286335]
 
-    Alternatively, can use ValidateFieldName for a similar effect, 
-    without the same fine-grained control: 
+    Alternatively, can use ValidateFieldName for a similar effect,
+    without the same fine-grained control:
       http://resources.arcgis.com/en/help/main/10.1/index.html#//018v00000060000000
     """
     INVALID_CHARS = '`~@#$%^&*()+=|\,<>?/{}.!’[]:;'
@@ -287,7 +287,7 @@ def validate_column_label(column):
     if not re.match('^[A-z]', column):
         column = 'genegis_' + column
 
-    # 'Field names are limited to 64 characters for both file and 
+    # 'Field names are limited to 64 characters for both file and
     # personal geodatabases.'
     if len(column) > 64:
         column = column[:63]
@@ -295,13 +295,13 @@ def validate_column_label(column):
     return column
 
 def protect_columns(input_table_name=None, protected_columns={}):
-    """ 
+    """
     Force data typing on columns using schema.ini to store the necessary
-    configuration. This prevents ArcGIS from trying to auto-detect the 
+    configuration. This prevents ArcGIS from trying to auto-detect the
     data type, which doesn't work for some of our input data, such as
     haplotypes, which it wants to treat as coordinate values.
     """
-        
+
     # input table directory
     input_dir = os.path.dirname(input_table_name)
 
@@ -311,7 +311,7 @@ def protect_columns(input_table_name=None, protected_columns={}):
     # open the relevant schema.ini file
     schema_path = os.path.join(input_dir, 'schema.ini')
 
-    # If it exists already, we want append. Don't use binary mode, let 
+    # If it exists already, we want append. Don't use binary mode, let
     # Python auto-conver the newlines.
     if os.path.exists(schema_path):
         mode = 'a+'
@@ -331,13 +331,13 @@ def protect_columns(input_table_name=None, protected_columns={}):
 
 def set_file_extension(param, ext):
     # make sure the output file name has the correct extension.
-    param_input = param.valueAsText 
+    param_input = param.valueAsText
     if param_input is not None:
         param_output = add_file_extension(param_input, ext)
     else:
-        param_output = param_input 
+        param_output = param_input
     return param_output
- 
+
 def add_file_extension(input_name, expected_ext):
     name_with_ext = input_name
     ext = expected_ext.lower()
