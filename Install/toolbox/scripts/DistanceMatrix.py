@@ -17,7 +17,7 @@ import utils
 import config
 settings = config.settings()
 
-def main(input_fc=None, dist_unit=None, matrix_type=None, \
+def main(input_fc=None, dist_unit="Kilometers", matrix_type="Square", \
         output_matrix=None, force_cpp=False, mode=settings.mode):
    
     # does the input fc exist?
