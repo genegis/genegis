@@ -320,7 +320,7 @@ class TestDistanceMatrix(unittest.TestCase):
                     ref_dists[from_fid][to_fid] = dist
         return ref_dists
 
-    def compareDistances(self, ref_dists, output_dists, sep=','):
+    def compareDistances(self, ref_dists, output_dists, is_spagedi=False):
         """
         Sanity checks for the distance matrix:
          1. It must exist
@@ -332,14 +332,24 @@ class TestDistanceMatrix(unittest.TestCase):
          7. The distances should be the same as reported by geographiclib
          8. The matrix must be symmetric (distances a->b & b->a must be equal)
         """
+
+        if is_spagedi:
+            sep = '\t'
+        else:
+            sep = ','
+
         # Sanity check 1
         self.assertTrue(arcpy.Exists(output_dists))
         with open(output_dists, 'rU') as outfile:
             for i, line in enumerate(outfile):
+                # SPAGeDi, end of the file
+                if line == 'END\n':
+                    continue
                 row = line.strip().split(sep)
                 # Sanity check 2
                 if i == 0:
-                    self.assertListEqual(map(int, row[1:]), range(1, len(row)))
+                    if not is_spagedi:
+                        self.assertListEqual(map(int, row[1:]), range(1, len(row)))
                 else:
                     try:
                         row = map(float, row)
@@ -358,7 +368,8 @@ class TestDistanceMatrix(unittest.TestCase):
                         row_i = int(row[0])
                         self.assertAlmostEqual(dist, ref_dists[row_i][j+1], 3)
             # Sanity check 6
-            self.assertEqual(i+1, len(row))
+            if not is_spagedi:
+                self.assertEqual(i+1, len(row))
             # Sanity check 8
             # (using reference matrix, which we already verified is the same
             # as the matrix calculated by DistanceMatrix.py, in check 7)
@@ -423,8 +434,7 @@ class TestDistanceMatrix(unittest.TestCase):
         ref_dists = self.geographiclibDistances(self.input_fc)
 
         # all the actual assertions happen within the comparison function
-        self.compareDistances(ref_dists, self.output_dists, '\t')
-
+        self.compareDistances(ref_dists, self.output_dists, True)
 
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
@@ -706,7 +716,7 @@ class TestExportToGenAlEx(unittest.TestCase):
 class TestExportToGenepop(unittest.TestCase):
 
     def setUp(self):
-        self.input_fc = fgdb.input_fc
+        self.input_fc = fgdb.input_fc_mem
         #self.input_fc = consts.test_fgdb_tiny_fc
         self.output_name = os.path.join(fgdb.dir_path, 'to_genepop.txt')
 
@@ -747,7 +757,7 @@ class TestExportToGenepop(unittest.TestCase):
                 if i == 3:
                     row = line.split(",")
                     label = row[0].strip()
-                    self.assertEqual(label, '100-CA_OR')
+                    self.assertEqual(label, '100-Cent_America')
 
                     expected = ['206222', '208220', '157163', '196198', '002']
                     data = row[1].strip().split(" ")
