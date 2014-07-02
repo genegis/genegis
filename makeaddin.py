@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import re
 import zipfile
@@ -14,7 +16,7 @@ backup_patterns = {
     'GIT': re.compile('.git$')
 }
 
-skip_paths  = ['Install/toolbox/arcobjects']
+skip_paths  = [os.path.join('Install', 'toolbox', 'arcobjects')]
 
 def looks_like_a_backup(filename):
     is_backup = False
@@ -34,6 +36,8 @@ for directory in dirs_to_add:
         for skip_path in skip_paths:
             if path.find(skip_path) != -1:
                 skip = True
+            else:
+                print "including {}".format(path)
         if skip:
             print "skipping {}".format(path)
             # skip this directory
@@ -50,3 +54,4 @@ for directory in dirs_to_add:
             zip_file.writestr(os.path.join(archive_path, 'placeholder.txt'), 
                               "(Empty directory)")
 zip_file.close()
+
