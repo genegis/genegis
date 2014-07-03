@@ -147,6 +147,16 @@ class helpWebsiteDocs(object):
         t.start()
         t.join()
 
+class helpSpagediManual(object):
+    """Implementation for genegis_spagedi_manual.button (Button)"""
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+
+    def onClick(self):
+        target_file = os.path.join(os.path.dirname(config.spagedi_executable_path),
+                'Manual-SPAGeDi_1-4.pdf')
+        os.startfile(target_file)
 
 # summarization tools
 #

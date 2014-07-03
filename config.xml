@@ -153,6 +153,18 @@
           <Help heading="" />
         </Button>
 
+        <Button
+          caption="SPAGeDi manual"
+          category="geneGIS"
+          class="helpSpagediManual"
+          id="genegis_spagedi_manual.button"
+          image=""
+          message="Open SPAGeDi (genetics analysis package) manual."
+          tip="">
+          <Help heading="" />
+        </Button>
+
+
         <!-- Summarization tools -->
         <Button
           caption="Extract Raster Values"
@@ -334,6 +346,7 @@
           <Items>
             <Button refID="genegis_website_home.button" />
             <Button refID="genegis_website_docs.button" />
+            <Button refID="genegis_spagedi_manual.button" />
           </Items>
         </Menu>
 
