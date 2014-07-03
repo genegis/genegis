@@ -60,8 +60,6 @@ def main(input_table=None, sr=None, output_loc=None,
 
     # set mode based on how script is called.
     settings.mode = mode
-    add_output = arcpy.env.addOutputsToMap
-    arcpy.env.addOutputsToMap = True
 
     # First, create a geodatabase for all our future results.
     # TODO: can we generate this from a single value?
@@ -250,8 +248,6 @@ def formatDate(input_date):
     except Exception as e:
         utils.msg("Unable to delete temporary layer", mtype='error', exception=e)
         sys.exit()
-
-    arcpy.env.addOutputsToMap = add_output
 
 # when executing as a standalone script get parameters from sys
 if __name__=='__main__':

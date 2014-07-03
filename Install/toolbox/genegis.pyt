@@ -375,7 +375,9 @@ class ClassifiedImport(object):
             location=parameters[7].valueAsText,
             other=parameters[8].valueAsText,
             protected_map=config.protected_columns)
-
+        
+        # load the layer into the map
+        addin_utils.loadDefaultLayer()
         return
 
 class SetKey(object):

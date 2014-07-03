@@ -304,15 +304,15 @@ class LayerCombo(object):
         self.enabled = True
         self.dropdownWidth = "WWWWWWWWWWWWWWWWWWWW"
         self.width = "WWWWWWWWWWWWWWWWWWWW"
-        self.value = utils.loadDefaultLayer()
+        # FIXME instead of this, can we have a 'set analysis layer' button which does this? the layer selector is kind of a bust.
+        #self.value = utils.loadDefaultLayer()
 
     def onSelChange(self, selection):
-        if selection:
+        if selection is not None:
             config.selected_layer = utils.getLayerByName(selection)
             # FIXME: check how much memory the object will soak up 
             # prior to loading
             config.selected_object = None
-        pass
 
     def onFocus(self, focused):
         # update the layer list _only_ on focus events, preventing this from
@@ -334,7 +334,5 @@ class geneGISExtension(object):
         self.enabled = True
 
     def itemAdded(self, new_item):
-        lc = LayerCombo()
-        val = utils.loadDefaultLayer()
-        lc.value = val
-        lc.refresh()
+        pass
+

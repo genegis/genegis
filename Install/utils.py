@@ -110,11 +110,15 @@ def addLayerFromFile(file_name):
 def loadDefaultLayer(timeout=3600):
     # this is a hack -- if the class has been updated recently, refresh the list
     layer = None
+    # reload before checking the settings
+    settings = config.settings()
     with open(config.log_path, 'a') as log:
         log.write("loadDefaultLayer called. Current fc_path: {}\n".format(settings.fc_path))
 
-        if os.path.exists(settings.fc_path):
-            diff_in_sec = time.time() - os.path.getmtime(settings.fc_path)
+        if arcpy.Exists(settings.fc_path):
+            # pull out the parent FGDB mod time
+            fgdb_path = os.path.dirname(settings.fc_path)
+            diff_in_sec = time.time() - os.path.getmtime(fgdb_path)
             log.write("  time since fc_path was modified: {}\n".format(diff_in_sec))
             if timeout is None or diff_in_sec <= timeout:
                 log.write("  adding layer...\n")
