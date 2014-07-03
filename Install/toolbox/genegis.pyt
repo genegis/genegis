@@ -684,7 +684,7 @@ class DistanceMatrix(object):
     def execute(self, parameters, messages):
         from scripts import DistanceMatrix
         
-        if parametesr[2].valueAsText == 'Square (SPAGeDi formatted)':
+        if parameters[2].valueAsText == 'Square (SPAGeDi formatted)':
             matrix_type = 'spagedi'
         else:
             matrix_type = 'square'
