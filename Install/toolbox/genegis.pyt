@@ -899,8 +899,8 @@ class ExportGenAlEx(object):
         # if we have a feature class, update the possible 'ID' columns.
         if input_features.valueAsText is not None:
             with open(config.log_path, 'a') as log:
-                log.write("{}:ExportToGenAlEx: input_features: {}, id_field: {}.".format(
-                    sys.argv[0], input_features.valueAsText, id_field.valueAsText))
+                log.write("ExportToGenAlEx: input_features: {}, id_field: {}.".format(
+                        input_features.valueAsText, id_field.valueAsText))
                 
                 id_vals = []
                 for field in [f.name for f in arcpy.ListFields(input_features.valueAsText)]:
@@ -1008,8 +1008,8 @@ class ExportGenepop(object):
         # if we have a feature class, update the possible 'ID' columns.
         if input_features.valueAsText is not None:
             with open(config.log_path, 'a') as log:
-                log.write("{}:ExportToGenepop: input_features: {}, id_field: {}.".format(
-                    sys.argv[0], input_features.valueAsText, id_field.valueAsText))
+                log.write("ExportToGenepop: input_features: {}, id_field: {}.".format(
+                        input_features.valueAsText, id_field.valueAsText))
                 
                 id_vals = []
                 for field in [f.name for f in arcpy.ListFields(input_features.valueAsText)]:
