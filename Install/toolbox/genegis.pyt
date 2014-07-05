@@ -909,7 +909,7 @@ class ExportGenAlEx(object):
                         id_vals.append(field) 
 
                 id_field.filter.list = id_vals
-                if settings.id_field in id_vals:
+                if settings.id_field in id_vals and not id_field.altered:
                     id_field.value = settings.id_field
         return
 
