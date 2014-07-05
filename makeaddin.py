@@ -13,7 +13,8 @@ backup_patterns = {
     'VIM_SWAP_PATTERN': re.compile(".*\.sw[op]$", re.IGNORECASE),
     'COMPLIED_PYTHON_PATTERN': re.compile(".*\.pyc$", re.IGNORECASE),
     'TODO_PATTERN': re.compile('todo.txt'),
-    'GIT': re.compile('.git$')
+    'GIT': re.compile('.git$'),
+    'LOCK': re.compile('.*lock$'),
 }
 
 skip_paths  = [os.path.join('Install', 'toolbox', 'arcobjects')]
@@ -36,8 +37,6 @@ for directory in dirs_to_add:
         for skip_path in skip_paths:
             if path.find(skip_path) != -1:
                 skip = True
-            else:
-                print "including {}".format(path)
         if skip:
             print "skipping {}".format(path)
             # skip this directory
