@@ -138,9 +138,9 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
         else:
             pops[pop] = 1
 
-    pop_counts = ",".join([utils.xstr(p) for p in pops.values()])
+    pop_counts = [utils.xstr(p) for p in pops.values()]
     # Creating the GenAlEx header information required for the text file.
-    writer.writerow([loci.count, row_count, len(pops.keys()), pop_counts])
+    writer.writerow([loci.count, row_count, len(pops.keys())] +  pop_counts)
    
     # optional title, then a list of each population
     writer.writerow(['', '', ''] + pops.keys())

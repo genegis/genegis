@@ -671,7 +671,8 @@ class TestExportToAIS(unittest.TestCase):
 class TestExportToGenAlEx(unittest.TestCase):
 
     def setUp(self):
-        self.input_fc = consts.test_fgdb_tiny_fc
+        self.input_fc = fgdb.input_fc_mem
+        self.input_fc_nulls = 'in_memory/input_fc_nulls'
         self.output_name = os.path.join(fgdb.dir_path, 'to_genalex.csv')
 
     def testExportToGenAlExAvailable(self, method=ExportToGenAlEx):
@@ -681,8 +682,20 @@ class TestExportToGenAlEx(unittest.TestCase):
 
         desc = arcpy.Describe(self.input_fc)
         self.assertEqual(desc.dataType, 'FeatureClass')
+
+        # update the data to set the first two values to NULL to test that 
+        # NULLs are encoded correctly by GenAlEx (i.e. treated as 0).
+        arcpy.CopyFeatures_management(self.input_fc, self.input_fc_nulls)
+        fields = ['Sample_ID', 'L_rw4_10_1', 'L_rw4_10_2']
+        with arcpy.da.UpdateCursor(self.input_fc_nulls, fields, "Sample_ID = 3") as cursor:
+            # should be one result with this case
+            row = cursor.next()
+            row[1] = None
+            row[2] = None
+            cursor.updateRow(row)
+
         parameters = {
-            'input_features': self.input_fc,
+            'input_features': self.input_fc_nulls,
             'id_field': 'Individual_ID',
             'order_by': 'Region',
             'output_name': self.output_name,
@@ -694,10 +707,10 @@ class TestExportToGenAlEx(unittest.TestCase):
         with open(self.output_name, 'r') as f:
             csv_in = csv.reader(f, dialect='excel', quotechar='"', quoting=csv.QUOTE_ALL)
 
-            # size row
-            self.assertEqual(csv_in.next(), ['4','3','1','3'])
+            # size row: # loci, # samp, # pops, sz pop1, sz pop2, sz pop 3, sz pop4
+            self.assertEqual(csv_in.next(), ['4','17','4','7','2','5','3'])
             # regions
-            self.assertEqual(csv_in.next(), ['','','','Cent America'])
+            self.assertEqual(csv_in.next(), ['','','','Cent America', 'CA_OR', 'Mexico AR', 'Mexico Main'])
             # header
             self.assertEqual(csv_in.next(), ['Individual_ID', 'Region', 'GATA417',
                 '', 'Ev37', '', 'Ev96', '', 'rw4_10', '', '', 'Latitude', 'Longitude'])
