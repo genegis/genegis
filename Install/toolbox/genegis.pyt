@@ -1018,7 +1018,7 @@ class ExportGenepop(object):
                         id_vals.append(field) 
 
                 id_field.filter.list = id_vals
-                if settings.id_field in id_vals:
+                if settings.id_field in id_vals and not id_field.altered:
                     id_field.value = settings.id_field
         return
 
@@ -1147,9 +1147,7 @@ class ExportAllelesInSpace(object):
         id_field.displayName = u'Primary Identification Field'
         id_field.parameterType = 'Required'
         id_field.direction = 'Input'
-        id_field.datatype = dt.format('Field')
-        id_field.parameterDependencies=[input_features.name]
-        id_field.value = settings.id_field
+        id_field.datatype = dt.format('String')
 
         # Where_Clause
         where_clause = arcpy.Parameter()
@@ -1182,10 +1180,30 @@ class ExportAllelesInSpace(object):
         return True
 
     def updateParameters(self, parameters):
+        input_features = parameters[self.cols['input_features']]
+        id_field = parameters[self.cols['id_field']]
         output_coords = parameters[self.cols['output_coords']]
         output_genetics = parameters[self.cols['output_genetics']]
+        # force the file extension to be .txt
         output_coords.value = utils.set_file_extension(output_coords, 'txt')
         output_genetics.value = utils.set_file_extension(output_genetics, 'txt')
+
+        # if we have a feature class, update the possible 'ID' columns.
+        if input_features.valueAsText is not None:
+            with open(config.log_path, 'a') as log:
+                log.write("ExportToAIS: input_features: {}, id_field: {}.".format(
+                        input_features.valueAsText, id_field.valueAsText))
+                
+                id_vals = []
+                for field in [f.name for f in arcpy.ListFields(input_features.valueAsText)]:
+                    if re.search('_id$', field, re.IGNORECASE) or \
+                            field in settings.identification_columns:
+                        id_vals.append(field) 
+
+                id_field.filter.list = id_vals
+                if settings.id_field in id_vals and not id_field.altered:
+                    id_field.value = settings.id_field
+ 
         return
 
     def updateMessages(self, parameters):
