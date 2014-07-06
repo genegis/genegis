@@ -218,80 +218,88 @@ class CompareEncounters(object):
         self.display = display
 
     def onRectangle(self, rectangle_geometry):
-        polygon_extent = utils.extentPolygon(rectangle_geometry)
-        layer = utils.selectedLayer()
-        if layer is None:
-            return None
-
-        output_feature = 'in_memory/compare_selection_points'
-        utils.intersectFeatures(layer.name, polygon_extent, output_feature)
-
-        res2 = utils.selectIndividuals(output_feature, False)
-
-        # XXX now, get the results from the summarize encounters tool,
-        # and add these selection results back to the table
-        """
-        fields = arcpy.ListFields(layer.dataSource)
-
-        try:
-            field_name = 'Selected_Populations'
-            if field_name not in fields:
-                with open(config.log_path, 'a') as f:
-                    f.write("trying to add %s to %s\n" % (field_name, layer.dataSource))
-               
-                arcpy.AddField_management(layer.dataSource, field_name, 'SHORT')
-            #utils.msg("Added a formatted date field: {field_name}.".format(field_name=field_name))
-            with open(config.log_path, 'a') as f:
-                f.write("trying to add %s to %s\n" % (field_name, layer.dataSource))
-           
-            if config.primary_results is None:
-                pythonaddins.MessageBox("please make first selection before running this tool", "requires primary selection")
+        with open(config.log_path, 'a') as log:
+            polygon_extent = utils.extentPolygon(rectangle_geometry)
+            layer = utils.selectedLayer()
+            if layer is None:
                 return None
+            log.write("Compare encounters operating on layer {}\n".format(layer.name))
+            
+            output_feature = 'in_memory/compare_selection_points'
+            utils.intersectFeatures(layer.name, polygon_extent, output_feature)
 
-            first_pop = config.primary_results['indiv_stats']['unique']
-            second_pop = res2['unique']
-            #pythonaddins.MessageBox("got %i in pop1, %i in pop2" % (len(first_pop), len(second_pop)), "pop compare")
-            with arcpy.da.UpdateCursor(layer, [settings.id_field, field_name]) as cur:
-                for row in cur:
-                    indiv = row[0]
-                    if indiv in first_pop and indiv in second_pop:
-                        pop = 3
-                    elif indiv in second_pop:
-                        pop = 2
-                    elif indiv in first_pop:
-                        pop = 1
-                    else:
-                        pop = None
-                    row[1] = pop
-                    cur.updateRow(row)
-                        
-        except Exception as e:
-            msg = "Error adding Selected_Populations column."
-            title = "Compare Encounters: Selecting Populations"
-            with open(config.log_path, 'a') as f:
-                f.write("generated Exception: %s\n" % e)
+            res2 = utils.selectIndividuals(output_feature, False)
 
-            pythonaddins.MessageBox(msg, title)
-            return None
-        """
-        if self.display:
-            if config.primary_results is not None:
-                res = config.primary_results['indiv_stats']
+            # XXX now, get the results from the summarize encounters tool,
+            # and add these selection results back to the table
+            fields = arcpy.ListFields(layer.dataSource)
 
-                common_indiv = res['unique'].intersection(res2['unique']) 
-                # compare the two sets of results
-                msg = ("First Set:  {0} samples, "
-                       "{1} unique individuals\n"
-                       "Second Set: {2} samples, "
-                       "{3} unique individuals\n\n"
-                       "Common to both: {4}".format(
-                           len(res['indiv']), len(res['unique']),
-                           len(res2['indiv']), len(res2['unique']),
-                           len(common_indiv)))
-                title = "Comparison Results" 
+            field_name = settings.population_field
+            try:
+                if field_name not in fields:
+                    log.write("Adding {} to {}\n".format(field_name, layer.dataSource))
+                    arcpy.AddField_management(layer.dataSource, field_name, 'TEXT')
+               
+                if config.primary_results is None:
+                    pythonaddins.MessageBox("Please make first selection before running"
+                            " this tool", "requires primary selection")
+                    return None
+
+                first_pop = config.primary_results['indiv_stats']['unique']
+                second_pop = res2['unique']
+               
+                if len(first_pop) == 0:
+                    pythonaddins.MessageBox("No results in primary selection.")
+                    return None
+                if len(second_pop) == 0:
+                    pythonaddins.MessageBox("No results in secondary selection.")
+                    return None
+
+                log.write("Setting populations as {}, and {}\n".format(first_pop, second_pop))
+                with arcpy.da.UpdateCursor(layer, [settings.id_field, field_name]) as cur:
+                    for row in cur:
+                        id_field = row[0]
+                        if id_field in first_pop and id_field in second_pop:
+                            pop = 'both populations'
+                        elif id_field in second_pop:
+                            pop = 'second population only' 
+                        elif id_field in first_pop:
+                            pop = 'first population only'
+                        else:
+                            pop = None
+                        row[1] = pop
+                        cur.updateRow(row)
+                            
+            except Exception as e:
+                msg = "Error adding {} column.".format(field_name)
+                title = "Compare Encounters: Selecting Populations"
+                f.write("Selecting populations generated Exception: %s\n" % e)
+
                 pythonaddins.MessageBox(msg, title)
+                return None
+    
+            if self.display:
+                log.write("primary results: {}\n".format(config.primary_results))
+                if config.primary_results is not None:
+                    res = config.primary_results['indiv_stats']
+
+                    common_indiv = res['unique'].intersection(res2['unique']) 
+                    # compare the two sets of results
+                    msg = ("First Set:  {0} samples, "
+                           "{1} unique individuals\n"
+                           "Second Set: {2} samples, "
+                           "{3} unique individuals\n\n"
+                           "Common to both: {4}\n\n"
+                           "Results saved to field \"{5}\"".format(
+                               len(res['indiv']), len(res['unique']),
+                               len(res2['indiv']), len(res2['unique']),
+                               len(common_indiv)), field_name)
+                    title = "Comparison Results" 
+                    pythonaddins.MessageBox(msg, title)
+                else:
+                    pythonaddins.Messagebox("Please select first set", "Selection Missing")
             else:
-                pythonaddins.Messagebox("Please select first set", "Selection Missing")
+                log.write("Not displaying output as display is set to {}".format(self.display))
 
 class LayerCombo(object):
     """Implementation for genegis_layer_combo.combobox (Combobox)"""

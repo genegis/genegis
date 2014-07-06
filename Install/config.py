@@ -81,7 +81,8 @@ config_vars = {
     'spagedi_executable': "SPAGeDi-1.4c.exe",
     'geodesic_dll_path': os.path.abspath( \
             os.path.join(os.path.abspath(os.path.dirname(__file__)), \
-            "toolbox", "lib", "geodesic", "geodesic.dll")) 
+            "toolbox", "lib", "geodesic", "geodesic.dll")),
+    'population_field':  'Pop'
 }
 # have to update afterward so data_dir is set.
 config_vars['example_gdb'] = os.path.join(config_vars['data_dir'], 'example.gdb')
