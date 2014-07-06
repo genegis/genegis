@@ -79,7 +79,9 @@ config_vars = {
             os.path.dirname(os.path.realpath(__file__)),
             '../Data')),
     'spagedi_executable': "SPAGeDi-1.4c.exe",
-
+    'geodesic_dll_path': os.path.abspath( \
+            os.path.join(os.path.abspath(os.path.dirname(__file__)), \
+            "toolbox", "lib", "geodesic", "geodesic.dll")) 
 }
 # have to update afterward so data_dir is set.
 config_vars['example_gdb'] = os.path.join(config_vars['data_dir'], 'example.gdb')
@@ -117,10 +119,6 @@ allowed_types = ["Point", "MultiPoint"]
 allowed_formats = ['FeatureClass', 'FeatureDataset']
 
 all_layers = None
-
-geodesic_dll_path = os.path.abspath( \
-    os.path.join(os.path.abspath(os.path.dirname(__file__)), \
-    "toolbox", "lib", "geodesic", "geodesic.dll")) 
 
 # map search strings to variable groups, include 'protected'
 # column to explicitly define type for these columns
