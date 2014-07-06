@@ -390,7 +390,8 @@ class SetKey(object):
         self.cols = {
             'input_features': 0,
             'id_field': 1,
-            'overwrite': 2
+            'overwrite': 2,
+            'add_outputs': 3
         }
 
     def getParameterInfo(self):
@@ -418,7 +419,15 @@ class SetKey(object):
         overwrite.direction = 'Input'
         overwrite.parameterType = 'Required'
         overwrite.datatype = dt.format('Boolean')
-        return [input_features, id_field, overwrite]
+
+        add_outputs = arcpy.Parameter()
+        add_outputs.name = 'Add_Outputs_to_Map'
+        add_outputs.displayName = 'Add Outputs to Map'
+        add_outputs.direction = 'Input'
+        add_outputs.parameterType = 'Required'
+        add_outputs.datatype = dt.format('Boolean')
+
+        return [input_features, id_field, overwrite, add_outputs]
 
     def isLicensed(self):
         return True
@@ -427,8 +436,11 @@ class SetKey(object):
         input_features = parameters[self.cols['input_features']]
         id_field = parameters[self.cols['id_field']]
         overwrite = parameters[self.cols['overwrite']]
+        add_outputs = parameters[self.cols['add_outputs']]
 
+        # pull in the current configuration.
         settings = config.settings()
+
         # we're on our initial run, populate
         if not input_features.altered:
             if arcpy.Exists(settings.fc_path):
@@ -442,6 +454,10 @@ class SetKey(object):
             if settings.overwrite is not None:
                 if bool(settings.overwrite):
                     overwrite.value = settings.overwrite
+
+        if not add_outputs.altered and settings.add_outputs is not None:
+            if bool(settings.add_outputs):
+                add_outputs.value = settings.add_outputs
 
         # if we have a feature class, update the possible 'ID' columns.
         if input_features.valueAsText is not None:
@@ -461,7 +477,7 @@ class SetKey(object):
                     id_field.value = settings.id_field
         else:
             selected = selected_layer()
-            if arcpy.Exists(selected):
+            if selected is not None and arcpy.Exists(selected):
                 input_features.value = selected
 
         return
@@ -482,6 +498,9 @@ class SetKey(object):
             config.update('id_field', id_field)
         if not overwrite == settings.overwrite:
             config.update('overwrite', overwrite)
+        if not overwrite == settings.overwrite:
+            config.update('add_outputs', overwrite)
+
 
 class ExtractRasterByPoints(object):
     def __init__(self):

@@ -74,6 +74,7 @@ config_vars = {
                       # Python toolbox, not the command-line by default.
     'log_level': 'error',
     'overwrite': True,
+    'add_outputs': True,
     'data_dir': os.path.abspath(os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             '../Data'))
