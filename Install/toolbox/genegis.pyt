@@ -823,7 +823,7 @@ class SpagediFst(object):
         time.sleep(2)
 
         # pull in the full location of the SPAGeDi binary
-        spagedi_exe = config.spagedi_executable_path
+        spagedi_exe = settings.spagedi_executable_path
 
         cmd = "{spagedi_exe} < {spagedi_commands}".format(
                 spagedi_exe=spagedi_exe,

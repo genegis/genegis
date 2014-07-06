@@ -77,10 +77,15 @@ config_vars = {
     'add_outputs': True,
     'data_dir': os.path.abspath(os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
-            '../Data'))
+            '../Data')),
+    'spagedi_executable': "SPAGeDi-1.4c.exe",
+
 }
 # have to update afterward so data_dir is set.
 config_vars['example_gdb'] = os.path.join(config_vars['data_dir'], 'example.gdb')
+config_vars['spagedi_executable_path'] = os.path.abspath( \
+        os.path.join(os.path.abspath(os.path.dirname(__file__)), \
+        "toolbox", "lib", "spagedi", config_vars['spagedi_executable']))
 
 # We've initialized all our configuration settings, now let's serialize them
 # in a usable spot.
@@ -112,11 +117,6 @@ allowed_types = ["Point", "MultiPoint"]
 allowed_formats = ['FeatureClass', 'FeatureDataset']
 
 all_layers = None
-
-spagedi_executable = "SPAGeDi-1.4c.exe"
-spagedi_executable_path = os.path.abspath( \
-    os.path.join(os.path.abspath(os.path.dirname(__file__)), \
-    "toolbox", "lib", "spagedi", spagedi_executable))
 
 geodesic_dll_path = os.path.abspath( \
     os.path.join(os.path.abspath(os.path.dirname(__file__)), \

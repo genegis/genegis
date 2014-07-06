@@ -185,7 +185,7 @@ class SpagediWrapper(object):
         utils.msg(spagedi_msg)
         time.sleep(2)
         # pull in the full location of the SPAGeDi binary
-        spagedi_exe = config.spagedi_executable_path
+        spagedi_exe = settings.spagedi_executable_path
         shell_cmd = "{spagedi_exe} < {spagedi_commands}".format(
                 spagedi_exe=spagedi_exe,
                 spagedi_commands=spagedi_commands)

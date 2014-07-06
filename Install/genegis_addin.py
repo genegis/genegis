@@ -154,7 +154,7 @@ class helpSpagediManual(object):
         self.checked = False
 
     def onClick(self):
-        target_file = os.path.join(os.path.dirname(config.spagedi_executable_path),
+        target_file = os.path.join(os.path.dirname(settings.spagedi_executable_path),
                 'Manual-SPAGeDi_1-4.pdf')
         os.startfile(target_file)
 

@@ -5,6 +5,7 @@ import os, sys, traceback, Queue, threading, subprocess
 import utils as addin_utils
 import config
 
+settings = config.settings()
 
 def threadframe():
     print >> sys.stderr, "\n*** STACKTRACE - START ***\n"
@@ -37,7 +38,7 @@ def main():
     # temporary SPAGeDi output file
     spagedi_file_path = os.path.join(config.config_dir, "spagedi_data.txt")
     results = os.path.join(config.config_dir, "test_spagedi_export.txt")
-    spagedi_exe = config.spagedi_executable_path
+    spagedi_exe = settings.spagedi_executable_path
     sequence = [spagedi_file_path, results] + list(' 214    ')
     p = subprocess.Popen([spagedi_exe], stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
