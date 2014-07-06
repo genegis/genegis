@@ -30,18 +30,25 @@ def create(config_path):
         with open(config_path, 'wb') as config_file:
             cfg.write(config_file)
 
-def load(config_path, app_name):
-    cfg = ConfigParser.SafeConfigParser()
-    cfg.read(config_path)
-    # read out attributes
-    attrs = AttrDict(cfg._sections[app_name])
-    # check for any missing values. This can happen
-    # when we add variables.
-    for (var, val) in config_vars.items():
-        if var not in attrs.keys():
-            update(var, val)
-            attrs[var] = val 
-    return attrs
+def load(config_path, app_name, log_path):
+    with open(log_path, 'a') as log:
+        cfg = ConfigParser.SafeConfigParser()
+        log.write("Reading configuration from {}\n".format(config_path))
+        cfg.read(config_path)
+        # read out attributes
+        attrs = AttrDict(cfg._sections[app_name])
+        log.write("Attribute Dictionary set to: {}\n".format(attrs))
+        # check for any missing values. This can happen
+        # when we add variables.
+        log.write("Before trying to update, config_vars set to {}\n".format(
+                config_vars))
+        for (var, val) in config_vars.items():
+            if var not in attrs.keys():
+                log.write("Found a new variable, updating: {},{}\n".format(
+                        var, val))
+                update(var, val)
+                attrs[var] = val 
+        return attrs
 
 def create_config(app_name):
     """
@@ -102,13 +109,14 @@ if not os.path.exists(config_path):
 
 log_path = os.path.join(config_dir, "{}.log".format(app_name))
 
+
 # clean up our temp path, if it exists
 for fn in glob.glob(os.path.join(config_dir, "*.{}.tmp".format(app_name))):
     os.remove(fn)
 
 # settings as a function to force reloads.
 def settings():
-    return load(config_path, app_name)
+    return load(config_path, app_name, log_path)
 
 # NOTE: Settings in original file; reduce to config settings where possible.
 
