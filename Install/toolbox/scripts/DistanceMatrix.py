@@ -91,7 +91,8 @@ def load_geodesic_dll():
         fn.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_double, ctypes.c_bool]
         fn.restype = ctypes.c_int
     else:
-        utils.msg("Unable to locate high-speed geodesic DLL at: {}".format(dll_path))
+        msg = "Unable to locate high-speed geodesic DLL at: {}".format(dll_path)
+        utils.msg(msg, mtype='error')
     return fn                
 
 def run_geodesic_gp(input_fc, unit_factor, output_matrix, row_count, is_spagedi):
