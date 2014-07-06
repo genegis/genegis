@@ -198,7 +198,8 @@
           id="genegis_compare.tool"
           image="Images\genegis_area_limited_inverted_icon.png"
           message=""
-          tip="Compare between two sets of encounters.">
+          tip="Compare between two sets of encounters. Must have made a primary selection
+          with the 'Summarize Encounters' tool first to use this tool.">
           <Help
             heading="Compare encounter groups"
             >Compare between two sets of encounters.</Help>
