@@ -81,6 +81,7 @@ class Toolbox(object):
             DistanceMatrix,
             ShortestDistancePaths,
             MakeIndividualPaths,
+            ComparePopulations,
             # Genetic Analysis
             SpagediFst,
             # Export routines; get our data elsewhere
@@ -1494,3 +1495,85 @@ class MakeIndividualPaths(object):
             where_clause=parameters[1].valueAsText,
             id_field=parameters[2].valueAsText,
             output_name=parameters[2].valueAsText)
+
+class ComparePopulations(object):
+    def __init__(self):
+        self.label = u'Compare Populations'
+        self.description = u''
+        self.canRunInBackground = False
+        self.category = "Analysis"
+        self.cols = {
+            'input_fc': 0,
+            'feature_set': 1
+        }
+
+    def getParameterInfo(self):
+
+        feature_set = arcpy.Parameter()
+        feature_set.name = 'Feature_Set'
+        feature_set.displayName = 'Feature Set'
+        feature_set.direction = 'Input'
+        feature_set.parameterType = 'Required'
+        feature_set.datatype = dt.format('Feature Set')
+        feature_set.value = r'\\psf\Home\Documents\ArcGIS\Default.gdb\New_Shapefile_FeatureToPolyg'
+
+        feature_set2 = arcpy.Parameter()
+        feature_set2.name = 'Feature_Set_2'
+        feature_set2.displayName = 'Feature Set 2'
+        feature_set2.direction = 'Input'
+        feature_set2.parameterType = 'Required'
+        feature_set2.datatype = dt.format('Feature Set')
+        feature_set2.value = r'\\psf\Home\Documents\ArcGIS\Default.gdb\New_Shapefile_FeatureToPolyg1'
+
+        feature_set3 = arcpy.Parameter()
+        feature_set3.name = 'Feature_Set_3'
+        feature_set3.displayName = 'Feature Set 3'
+        feature_set3.direction = 'Input'
+        feature_set3.parameterType = 'Required'
+        feature_set3.datatype = dt.format('Feature Set')
+        feature_set3.value = 'in_memory/primary_selection_points'
+ 
+        # primary identification column
+        id_field = arcpy.Parameter()
+        id_field.name = u'Primary_Identification_Column'
+        id_field.displayName = 'Comparison Variable'
+        id_field.direction = 'Input'
+        id_field.parameterType = 'Required'
+        id_field.datatype = dt.format('String')
+        id_field.filter.list = ['Individual_Id', 'Occurence_Id', 'Haplotype', 'L_Ev1', 'L_Ev2']
+
+        # Data source
+        input_fc = arcpy.Parameter()
+        input_fc.name = u'Source_Feature_Class'
+        input_fc.displayName = u'Update this feature class with results'
+        input_fc.direction = 'Input'
+        input_fc.parameterType = 'Required'
+        input_fc.datatype = dt.format('Feature Layer')
+
+        return [feature_set, feature_set2, feature_set3, id_field, input_fc]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        settings = config.settings()
+
+        parameters[3].value = settings.id_field
+
+        input_fc = parameters[self.cols['input_fc']]
+        feature_set = parameters[self.cols['feature_set']]
+
+        if input_fc.altered:
+            desc = arcpy.Describe(input_fc.value)
+            # path is set, regardless if this is a layer or a fully specified path
+            input_fc_path = desc.path
+            if input_fc_path is not None: 
+                feature_set.value = input_fc_path
+
+        return
+
+    def updateMessages(self, parameters):
+        return
+
+    def execute(self, parameters, messages):
+        pass
