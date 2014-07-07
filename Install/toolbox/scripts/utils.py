@@ -117,8 +117,11 @@ class Haplotype(object):
         """ A mapping of haplotype name to integers for interchange."""
         # map sorted haplotypes to integers; equivalent to Shepherd's approach
         sorted_cols = sorted(self.names)
+        counter = self.counter
+        counts = [counter[col] for col in sorted_cols]
+
         # 1: A+, 2: E1, ...
-        return itertools.izip(itertools.count(1), sorted_cols)
+        return itertools.izip(itertools.count(1), sorted_cols, counts)
 
 class MissingCSVHeader(Exception):
     def __init__(self, csv):

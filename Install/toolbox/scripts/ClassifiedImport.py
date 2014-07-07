@@ -23,6 +23,7 @@
 # ---------------------------------------------------------------------------
 
 import arcpy
+import numpy
 import os
 import sys
 
@@ -109,9 +110,8 @@ def main(input_table=None, sr=None, output_loc=None,
     # write out our table, after additional validation.
     try:
         arcpy.env.overwriteOutput = settings.overwrite
-        utils.msg("overwrite set to {}".format(settings.overwrite))
 
-       # generate table name based on input name
+        # generate table name based on input name
         (label, ext) = os.path.splitext(os.path.basename(input_table))
 
         # Validate label will produce a valid table name from our input file
@@ -205,6 +205,33 @@ def formatDate(input_date):
         sys.exit()
 
     utils.msg("Feature Class successfully created, your SRGD file has been imported!")
+
+    try:
+        haplotype_table = os.path.join(gdb_path, "{}_{}".format(validated_label, 'Haplotypes'))
+
+        # look up our haplotype data
+        haplotypes = utils.Haplotype(output_fc)
+        
+        # create a dictionary for inserting records
+        dts = {'names': ('code', 'haplotype', 'count'),
+                       'formats': (numpy.uint16, 'S6', numpy.uint8)}
+
+        # numpy takes a list of lists, convert our iterator
+        indexed = [list(r) for r in haplotypes.indexed]
+
+        # create a numpy formatted structure from this data
+        array = numpy.rec.fromrecords(indexed, dtype=dts)
+
+        # output the new table
+        arcpy.da.NumPyArrayToTable(array, haplotype_table)
+        
+        utils.msg("Haplotype table created: \n {}".format(haplotype_table))
+
+    except Exception as e:
+        utils.msg("Error creating supplemental haplotype table", mtype='error', exception=e)
+        sys.exit()
+
+
 
     # Because we can't pass around objects between this process and the calling
     # addin environment, dump out the settings to our shared configuration file.
