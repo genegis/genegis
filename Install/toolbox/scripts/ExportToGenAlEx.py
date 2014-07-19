@@ -50,7 +50,7 @@ import config
 
 settings = config.settings()
 
-def main(input_features=None, id_field=None, where_clause='', order_by=None, 
+def main(input_features=None, id_field=None, where_clause='', order_by=None,
         output_name=None, mode='toolbox'):
 
     # try to set the id based on input, otherwise go off of the config.
@@ -65,60 +65,60 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
     arcpy.env.addOutputsToMap = True
 
     # ensure our order by field exists
-    fields = [f.name for f in arcpy.ListFields(input_features)] 
+    fields = [f.name for f in arcpy.ListFields(input_features)]
     if not order_by in fields:
         utils.msg("Unable to find order_by field, `{}`".format(order_by))
         sys.exit()
 
     # The Input Feature Class
     # == input_features
-        
+
     # Where clause that can be used to pull out only those rows with genetic
     # data from the feature class.
 
-    # NOTE: This parameter is optional and was included because some data 
-    # sets may have individual IDs based on more than just genetics 
-    # (i.e. photo-id).  If your data only has genetic records, this 
+    # NOTE: This parameter is optional and was included because some data
+    # sets may have individual IDs based on more than just genetics
+    # (i.e. photo-id).  If your data only has genetic records, this
     # parameter can be left blank.
-    # == where_clause 
+    # == where_clause
 
     # The Attribute Field that distinguishes the populations in the input.
 
-    # NOTE: This parameter is optional and was included because some data 
-    # sets may have more than one population in it. 
-    # == order_by 
-       
-    try:    
+    # NOTE: This parameter is optional and was included because some data
+    # sets may have more than one population in it.
+    # == order_by
+
+    try:
         # Create and open the text file to which the data will be written
         output_file = open(output_name, "wb")
     except Exception as e:
         utils.msg("Unable to open text file", mtype='error', exception=e)
-  
+
     # create a CSV writer
     writer = csv.writer(output_file, dialect='excel',
             quotechar='"', quoting=csv.QUOTE_ALL)
 
     utils.msg("Output file open and ready for data input")
-            
+
     # Find our Loci columns. 
     loci = utils.Loci(input_features)
     utils.msg("loci set: {0}".format(",".join(loci.names)))
 
     """
-    header row contains (in order): 
+    header row contains (in order):
      - number of loci
      - number of samples
      - number of populations
      - size of pop 1
      - size of pop 2
      - ...
-    
+
     second row contains:
      - three blank cells
      - loci 1 label
      - loci 2 label
      - ...
-    
+
     DATA starts at C4. See "GenAlEx Guide.pdf" page 15.
     """
 
@@ -127,7 +127,7 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
     # query the input_features in ascending order; filtering as needed
     selected_columns = order_by
     pops = OrderedDict()
-    rows = arcpy.da.SearchCursor(input_features, selected_columns, 
+    rows = arcpy.da.SearchCursor(input_features, selected_columns,
             where_clause, "", "", sql_clause)
     row_count = 0
     for row in rows:
@@ -141,7 +141,7 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
     pop_counts = [utils.xstr(p) for p in pops.values()]
     # Creating the GenAlEx header information required for the text file.
     writer.writerow([loci.count, row_count, len(pops.keys())] +  pop_counts)
-   
+
     # optional title, then a list of each population
     writer.writerow(['', '', ''] + pops.keys())
 
@@ -160,7 +160,7 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
         loc_a = settings.y_coord
         loc_b = settings.x_coord
 
-    primary_columns = [primary_id, order_by, loc_a, loc_b] 
+    primary_columns = [primary_id, order_by, loc_a, loc_b]
     exclude = primary_columns + loci.columns + ['OBJECTID', 'Shape']
     unselected_columns = []
     for field in fields:
@@ -170,16 +170,16 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
     # extra fields should start with an empty line, the location, then any
     # columns not otherwise mapped.
     extra_columns = ['', loc_a, loc_b] + unselected_columns
-        
+
     writer.writerow([primary_id, order_by] + loci_labels + extra_columns)
     utils.msg("Header info written to text file")
 
-    # Note the WhereClause: Because the SPLASH data has both photo-id and genetic 
+    # Note the WhereClause: Because the SPLASH data has both photo-id and genetic
     # records, but GenAlEx only uses genetic data, the WhereClause is used to ensure
-    # only those records with genetic data are copied to the text file. 
+    # only those records with genetic data are copied to the text file.
     selected_columns = primary_columns + unselected_columns + loci.columns
 
-    for row in arcpy.da.SearchCursor(input_features, selected_columns, 
+    for row in arcpy.da.SearchCursor(input_features, selected_columns,
             where_clause, "", "", sql_clause):
         id_field = row[0] # as set on import
         pop = row[1] # second column is 'order_by', or key column
