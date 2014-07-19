@@ -713,14 +713,17 @@ class TestExportToGenAlEx(unittest.TestCase):
             self.assertEqual(csv_in.next(), ['','','','Cent America', 'CA_OR', 'Mexico AR', 'Mexico Main'])
             # header
             self.assertEqual(csv_in.next(), ['Individual_ID', 'Region', 'GATA417',
-                '', 'Ev37', '', 'Ev96', '', 'rw4_10', '', '', 'Latitude', 'Longitude'])
+                '', 'Ev37', '', 'Ev96', '', 'rw4_10', '', '', 'Latitude', 'Longitude',
+                'Sample_ID', 'Date_Time', 'Sex', 'Haplotype', 'Date_formatted']) 
+
             # skip to last row
             csv_in.next()
             csv_in.next()
             # the values for the rw4_10 haplotype should both be '0', which is
             # how GenAlEx handles NULL values.
             self.assertEqual(csv_in.next(), ['102', 'Cent America', '207', '221',
-                '194', '198', '161', '163', '0', '0', '', '-83.7341', '8.708'])
+                '194', '198', '161', '163', '0', '0', '', '8.708', '-83.7341',
+                '3', '2004-01-23T10:31:00', 'U', '0', '2004-01-23 10:31:00'])
 
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)

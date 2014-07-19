@@ -159,29 +159,40 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
         # geographic data expected to be (lat, lon)
         loc_a = settings.y_coord
         loc_b = settings.x_coord
-    
-    writer.writerow([primary_id, order_by] + loci_labels + ['', loc_a, loc_b])
+
+    primary_columns = [primary_id, order_by, loc_a, loc_b] 
+    exclude = primary_columns + loci.columns + ['OBJECTID', 'Shape']
+    unselected_columns = []
+    for field in fields:
+        # add any field not currently mapped
+        if field not in exclude:
+            unselected_columns.append(field)
+    # extra fields should start with an empty line, the location, then any
+    # columns not otherwise mapped.
+    extra_columns = ['', loc_a, loc_b] + unselected_columns
+        
+    writer.writerow([primary_id, order_by] + loci_labels + extra_columns)
     utils.msg("Header info written to text file")
 
     # Note the WhereClause: Because the SPLASH data has both photo-id and genetic 
     # records, but GenAlEx only uses genetic data, the WhereClause is used to ensure
     # only those records with genetic data are copied to the text file. 
-    selected_columns = loci.columns + [loc_a, loc_b, primary_id, order_by]
+    selected_columns = primary_columns + unselected_columns + loci.columns
 
-    rows = arcpy.da.SearchCursor(input_features, selected_columns, where_clause, "", "", sql_clause)
-    for row in rows:
-        pop = row[-1] # last column is 'order_by', or key column
-        id_field = row[-2] # as set on import
-        loc_a_val = row[-3]
-        loc_b_val = row[-4]
+    for row in arcpy.da.SearchCursor(input_features, selected_columns, 
+            where_clause, "", "", sql_clause):
+        id_field = row[0] # as set on import
+        pop = row[1] # second column is 'order_by', or key column
+        loc_a_val = row[2]
+        loc_b_val = row[3]
+        unselected_rows = list(row[4:len(unselected_columns)+4])
         result_row = [id_field, pop]
         for (key, cols) in loci.fields.items():
             for col in cols:
                 col_pos = selected_columns.index(col)
                 result_row.append(row[col_pos])
-        result_row = result_row + ["", loc_a_val, loc_b_val]
+        result_row = result_row + ["", loc_a_val, loc_b_val] + unselected_rows
         writer.writerow([utils.zstr(s) for s in result_row])
-
     utils.msg("Exported results saved to %s." % output_name)
     # Close Output text file
     output_file.close()
