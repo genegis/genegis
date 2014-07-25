@@ -39,7 +39,6 @@
 import arcpy
 import copy
 import csv
-import json
 import os
 import re
 import sys
@@ -117,17 +116,6 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
         # only replace Nones, keep numeric types
         from utils import xrep as xstr
         from utils import zrep as zstr
-
-        # initialize our spreadsheet
-        workbook = xlwt.Workbook()
-
-        # codominant data
-        worksheet_co = workbook.add_sheet('Codominant')
-
-        if haplotypes.defined:
-            worksheet_hap = workbook.add_sheet('Haplotype')
-            utils.msg("Creating haplotype sheet, using mapping: {}".format(
-                json.dumps(haplotypes.lookup, indent=4)))
     else:
         # convert all strings to text
         from utils import zstr as zstr
@@ -251,15 +239,30 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
 
     # depending on our driver, handle writing dependent on type
     if format_type == 'Excel':
-        # the codominant data
+        # initialize our spreadsheet
+        workbook = xlwt.Workbook()
+
+        # codominant data
+        worksheet_co = workbook.add_sheet('Codominant')
         for (i, row) in enumerate(output_rows):
             for (j, val) in enumerate(row):
                 worksheet_co.write(i, j, val)
 
+        # the haplotype data
         if haplotypes.defined:
+            worksheet_hap = workbook.add_sheet('Haplotype')
             for (i, row) in enumerate(haplotype_rows):
                 for (j, val) in enumerate(row):
                     worksheet_hap.write(i, j, val)
+
+            # write out a mapping of haplotype names
+            worksheet_hap_map = workbook.add_sheet('Haplotype Map')
+            worksheet_hap_map.write(0, 0, haplotypes.column)
+            worksheet_hap_map.write(0, 1, 'Numeric Code')
+
+            for (i, (hap, code)) in enumerate(haplotypes.lookup.items(), start=1):
+                worksheet_hap_map.write(i, 0, hap)
+                worksheet_hap_map.write(i, 1, code)
 
         workbook.save(output_name)            
     else:

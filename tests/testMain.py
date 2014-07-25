@@ -754,7 +754,8 @@ class TestExportToGenAlEx(unittest.TestCase):
             # size row: # loci, # samp, # pops, sz pop1, sz pop2, sz pop 3, sz pop4
             self.assertEqual(map(int, codo_ws.row_values(0, 0, 7)), [4,17,4,7,2,5,3])
             # regions
-            self.assertEqual(codo_ws.row_values(1, 0, 7), ['','','','Cent America', 'CA_OR', 'Mexico AR', 'Mexico Main'])
+            self.assertEqual(codo_ws.row_values(1, 0, 7), 
+                    ['','','','Cent America', 'CA_OR', 'Mexico AR', 'Mexico Main'])
             # header
             self.assertEqual(codo_ws.row_values(2), ['Individual_ID', 'Region', 'GATA417',
                 '', 'Ev37', '', 'Ev96', '', 'rw4_10', '', '', 'Latitude', 'Longitude',
@@ -772,12 +773,22 @@ class TestExportToGenAlEx(unittest.TestCase):
             # size row: # loci, # samp, # pops, sz pop1, sz pop2, sz pop 3, sz pop4
             self.assertEqual(map(int, hap_ws.row_values(0, 0, 7)), [1,17,4,7,2,5,3])
             # regions
-            self.assertEqual(hap_ws.row_values(1, 0, 7), ['','','','Cent America', 'CA_OR', 'Mexico AR', 'Mexico Main'])
+            self.assertEqual(hap_ws.row_values(1, 0, 7), 
+                    ['','','','Cent America', 'CA_OR', 'Mexico AR', 'Mexico Main'])
             # header
-            self.assertEqual(hap_ws.row_values(2, 0, 3), ['Individual_ID', 'Region', 'Haplotype'])
+            self.assertEqual(hap_ws.row_values(2, 0, 3), 
+                    ['Individual_ID', 'Region', 'Haplotype'])
             # a data row
             self.assertEqual(hap_ws.row_values(4, 0, 3), [101., u'Cent America', 4.])
 
+            # haplotype map
+            hap_map_ws = workbook.sheet_by_name('Haplotype Map')
+            self.assertEqual(repr(type(hap_map_ws)), "<class 'xlrd.sheet.Sheet'>")
+
+            self.assertEqual(hap_map_ws.row_values(0, 0, 2), 
+                    ['Haplotype', 'Numeric Code'])
+            self.assertEqual(hap_map_ws.row_values(1, 0, 2), ['A+', 1.0])
+                
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
         self.assertIn('ExportGenAlEx', vars(self.toolbox))
