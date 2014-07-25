@@ -7,6 +7,7 @@ import csv
 import datetime
 import gzip
 import hashlib
+import xlrd
 import zipfile
 from collections import Counter
 from geographiclib.geodesic import Geodesic
@@ -673,18 +674,12 @@ class TestExportToGenAlEx(unittest.TestCase):
     def setUp(self):
         self.input_fc = fgdb.input_fc_mem
         self.input_fc_nulls = 'in_memory/input_fc_nulls'
-        self.output_name = os.path.join(fgdb.dir_path, 'to_genalex.csv')
+        self.output_csv_name = os.path.join(fgdb.dir_path, 'to_genalex.csv')
+        self.output_xls_name = os.path.join(fgdb.dir_path, 'to_genalex.xls')
 
-    def testExportToGenAlExAvailable(self, method=ExportToGenAlEx):
-        self.assertIn('main', vars(method))
-
-    def testExportToGenAlExRun(self, method=ExportToGenAlEx):
-
-        desc = arcpy.Describe(self.input_fc)
-        self.assertEqual(desc.dataType, 'FeatureClass')
-
-        # update the data to set the first two values to NULL to test that 
-        # NULLs are encoded correctly by GenAlEx (i.e. treated as 0).
+    def createFeatureWithNulls(self):
+        """Update the data to set the first two values to NULL to test that 
+         NULLs are encoded correctly by GenAlEx (i.e. treated as 0)."""
         arcpy.CopyFeatures_management(self.input_fc, self.input_fc_nulls)
         fields = ['Sample_ID', 'L_rw4_10_1', 'L_rw4_10_2']
         with arcpy.da.UpdateCursor(self.input_fc_nulls, fields, "Sample_ID = 3") as cursor:
@@ -694,17 +689,27 @@ class TestExportToGenAlEx(unittest.TestCase):
             row[2] = None
             cursor.updateRow(row)
 
+    def testExportToGenAlExAvailable(self, method=ExportToGenAlEx):
+        self.assertIn('main', vars(method))
+
+    def testExportToGenAlExRunExportCsv(self, method=ExportToGenAlEx):
+
+        desc = arcpy.Describe(self.input_fc)
+        self.assertEqual(desc.dataType, 'FeatureClass')
+
+        self.createFeatureWithNulls()
         parameters = {
             'input_features': self.input_fc_nulls,
             'id_field': 'Individual_ID',
             'order_by': 'Region',
-            'output_name': self.output_name,
+            'output_name': self.output_csv_name,
+            'format_type': 'CSV'
         }
 
         method.main(mode='script', **parameters)
-        self.assertTrue(os.path.exists(self.output_name))
+        self.assertTrue(os.path.exists(self.output_csv_name))
 
-        with open(self.output_name, 'r') as f:
+        with open(self.output_csv_name, 'r') as f:
             csv_in = csv.reader(f, dialect='excel', quotechar='"', quoting=csv.QUOTE_ALL)
 
             # size row: # loci, # samp, # pops, sz pop1, sz pop2, sz pop 3, sz pop4
@@ -724,6 +729,54 @@ class TestExportToGenAlEx(unittest.TestCase):
             self.assertEqual(csv_in.next(), ['102', 'Cent America', '207', '221',
                 '194', '198', '161', '163', '0', '0', '', '8.708', '-83.7341',
                 '3', '2004-01-23T10:31:00', 'U', '0', '2004-01-23 10:31:00'])
+
+    def testExportToGenAlExRunExportExcel(self, method=ExportToGenAlEx):
+
+        desc = arcpy.Describe(self.input_fc)
+        self.assertEqual(desc.dataType, 'FeatureClass')
+
+        self.createFeatureWithNulls()
+        parameters = {
+            'input_features': self.input_fc_nulls,
+            'id_field': 'Individual_ID',
+            'order_by': 'Region',
+            'output_name': self.output_xls_name
+        }
+
+        method.main(mode='script', **parameters)
+        self.assertTrue(os.path.exists(self.output_xls_name))
+
+        with xlrd.open_workbook(self.output_xls_name) as workbook:
+            # codominant sheet
+            codo_ws = workbook.sheet_by_name('Codominant')
+            self.assertEqual(repr(type(codo_ws)), "<class 'xlrd.sheet.Sheet'>")
+
+            # size row: # loci, # samp, # pops, sz pop1, sz pop2, sz pop 3, sz pop4
+            self.assertEqual(map(int, codo_ws.row_values(0, 0, 7)), [4,17,4,7,2,5,3])
+            # regions
+            self.assertEqual(codo_ws.row_values(1, 0, 7), ['','','','Cent America', 'CA_OR', 'Mexico AR', 'Mexico Main'])
+            # header
+            self.assertEqual(codo_ws.row_values(2), ['Individual_ID', 'Region', 'GATA417',
+                '', 'Ev37', '', 'Ev96', '', 'rw4_10', '', '', 'Latitude', 'Longitude',
+                'Sample_ID', 'Date_Time', 'Sex', 'Haplotype', 'Date_formatted']) 
+
+            # the values for the rw4_10 haplotype should both be '0', which is
+            # how GenAlEx handles NULL values.
+            self.assertEqual(codo_ws.row_values(5), [102., u'Cent America', 207., 221.,
+                194., 198., 161., 163., 0., 0., '', 8.708, -83.7341,
+                3., u'2004-01-23T10:31:00', u'U', 0.0, 38009.43819444445])
+
+            # haplotype sheet
+            hap_ws = workbook.sheet_by_name('Haplotype')
+            self.assertEqual(repr(type(hap_ws)), "<class 'xlrd.sheet.Sheet'>")
+            # size row: # loci, # samp, # pops, sz pop1, sz pop2, sz pop 3, sz pop4
+            self.assertEqual(map(int, hap_ws.row_values(0, 0, 7)), [1,17,4,7,2,5,3])
+            # regions
+            self.assertEqual(hap_ws.row_values(1, 0, 7), ['','','','Cent America', 'CA_OR', 'Mexico AR', 'Mexico Main'])
+            # header
+            self.assertEqual(hap_ws.row_values(2, 0, 3), ['Individual_ID', 'Region', 'Haplotype'])
+            # a data row
+            self.assertEqual(hap_ws.row_values(4, 0, 3), [101., u'Cent America', 4.])
 
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)

@@ -37,7 +37,9 @@
 # --------------------------------------------------------------------------
 
 import arcpy
+import copy
 import csv
+import json
 import os
 import re
 import sys
@@ -51,7 +53,7 @@ import config
 settings = config.settings()
 
 def main(input_features=None, id_field=None, where_clause='', order_by=None,
-        output_name=None, mode='toolbox'):
+        output_name=None, format_type='Excel', mode='toolbox'):
 
     # try to set the id based on input, otherwise go off of the config.
     if id_field is not None:
@@ -89,14 +91,51 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
     # == order_by
 
     try:
-        # Create and open the text file to which the data will be written
+        # test opening the file to which the data will be written
         output_file = open(output_name, "wb")
     except Exception as e:
-        utils.msg("Unable to open text file", mtype='error', exception=e)
+        utils.msg("Unable to open output file", mtype='error', exception=e)
+        sys.exit()
 
-    # create a CSV writer
-    writer = csv.writer(output_file, dialect='excel',
-            quotechar='"', quoting=csv.QUOTE_ALL)
+    # initialize our haplotypes data
+    haplotypes = utils.Haplotype(input_features)
+
+    # set up the environment depending on the output format
+    if format_type == 'Excel':
+        # xlwt will write directly; only opened to make sure we can write to the location
+        output_file.close()
+        try:
+            import xlwt
+        except ImportError as e:
+            msg = "Writing Excel Spreadsheets requires the `xlwt` library, which is" + \
+                    " included in ArcGIS 10.2+. If you'd like Excel support in " + \
+                    " ArcGIS 10.1, please install `xlwt` manually from PyPI: " +  \
+                    "   https://pypi.python.org/pypi/xlwt/0.7.3."
+            utils.msg(msg, mtype='error', exception=e)
+            sys.exit() 
+
+        # only replace Nones, keep numeric types
+        from utils import xrep as xstr
+        from utils import zrep as zstr
+
+        # initialize our spreadsheet
+        workbook = xlwt.Workbook()
+
+        # codominant data
+        worksheet_co = workbook.add_sheet('Codominant')
+
+        if haplotypes.defined:
+            worksheet_hap = workbook.add_sheet('Haplotype')
+            utils.msg("Creating haplotype sheet, using mapping: {}".format(
+                json.dumps(haplotypes.lookup, indent=4)))
+    else:
+        # convert all strings to text
+        from utils import zstr as zstr
+        from utils import xstr as xstr
+
+    # list of lists to emulate the Excel sheet
+    output_rows = []
+    haplotype_rows = []
 
     utils.msg("Output file open and ready for data input")
 
@@ -138,12 +177,18 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
         else:
             pops[pop] = 1
 
-    pop_counts = [utils.xstr(p) for p in pops.values()]
+    pop_counts = [xstr(p) for p in pops.values()]
+   
     # Creating the GenAlEx header information required for the text file.
-    writer.writerow([loci.count, row_count, len(pops.keys())] +  pop_counts)
+    output_rows += [[loci.count, row_count, len(pops.keys())] + pop_counts]
 
     # optional title, then a list of each population
-    writer.writerow(['', '', ''] + pops.keys())
+    output_rows += [['', '', ''] + pops.keys()]
+
+    # first two rows almost exactly the same
+    haplotype_rows = copy.deepcopy(output_rows)
+    # 'number of loci' should be 1 for haplotype-only data
+    haplotype_rows[0][0] = 1
 
     loci_labels = []
     for (key, cols) in loci.fields.items():
@@ -171,8 +216,10 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
     # columns not otherwise mapped.
     extra_columns = ['', loc_a, loc_b] + unselected_columns
 
-    writer.writerow([primary_id, order_by] + loci_labels + extra_columns)
-    utils.msg("Header info written to text file")
+    output_rows += [[primary_id, order_by] + loci_labels + extra_columns]
+    if haplotypes.defined:
+        haplotype_rows += [[primary_id, order_by, haplotypes.column]]
+    utils.msg("Header info written to output")
 
     # Note the WhereClause: Because the SPLASH data has both photo-id and genetic
     # records, but GenAlEx only uses genetic data, the WhereClause is used to ensure
@@ -192,7 +239,36 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
                 col_pos = selected_columns.index(col)
                 result_row.append(row[col_pos])
         result_row = result_row + ["", loc_a_val, loc_b_val] + unselected_rows
-        writer.writerow([utils.zstr(s) for s in result_row])
+        output_rows += [[zstr(s) for s in result_row]]
+        if haplotypes.defined:
+            row_val = row[selected_columns.index(haplotypes.column)]
+            if row_val:
+                haplotype_val = haplotypes.lookup[row_val]
+            else:
+                haplotype_val = 0
+            haplotype_res = [id_field, pop, haplotype_val]
+            haplotype_rows += [[zstr(s) for s in haplotype_res]]
+
+    # depending on our driver, handle writing dependent on type
+    if format_type == 'Excel':
+        # the codominant data
+        for (i, row) in enumerate(output_rows):
+            for (j, val) in enumerate(row):
+                worksheet_co.write(i, j, val)
+
+        if haplotypes.defined:
+            for (i, row) in enumerate(haplotype_rows):
+                for (j, val) in enumerate(row):
+                    worksheet_hap.write(i, j, val)
+
+        workbook.save(output_name)            
+    else:
+        # create a CSV writer
+        writer = csv.writer(output_file, dialect='excel',
+                quotechar='"', quoting=csv.QUOTE_ALL)
+        for row in output_rows:
+            writer.writerow(row)
+
     utils.msg("Exported results saved to %s." % output_name)
     # Close Output text file
     output_file.close()
@@ -210,7 +286,7 @@ if __name__ == '__main__':
         ('id_field', 'Individual_ID'),
         ('where_clause', "'Individual_ID' <> ''"),
         ('order_by', 'Region'),
-        ('output_name',  "GenAlEx_Codominant_Export.csv")
+        ('output_name',  "GenAlEx_Export.xls")
     )
     defaults = utils.parameters_from_args(defaults_tuple, sys.argv)
     main(mode='script', **defaults)

@@ -842,9 +842,9 @@ class SpagediFst(object):
 class ExportGenAlEx(object):
 
     def __init__(self):
-        self.label = u'Export to GenAlex_CodominantData'
-        self.description = u'This tool allows the user to export data to a ' \
-                + 'comma-separated text file that follows the required input' \
+        self.label = u'Export to GenAlex'
+        self.description = u'This tool allows the user to export data to an ' \
+                + ' Excel Spreadsheet that follows the required input' \
                 + ' format for GenAlEx (Peakall and Smouse 2006), a Microsoft' \
                 + ' Excel Add-In.\r\n\r\nGenAlEx is available from:\r\n\r\n' \
                 + 'http://www.anu.edu.au/BoZo/GenAlEx/\r\n'
@@ -912,8 +912,8 @@ class ExportGenAlEx(object):
         id_field = parameters[self.cols['id_field']]
         output_name = parameters[self.cols['output_name']]
 
-        # force the file extension to be .csv
-        output_name.value = utils.set_file_extension(output_name, 'csv')
+        # force the file extension to be .xls
+        output_name.value = utils.set_file_extension(output_name, 'xls')
 
         # if we have a feature class, update the possible 'ID' columns.
         if input_features.valueAsText is not None:
@@ -947,7 +947,7 @@ class ExportGenAlEx(object):
             where_clause=parameters[2].valueAsText,
             order_by=parameters[3].valueAsText,
             output_name=parameters[4].valueAsText)
-        arcpy.env.addOutputsToMap  = add_output
+        arcpy.env.addOutputsToMap = add_output
 
 class ExportGenepop(object):
 
