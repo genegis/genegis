@@ -216,11 +216,8 @@ def formatDate(input_date):
         dts = {'names': ('code', 'haplotype', 'count'),
                        'formats': (numpy.uint16, 'S6', numpy.uint8)}
 
-        # numpy takes a list of lists, convert our iterator
-        indexed = [list(r) for r in haplotypes.indexed]
-
         # create a numpy formatted structure from this data
-        array = numpy.rec.fromrecords(indexed, dtype=dts)
+        array = numpy.rec.fromrecords(haplotypes.indexed, dtype=dts)
 
         # output the new table
         arcpy.da.NumPyArrayToTable(array, haplotype_table)

@@ -121,7 +121,7 @@ class Haplotype(object):
         counts = [counter[col] for col in sorted_cols]
 
         # 1: A+, 2: E1, ...
-        return itertools.izip(itertools.count(1), sorted_cols, counts)
+        return zip(itertools.count(1), sorted_cols, counts)
 
 class MissingCSVHeader(Exception):
     def __init__(self, csv):
