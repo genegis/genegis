@@ -358,16 +358,24 @@ def add_file_extension(input_name, expected_ext):
     return os.path.join(os.path.dirname(input_name), name_with_ext)
 
 def xstr(s):
+    """ String with None values replaced with empty strings."""
+    return str(xrep(s))
+
+def zstr(s):
+    """ String with None values replaced with zeros."""
+    return str(zrep(s))
+
+def xrep(s):
     """ Replace None values with empty strings."""
     if s is None:
         return ''
-    return str(s)
+    return s
 
-def zstr(s):
+def zrep(s):
     """ Replace None values with zeros."""
     if s is None:
-        return '0'
-    return str(s)
+        return 0
+    return s
 
 # FIXME: duplicated from Install\utils.py
 def currentLayers():
