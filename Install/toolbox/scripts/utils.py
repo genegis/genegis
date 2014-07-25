@@ -80,6 +80,7 @@ class Haplotype(object):
         self.counter = self.haplotype_data(input_features)
         self.names = self.haplotype_names()
         self.indexed = self.haplotype_indexed()
+        self.lookup = self.haplotype_lookup()
 
     def haplotype_column(self, input_features):
         """ The column name containin the haplotype data."""
@@ -122,6 +123,13 @@ class Haplotype(object):
 
         # 1: A+, 2: E1, ...
         return zip(itertools.count(1), sorted_cols, counts)
+
+    def haplotype_lookup(self):
+        """ Map haplotype keys to their indexed values..."""
+        lookup = collections.OrderedDict()
+        for k, v, c in self.indexed:
+            lookup[str(v)] = k
+        return lookup
 
 class MissingCSVHeader(Exception):
     def __init__(self, csv):
