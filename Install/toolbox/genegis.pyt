@@ -49,7 +49,7 @@ def selected_layer():
     return selected_layer
 
 # Get rid of problematical tags for revision control. This hack is only
-# necessary when development is happening on 10.2.0 or earlier, 
+# necessary when development is happening on 10.2.0 or earlier,
 # I reported an issue for it (NIM093098) which was resolved in 10.2.1.
 def metadata(update=True):
     if not update:
@@ -114,8 +114,8 @@ class ClassifiedImport(object):
             'Location': 7,
             'Other': 8
         }
-        # One of the tools needs to have the metadata deletion call included in it. 
-        # If it's done elsewhere in the script, the script state isn't correct and 
+        # One of the tools needs to have the metadata deletion call included in it.
+        # If it's done elsewhere in the script, the script state isn't correct and
         # the ModTime and ModDate fields will remain.
         #metadata(update=False)
 
@@ -292,7 +292,7 @@ class ClassifiedImport(object):
                                     log_f.write("  it's a string: {}\n".format(
                                         data_type))
                                     forced_type = data_type
-                                else: 
+                                else:
                                     # if we have multiple values in the data type,
                                     # examine the data to determine which'd be best.
                                     preferred_type = data_type[0]
@@ -375,7 +375,7 @@ class ClassifiedImport(object):
             location=parameters[7].valueAsText,
             other=parameters[8].valueAsText,
             protected_map=config.protected_columns)
-        
+
         # load the layer into the map
         addin_utils.loadDefaultLayer()
         return
@@ -395,7 +395,7 @@ class SetKey(object):
         }
 
     def getParameterInfo(self):
-        
+
         # Output Feature Class
         input_features = arcpy.Parameter()
         input_features.name = u'Data_Layer'
@@ -465,12 +465,12 @@ class SetKey(object):
                 log.write("SetKey: input_features: {}, id_field: {}, overwrite: {}.\n".format(
                         input_features.valueAsText, id_field.valueAsText, \
                         overwrite.valueAsText))
-                
+
                 id_vals = []
                 for field in [f.name for f in arcpy.ListFields(input_features.valueAsText)]:
                     if re.search('_id$', field, re.IGNORECASE) or \
                             field in settings.identification_columns:
-                        id_vals.append(field) 
+                        id_vals.append(field)
 
                 id_field.filter.list = id_vals
                 if not id_field.altered:
@@ -702,7 +702,7 @@ class DistanceMatrix(object):
 
     def execute(self, parameters, messages):
         from scripts import DistanceMatrix
-        
+
         if parameters[2].valueAsText == 'Square (SPAGeDi formatted)':
             matrix_type = 'spagedi'
         else:
@@ -867,7 +867,7 @@ class ExportGenAlEx(object):
         except ImportError:
             pass
         return has_xlwt
-             
+
     def getParameterInfo(self):
         # Input_Feature_Class
         input_features = arcpy.Parameter()
@@ -934,12 +934,12 @@ class ExportGenAlEx(object):
             with open(config.log_path, 'a') as log:
                 log.write("ExportToGenAlEx: input_features: {}, id_field: {}.".format(
                         input_features.valueAsText, id_field.valueAsText))
-                
+
                 id_vals = []
                 for field in [f.name for f in arcpy.ListFields(input_features.valueAsText)]:
                     if re.search('_id$', field, re.IGNORECASE) or \
                             field in settings.identification_columns:
-                        id_vals.append(field) 
+                        id_vals.append(field)
 
                 id_field.filter.list = id_vals
                 if settings.id_field in id_vals and not id_field.altered:
@@ -956,7 +956,7 @@ class ExportGenAlEx(object):
             format_type = 'Excel'
         else:
             format_type = 'CSV'
-            
+
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters:
         add_output = arcpy.env.addOutputsToMap
@@ -1050,12 +1050,12 @@ class ExportGenepop(object):
             with open(config.log_path, 'a') as log:
                 log.write("ExportToGenepop: input_features: {}, id_field: {}.".format(
                         input_features.valueAsText, id_field.valueAsText))
-                
+
                 id_vals = []
                 for field in [f.name for f in arcpy.ListFields(input_features.valueAsText)]:
                     if re.search('_id$', field, re.IGNORECASE) or \
                             field in settings.identification_columns:
-                        id_vals.append(field) 
+                        id_vals.append(field)
 
                 id_field.filter.list = id_vals
                 if settings.id_field in id_vals and not id_field.altered:
@@ -1079,7 +1079,7 @@ class ExportGenepop(object):
             order_by=parameters[3].valueAsText,
             output_name=parameters[4].valueAsText)
         arcpy.env.addOutputsToMap  = add_output
-    
+
 class ExportSpagedi(object):
 
     def __init__(self):
@@ -1233,17 +1233,17 @@ class ExportAllelesInSpace(object):
             with open(config.log_path, 'a') as log:
                 log.write("ExportToAIS: input_features: {}, id_field: {}.".format(
                         input_features.valueAsText, id_field.valueAsText))
-                
+
                 id_vals = []
                 for field in [f.name for f in arcpy.ListFields(input_features.valueAsText)]:
                     if re.search('_id$', field, re.IGNORECASE) or \
                             field in settings.identification_columns:
-                        id_vals.append(field) 
+                        id_vals.append(field)
 
                 id_field.filter.list = id_vals
                 if settings.id_field in id_vals and not id_field.altered:
                     id_field.value = settings.id_field
- 
+
         return
 
     def updateMessages(self, parameters):
@@ -1488,7 +1488,7 @@ class MakeIndividualPaths(object):
                 desc = arcpy.Describe(source_fc.value)
                 # path is set, regardless if this is a layer or a fully specified path
                 input_fc_path = desc.path
-                if input_fc_path is not None: 
+                if input_fc_path is not None:
                     output_name.value = os.path.join(input_fc_path, "Paths")
 
         # if we have a feature class, update the possible 'ID' columns.
@@ -1497,7 +1497,7 @@ class MakeIndividualPaths(object):
             for field in [f.name for f in arcpy.ListFields(input_fc.valueAsText)]:
                 if re.search('_id$', field, re.IGNORECASE) or \
                         field in settings.identification_columns:
-                    id_vals.append(field) 
+                    id_vals.append(field)
 
             id_field.filter.list = id_vals
             if settings.id_field in id_vals:
