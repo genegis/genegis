@@ -1269,90 +1269,77 @@ class SelectDataByAttributes(object):
 
     def getParameterInfo(self):
         # Input_Feature_Class
-        param_1 = arcpy.Parameter()
-        param_1.name = u'Input_Feature_Class'
-        param_1.displayName = u'Input Feature Class'
-        param_1.parameterType = 'Required'
-        param_1.direction = 'Input'
-        param_1.datatype = dt.format('Feature Layer')
+        input_fc = arcpy.Parameter()
+        input_fc.name = u'Input_Feature_Class'
+        input_fc.displayName = u'Input Feature Class'
+        input_fc.parameterType = 'Required'
+        input_fc.direction = 'Input'
+        input_fc.datatype = dt.format('Feature Layer')
 
         # Selection_Type
-        param_2 = arcpy.Parameter()
-        param_2.name = u'Selection_Type'
-        param_2.displayName = u'Selection Type'
-        param_2.parameterType = 'Required'
-        param_2.direction = 'Input'
-        param_2.datatype = dt.format('String')
-        param_2.filter.list = [u'NEW_SELECTION']
+        selection_1 = arcpy.Parameter()
+        selection_1.name = u'Selection_Type'
+        selection_1.displayName = u'Selection Type'
+        selection_1.parameterType = 'Required'
+        selection_1.direction = 'Input'
+        selection_1.datatype = dt.format('String')
+        selection_1.filter.list = [u'NEW_SELECTION']
 
         # SQL_Expression
-        param_3 = arcpy.Parameter()
-        param_3.name = u'SQL_Expression'
-        param_3.displayName = u'SQL Expression'
-        param_3.parameterType = 'Required'
-        param_3.direction = 'Input'
-        param_3.datatype = dt.format('SQL Expression')
+        expression_1 = arcpy.Parameter()
+        expression_1.name = u'SQL_Expression'
+        expression_1.displayName = u'SQL Expression'
+        expression_1.parameterType = 'Required'
+        expression_1.direction = 'Input'
+        expression_1.datatype = dt.format('SQL Expression')
+        expression_1.parameterDependencies = [input_fc.name]
 
         # Selection_Type_2
-        param_4 = arcpy.Parameter()
-        param_4.name = u'Selection_Type_2'
-        param_4.displayName = u'Selection Type 2'
-        param_4.parameterType = 'Optional'
-        param_4.direction = 'Input'
-        param_4.datatype = dt.format('String')
-        param_4.filter.list = [u'ADD_TO_SELECTION', u'SUBSET_SELECTION']
+        selection_2 = arcpy.Parameter()
+        selection_2.name = u'Selection_Type_2'
+        selection_2.displayName = u'Selection Type 2'
+        selection_2.parameterType = 'Optional'
+        selection_2.direction = 'Input'
+        selection_2.datatype = dt.format('String')
+        selection_2.filter.list = [u'ADD_TO_SELECTION', u'SUBSET_SELECTION']
 
         # SQL_Expression_2
-        param_5 = arcpy.Parameter()
-        param_5.name = u'SQL_Expression_2'
-        param_5.displayName = u'SQL Expression 2'
-        param_5.parameterType = 'Optional'
-        param_5.direction = 'Input'
-        param_5.datatype = dt.format('SQL Expression')
+        expression_2= arcpy.Parameter()
+        expression_2.name = u'SQL_Expression_2'
+        expression_2.displayName = u'SQL Expression 2'
+        expression_2.parameterType = 'Optional'
+        expression_2.direction = 'Input'
+        expression_2.datatype = dt.format('SQL Expression')
+        expression_2.parameterDependencies = [input_fc.name]
 
         # Selection_Type_3
-        param_6 = arcpy.Parameter()
-        param_6.name = u'Selection_Type_3'
-        param_6.displayName = u'Selection Type 3'
-        param_6.parameterType = 'Optional'
-        param_6.direction = 'Input'
-        param_6.datatype = dt.format('String')
-        param_6.filter.list = [u'ADD_TO_SELECTION', u'SUBSET_SELECTION']
+        selection_3 = arcpy.Parameter()
+        selection_3.name = u'Selection_Type_3'
+        selection_3.displayName = u'Selection Type 3'
+        selection_3.parameterType = 'Optional'
+        selection_3.direction = 'Input'
+        selection_3.datatype = dt.format('String')
+        selection_3.filter.list = [u'ADD_TO_SELECTION', u'SUBSET_SELECTION']
 
         # SQL_Expression_3
-        param_7 = arcpy.Parameter()
-        param_7.name = u'SQL_Expression_3'
-        param_7.displayName = u'SQL Expression 3'
-        param_7.parameterType = 'Optional'
-        param_7.direction = 'Input'
-        param_7.datatype = dt.format('SQL Expression')
+        expression_3 = arcpy.Parameter()
+        expression_3.name = u'SQL_Expression_3'
+        expression_3.displayName = u'SQL Expression 3'
+        expression_3.parameterType = 'Optional'
+        expression_3.direction = 'Input'
+        expression_3.datatype = dt.format('SQL Expression')
+        expression_3.parameterDependencies = [input_fc.name]
 
-        # Output_Feature_Class_Location
-        param_8 = arcpy.Parameter()
-        param_8.name = u'Output_Feature_Class_Location'
-        param_8.displayName = u'Output Feature Class Location'
-        param_8.parameterType = 'Required'
-        param_8.direction = 'Input'
-        param_8.datatype = dt.format('Workspace')
+        # Output Feature Class
+        output_fc = arcpy.Parameter()
+        output_fc.name = u'Output_Feature_Class'
+        output_fc.displayName = u'Output Feature Class'
+        output_fc.direction = 'Output'
+        output_fc.parameterType = 'Required'
+        output_fc.datatype = dt.format('Feature Layer')
 
-        # Output_Feature_Class_Name
-        param_9 = arcpy.Parameter()
-        param_9.name = u'Output_Feature_Class_Name'
-        param_9.displayName = u'Output Feature Class Name'
-        param_9.parameterType = 'Required'
-        param_9.direction = 'Input'
-        param_9.datatype = dt.format('String')
-
-        # Log_File_Location
-        param_10 = arcpy.Parameter()
-        param_10.name = u'Log_File_Location'
-        param_10.displayName = u'Log File Location'
-        param_10.parameterType = 'Required'
-        param_10.direction = 'Input'
-        param_10.datatype = dt.format('Folder')
-
-        return [param_1, param_2, param_3, param_4, param_5, param_6, \
-                param_7, param_8, param_9, param_10]
+        return [input_fc, selection_1, expression_1, selection_2, expression_2, \
+                selection_3, expression_3, output_fc]
 
     def isLicensed(self):
         return True
