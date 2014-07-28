@@ -109,7 +109,7 @@ def main(input_features=None, id_field=None, where_clause='', order_by=None,
             msg = "Writing Excel Spreadsheets requires the `xlwt` library, which is" + \
                     " included in ArcGIS 10.2+. If you'd like Excel support in " + \
                     " ArcGIS 10.1, please install `xlwt` manually from PyPI: " +  \
-                    "   https://pypi.python.org/pypi/xlwt/0.7.3."
+                    "   https://pypi.python.org/pypi/xlwt/0.7.3"
             utils.msg(msg, mtype='error', exception=e)
             sys.exit() 
 

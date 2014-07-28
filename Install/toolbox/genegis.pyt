@@ -857,7 +857,17 @@ class ExportGenAlEx(object):
             'order_by' : 3,
             'output_name': 4
         }
+        self.excel_enabled = self.has_xlwt()
 
+    def has_xlwt(self):
+        has_xlwt = False
+        try:
+            import xlwt
+            has_xlwt = True
+        except ImportError:
+            pass
+        return has_xlwt
+             
     def getParameterInfo(self):
         # Input_Feature_Class
         input_features = arcpy.Parameter()
@@ -913,7 +923,11 @@ class ExportGenAlEx(object):
         output_name = parameters[self.cols['output_name']]
 
         # force the file extension to be .xls
-        output_name.value = utils.set_file_extension(output_name, 'xls')
+        if self.excel_enabled:
+            extension = 'xls'
+        else:
+            extension = 'csv'
+        output_name.value = utils.set_file_extension(output_name, extension)
 
         # if we have a feature class, update the possible 'ID' columns.
         if input_features.valueAsText is not None:
@@ -937,16 +951,23 @@ class ExportGenAlEx(object):
 
     def execute(self, parameters, messages):
         from scripts import ExportToGenAlEx
+
+        if self.excel_enabled:
+            format_type = 'Excel'
+        else:
+            format_type = 'CSV'
+            
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters:
         add_output = arcpy.env.addOutputsToMap
-        arcpy.env.addOutputsToMap  = False
+        arcpy.env.addOutputsToMap = False
         ExportToGenAlEx.main(
             input_features=parameters[0].valueAsText,
             id_field=parameters[1].valueAsText,
             where_clause=parameters[2].valueAsText,
             order_by=parameters[3].valueAsText,
-            output_name=parameters[4].valueAsText)
+            output_name=parameters[4].valueAsText,
+            format_type=format_type)
         arcpy.env.addOutputsToMap = add_output
 
 class ExportGenepop(object):
