@@ -5,9 +5,9 @@
 		<CreaTime>21515900</CreaTime>
 		<ArcGISFormat>1.0</ArcGISFormat>
 		<SyncOnce>TRUE</SyncOnce>
-		<ModDate>20140623</ModDate><ModTime>215123</ModTime></Esri>
+		<ModDate>20140728</ModDate><ModTime>112559</ModTime></Esri>
 	<toolbox alias="genegis" name="genegis">
-		<arcToolboxHelpPath>c:\apps\arcgis\desktop10.2\Help\gp</arcToolboxHelpPath>
+		<arcToolboxHelpPath>c:\apps\arcgis\desktop10.3\Help\gp</arcToolboxHelpPath>
 		<toolsets/>
 	</toolbox>
 	<dataIdInfo>

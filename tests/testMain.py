@@ -22,7 +22,7 @@ utils.addLocalPaths(import_paths)
 from tempdir import TempDir
 from scripts import ClassifiedImport, DistanceMatrix, ShortestDistancePaths, \
         ExtractRasterValuesToPoints, ExportToGenAlEx, ExportToSRGD, ExportToAIS, \
-        ExportToGenepop, IndividualPaths, utils as script_utils
+        ExportToGenepop, IndividualPaths, SelectByAttributes, utils as script_utils
 
 # A GDB for our test results
 class CoreFGDB(object):
@@ -527,6 +527,45 @@ class TestIndividualPaths(unittest.TestCase):
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
         self.assertTrue('MakeIndividualPaths' in vars(self.toolbox))
+
+class TestSelectByAttributes(unittest.TestCase):
+    """Select By Attributes -- subselect an existing dataset by attributes."""
+
+    def setUp(self):
+        self.input_fc = fgdb.input_fc_mem
+        self.output_fc = os.path.join(fgdb.path, 'Test_SelectByAttributes')
+
+    def testSelectByAttributesAvailable(self, method=SelectByAttributes):
+        self.assertTrue('main' in vars(method))
+
+    def testSelectByAttributesRun(self, method=SelectByAttributes):
+        parameters = {
+            'input_fc': self.input_fc,
+            'selection_1': 'NEW_SELECTION',
+            'expression_1': "\"Sex\" = 'F'",
+            'output_fc': self.output_fc
+        }
+        method.main(mode='script', **parameters)
+
+        self.assertTrue(arcpy.Exists(self.output_fc))
+
+        # test that a sample value matches expected values
+        output_columns = [f.name for f in arcpy.ListFields(self.output_fc)]
+        fields = ['Sample_ID', 'Sex']
+        samples = [8, 11, 15]
+
+        with arcpy.da.SearchCursor(self.output_fc, fields) as cursor:
+            for (i, row) in enumerate(cursor):
+                (sid, sex) = row
+                self.assertEqual(sid, samples[i])
+                self.assertEqual(sex, 'F')
+
+        arcpy.Delete_management(self.output_fc)
+        self.assertFalse(arcpy.Exists(self.output_fc))
+
+    def testToolboxImport(self):
+        self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
+        self.assertTrue('SelectDataByAttributes' in vars(self.toolbox))
 
 
 class TestExtractRasterValuesToPoints(unittest.TestCase):

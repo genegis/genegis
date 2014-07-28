@@ -1284,6 +1284,7 @@ class SelectDataByAttributes(object):
         selection_1.direction = 'Input'
         selection_1.datatype = dt.format('String')
         selection_1.filter.list = [u'NEW_SELECTION']
+        selection_1.value = u'NEW_SELECTION'
 
         # SQL_Expression
         expression_1 = arcpy.Parameter()
@@ -1355,10 +1356,14 @@ class SelectDataByAttributes(object):
         # if the script is running within ArcGIS as a tool, get the following
         # user defined parameters:
         SelectByAttributes.main(
-            xx=parameters[0].valueAsText,
-            yy=parameters[1].valueAsText,
-            zz=parameters[2].valueAsText,
-            aa=parameters[3].valueAsText)
+            input_fc=parameters[0].valueAsText,
+            selection_1=parameters[1].valueAsText,
+            expression_1=parameters[2].valueAsText,
+            selection_2=parameters[3].valueAsText,
+            expression_2=parameters[4].valueAsText,
+            selection_3=parameters[5].valueAsText,
+            expression_3=parameters[6].valueAsText,
+            output_fc=parameters[7].valueAsText)
 
 class ExportSRGD(object):
     def __init__(self):
