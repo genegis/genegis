@@ -1477,7 +1477,7 @@ class MakeIndividualPaths(object):
         output_name = parameters[self.cols['output_name']]
         if input_fc.altered:
             if output_name.altered is False:
-                desc = arcpy.Describe(source_fc.value)
+                desc = arcpy.Describe(input_fc.value)
                 # path is set, regardless if this is a layer or a fully specified path
                 input_fc_path = desc.path
                 if input_fc_path is not None:
