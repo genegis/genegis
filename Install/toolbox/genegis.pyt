@@ -842,7 +842,7 @@ class SpagediFst(object):
 class ExportGenAlEx(object):
 
     def __init__(self):
-        self.label = u'Export to GenAlex'
+        self.label = u'Export to GenAlEx'
         self.description = u'This tool allows the user to export data to an ' \
                 + ' Excel Spreadsheet that follows the required input' \
                 + ' format for GenAlEx (Peakall and Smouse 2006), a Microsoft' \
