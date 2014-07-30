@@ -118,7 +118,7 @@ class individualPaths(object):
         self.enabled = True
         self.checked = False
     def onClick(self):
-        utils.toolDialog(genegis_toolbox, "MakeIndividualPaths")
+        utils.toolDialog(genegis_toolbox, "IndividualPaths")
 # help
 #
 

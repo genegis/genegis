@@ -526,7 +526,7 @@ class TestIndividualPaths(unittest.TestCase):
 
     def testToolboxImport(self):
         self.toolbox = arcpy.ImportToolbox(consts.pyt_file)
-        self.assertTrue('MakeIndividualPaths' in vars(self.toolbox))
+        self.assertTrue('IndividualPaths' in vars(self.toolbox))
 
 class TestSelectByAttributes(unittest.TestCase):
     """Select By Attributes -- subselect an existing dataset by attributes."""

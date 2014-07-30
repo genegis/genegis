@@ -80,7 +80,7 @@ class Toolbox(object):
             ExtractRasterByPoints, # extract values at point locations
             DistanceMatrix,
             ShortestDistancePaths,
-            MakeIndividualPaths,
+            IndividualPaths,
             # Genetic Analysis
             SpagediFst,
             # Export routines; get our data elsewhere
@@ -1419,7 +1419,7 @@ class ExportSRGD(object):
             output_csv=parameters[1].valueAsText)
         arcpy.env.addOutputsToMap = add_output
 
-class MakeIndividualPaths(object):
+class IndividualPaths(object):
     def __init__(self):
         self.label = u'Individual Paths'
         self.description = u'Connect all Encounters for each Individual'
