@@ -54,6 +54,9 @@ settings = config.settings()
 def main(input_features=None, id_field=None, where_clause='', order_by=None,
         output_name=None, format_type='Excel', mode='toolbox'):
 
+    script_path = os.path.abspath(__file__)
+    utils.msg("Executing {}...".format(script_path))
+
     # try to set the id based on input, otherwise go off of the config.
     if id_field is not None:
         primary_id = id_field
