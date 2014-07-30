@@ -47,6 +47,9 @@ def main(input_fc=None, where_clause=None, id_field=None, output_name=None, mode
     has_m = 'DISABLED'
     has_z = 'DISABLED'
 
+    utils.msg("Creating output feature class (base: {}, name: {})".format(
+        out_path, out_name))
+
     # create the new FeatureClass
     layer = arcpy.CreateFeatureclass_management(out_path, out_name,
             geometry_type, template, has_m, has_z, sr)

@@ -1506,4 +1506,4 @@ class IndividualPaths(object):
             input_fc=parameters[0].valueAsText,
             where_clause=parameters[1].valueAsText,
             id_field=parameters[2].valueAsText,
-            output_name=parameters[2].valueAsText)
+            output_name=parameters[3].valueAsText)
