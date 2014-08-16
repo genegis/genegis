@@ -103,7 +103,7 @@ def main(input_fc=None, where_clause=None, id_field=None, output_name=None, mode
                 #dist, elapsed = utils.calc_distance(segment, from_date, to_date)
                 dist = segment.getLength("GEODESIC")/1000.0
                 delta = to_date - from_date
-                elapsed = (delta.days)+(delta.seconds/3600.0)
+                elapsed = (delta.days*24)+(delta.seconds/3600.0)
                 # add path to feature class
                 ins_cursor.insertRow([segment, from_id, to_id, from_date, to_date,
                                       individual, dist, elapsed])
